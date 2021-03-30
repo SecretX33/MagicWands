@@ -1,37 +1,54 @@
 package com.github.secretx33.magicwands.eventlisteners
 
-import com.github.secretx33.magicwands.config.MessageKeys
-import com.github.secretx33.magicwands.config.Messages
+import com.github.secretx33.magicwands.events.BlockSpellCastEvent
+import com.github.secretx33.magicwands.events.EntitySpellCastEvent
 import com.github.secretx33.magicwands.events.SpellCastEvent
-import com.github.secretx33.magicwands.events.WandUseEvent
-import com.github.secretx33.magicwands.manager.SpellFuelManager
+import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
 import com.github.secretx33.magicwands.manager.SpellManager
+import com.github.secretx33.magicwands.spell.SpellType
+import com.github.secretx33.magicwands.spell.SpellType.*
+import com.github.secretx33.magicwands.utils.isLeftClick
+import com.github.secretx33.magicwands.utils.isRightClick
+import com.github.secretx33.magicwands.utils.isWand
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class WandUseListener (
-    plugin: Plugin,
-    private val fuelManager: SpellFuelManager,
-    private val spellManager: SpellManager,
-    private val messages: Messages,
-) : Listener {
+class WandUseListener(plugin: Plugin, private val spellManager: SpellManager,) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    private fun WandUseEvent.onWandUse() {
-        val spellType = spellManager.getWandSpell(wand)
+    @EventHandler(priority = EventPriority.MONITOR)
+    private fun PlayerInteractEvent.onWandInteract() {
+        val item = item ?: return
+        if(!item.isWand()) return
 
-        if(!fuelManager.hasEnoughFuel(player, spellType)) {
-            player.sendMessage(messages.get(MessageKeys.NOT_ENOUGH_FUEL))
+        if(isLeftClick()) {
+            val event = getSpellEvent(player, item)
+            Bukkit.getServer().pluginManager.callEvent(event)
             return
         }
-        val spellCastEvent = SpellCastEvent(player, spellType)
-        Bukkit.getServer().pluginManager.callEvent(spellCastEvent)
+
+        if(isRightClick()) {
+            val event = WandSpellSwitchEvent(player, item)
+            Bukkit.getServer().pluginManager.callEvent(event)
+        }
+    }
+
+    private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent {
+        val type = spellManager.getWandSpell(wand)
+
+        return when(type) {
+            BLIND, ENSNARE, POISON, THRUST -> EntitySpellCastEvent(player, wand, type)
+            BLINK -> BlockSpellCastEvent(player, wand, type)
+            LEAP, VANISH -> SpellCastEvent(player, wand, type)
+        }
     }
 }

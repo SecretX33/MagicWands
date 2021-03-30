@@ -14,4 +14,5 @@ enum class SpellType {
     val configFuelAmount = "spells.${name.toLowerCase(Locale.US)}.fuel-usage"
     val configCooldown = "spells.${name.toLowerCase(Locale.US)}.cooldown"
     val configLearnPrice = "spells.${name.toLowerCase(Locale.US)}.learn-price"
+    val configDuration = "spells.${name.toLowerCase(Locale.US)}.duration"
 }

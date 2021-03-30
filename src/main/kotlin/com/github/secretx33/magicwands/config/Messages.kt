@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 class Messages(plugin: Plugin) {
     private val manager = YamlManager(plugin, "messages")
-    private val cache = ConcurrentHashMap<YamlEnum, String>()
+    private val cache = ConcurrentHashMap<MessageKeys, String>()
 
     fun get(key: MessageKeys): String {
         return cache.getOrPut(key) {
@@ -30,6 +30,8 @@ class Messages(plugin: Plugin) {
 enum class MessageKeys(val default: String) {
     CONFIGS_RELOADED("Configs were reloaded."),
     NOT_ENOUGH_FUEL("You don't have enough fuel to cast this spell."),
+    CASTED_VANISH("You vanished!"),
+    CANNOT_BLINK_TO_THERE("Sorry, you cannot blink to there"),
     SPELL_IN_COOLDOWN("Spell is in cooldown right now, <cooldown> seconds remaining.");
 
     val configEntry = this.name.toLowerCase(Locale.US).replace('_','-')

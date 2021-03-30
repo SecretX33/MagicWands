@@ -2,6 +2,8 @@ package com.github.secretx33.magicwands.utils
 
 import com.github.secretx33.magicwands.config.Const.PLUGIN_CHAT_PREFIX
 import org.bukkit.command.ConsoleCommandSender
+import org.bukkit.entity.Entity
+import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.koin.core.component.KoinApiExtension
@@ -18,3 +20,5 @@ object Utils: CustomKoinComponent {
 fun PlayerInteractEvent.isLeftClick() = action == Action.RIGHT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK
 
 fun PlayerInteractEvent.isRightClick() = action == Action.RIGHT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK
+
+fun Player.getTarget(range: Int): Entity? = world.rayTraceEntities(location, location.direction, range.toDouble())?.hitEntity

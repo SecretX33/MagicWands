@@ -37,21 +37,25 @@ spells:
     learn-price: 100
     fuel-usage: 10
     cooldown: 12
+    duration: 5
 
   poison:
     learn-price: 100
     fuel-usage: 10
     cooldown: 12
+    duration: 5
 
   vanish:
     learn-price: 100
     fuel-usage: 10
     cooldown: 12
+    duration: 5
 
   ensnare:
     learn-price: 100
     fuel-usage: 10
     cooldown: 12
+    duration: 5
 
   thrust:
     learn-price: 100
