@@ -1,7 +1,7 @@
 package com.github.secretx33.magicwands
 
-import com.github.secretx33.magicwands.events.PreventCraftEvent
-import com.github.secretx33.magicwands.events.WandUseEvent
+import com.github.secretx33.magicwands.eventlisteners.PreventCraftListener
+import com.github.secretx33.magicwands.eventlisteners.WandUseTrigger
 import com.github.secretx33.magicwands.utils.*
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.plugin.Plugin
@@ -16,8 +16,8 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
 
     private val mod = module {
         single<Plugin> { this@MagicWands } bind JavaPlugin::class
-        single { PreventCraftEvent(get()) }
-        single { WandUseEvent(get()) }
+        single { PreventCraftListener(get()) }
+        single { WandUseTrigger(get()) }
     }
 
     override fun onEnable() {
@@ -28,8 +28,8 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
             printLogger(Level.ERROR)
             loadKoinModules(mod)
         }
-        get<PreventCraftEvent>()
-        get<WandUseEvent>()
+        get<PreventCraftListener>()
+        get<WandUseTrigger>()
     }
 
     override fun onDisable() {

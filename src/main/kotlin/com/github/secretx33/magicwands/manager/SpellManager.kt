@@ -8,5 +8,4 @@ class SpellManager {
 
     private val cooldown = ConcurrentHashMap<Pair<Player, Spell>, Long>()
 
-
 }

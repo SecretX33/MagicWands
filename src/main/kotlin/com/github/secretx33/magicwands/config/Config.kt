@@ -2,43 +2,13 @@ package com.github.secretx33.magicwands.config
 
 import com.github.secretx33.magicwands.utils.YamlManager
 import org.bukkit.plugin.Plugin
+import sun.misc.Cache
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-class Config(private val plugin: Plugin) {
+class Config(plugin: Plugin): CachedYamlManager<ConfigKeys>(plugin, "config")
 
-    private val manager = YamlManager(plugin, "config")
-    private val cache = ConcurrentHashMap<ConfigKeys, Any>()
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T> get(key: ConfigKeys): T {
-        return cache.getOrPut(key) {
-            manager.get(key.configEntry, key.default)
-        } as T
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T> get(key: ConfigKeys, default: T): T {
-        return cache.getOrPut(key) {
-            manager.get(key.configEntry, default)
-        } as T
-    }
-
-    fun set(key: ConfigKeys, value: Any) {
-        cache[key] = value
-        manager.set(key.configEntry, value)
-    }
-
-    fun reload() {
-        cache.clear()
-        manager.reload()
-    }
-
-    fun saveAll() = manager.save()
-}
-
-enum class ConfigKeys(val default: Any) {
-    ENABLE_EFFECTS(true);
-
-    val configEntry = this.name.toLowerCase(Locale.US).replace('_','-')
+enum class ConfigKeys(override val configEntry: String, override val default: Any): YamlEnum {
+    ENABLE_EFFECTS("enable-effects", true),
+    LEAP_COOLDOWN("spells.leap.cooldown", 12),
 }

@@ -19,3 +19,41 @@
 
 # Enable spell effects
 enable-effects: true
+
+# list of all spell properties
+spells:
+  # spell name
+  leap:
+    learn-price: 100  # price to learn it
+    fuel-usage: 5     # how much fuel the spell is going to use
+    cooldown: 7       # cooldown, in seconds
+
+  blink:
+    learn-price: 100
+    fuel-usage: 10
+    cooldown: 12
+
+  blind:
+    learn-price: 100
+    fuel-usage: 10
+    cooldown: 12
+
+  poison:
+    learn-price: 100
+    fuel-usage: 10
+    cooldown: 12
+
+  vanish:
+    learn-price: 100
+    fuel-usage: 10
+    cooldown: 12
+
+  ensnare:
+    learn-price: 100
+    fuel-usage: 10
+    cooldown: 12
+
+  thrust:
+    learn-price: 100
+    fuel-usage: 10
+    cooldown: 12

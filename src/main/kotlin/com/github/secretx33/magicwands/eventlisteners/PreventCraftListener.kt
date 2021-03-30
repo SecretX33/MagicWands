@@ -1,7 +1,5 @@
-package com.github.secretx33.magicwands.events
+package com.github.secretx33.magicwands.eventlisteners
 
-import com.github.secretx33.magicwands.config.Config
-import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.utils.Utils.debugMessage
 import com.github.secretx33.magicwands.utils.isWand
 import org.bukkit.Bukkit
@@ -14,7 +12,7 @@ import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class PreventCraftEvent(plugin: Plugin) : Listener {
+class PreventCraftListener(plugin: Plugin) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
