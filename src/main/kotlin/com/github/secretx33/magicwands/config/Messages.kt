@@ -27,9 +27,10 @@ class Messages(plugin: Plugin) {
     }
 }
 
-enum class MessageKeys(override val default: String): YamlEnum {
+enum class MessageKeys(val default: String) {
     CONFIGS_RELOADED("Configs were reloaded."),
+    NOT_ENOUGH_FUEL("You don't have enough fuel to cast this spell."),
     SPELL_IN_COOLDOWN("Spell is in cooldown right now, <cooldown> seconds remaining.");
 
-    override val configEntry = this.name.toLowerCase(Locale.US).replace('_','-')
+    val configEntry = this.name.toLowerCase(Locale.US).replace('_','-')
 }

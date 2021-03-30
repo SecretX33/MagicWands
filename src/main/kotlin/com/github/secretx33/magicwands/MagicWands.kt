@@ -21,7 +21,6 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
     }
 
     override fun onEnable() {
-        saveDefaultConfig()
         val economy = server.servicesManager.load(Economy::class.java)?: throw IllegalStateException("Vault was not found")
         mod.single { economy }
         startKoin {

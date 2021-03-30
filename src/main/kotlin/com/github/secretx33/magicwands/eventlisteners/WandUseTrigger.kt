@@ -1,7 +1,7 @@
 package com.github.secretx33.magicwands.eventlisteners
 
-import com.github.secretx33.magicwands.commands.events.WandSpellSwitchEvent
-import com.github.secretx33.magicwands.commands.events.WandUseEvent
+import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
+import com.github.secretx33.magicwands.events.WandUseEvent
 import com.github.secretx33.magicwands.utils.isLeftClick
 import com.github.secretx33.magicwands.utils.isRightClick
 import com.github.secretx33.magicwands.utils.isWand

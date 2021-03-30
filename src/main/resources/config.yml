@@ -57,3 +57,8 @@ spells:
     learn-price: 100
     fuel-usage: 10
     cooldown: 12
+
+# Add as many fuels as you want, just don't leave this list empty
+spell-fuel:
+  - COAL
+  - CHARCOAL

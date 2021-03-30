@@ -1,12 +1,12 @@
-package com.github.secretx33.magicwands.commands.events
+package com.github.secretx33.magicwands.events
 
-import com.github.secretx33.magicwands.spell.Spell
+import com.github.secretx33.magicwands.spell.SpellType
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.HandlerList
 import org.bukkit.event.player.PlayerEvent
 
-class SpellUseEvent(player: Player, val type: Spell) : PlayerEvent(player), Cancellable {
+class SpellCastEvent(player: Player, val type: SpellType) : PlayerEvent(player), Cancellable {
 
     private var isCancelled = false
     private val handlers = HandlerList()
