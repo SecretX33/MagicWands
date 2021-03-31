@@ -1,6 +1,5 @@
 package com.github.secretx33.magicwands.commands.subcommands
 
-import com.github.secretx33.chestquest.commands.subcommands.SubCommand
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.model.SpellType
@@ -28,10 +27,10 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
             player.sendMessage("${ChatColor.RED}Usage: /${alias} spell <bind/remove> <spell>")
             return
         }
-        val sub = strings[2].toLowerCase(Locale.US)
+        val sub = strings[1].toLowerCase(Locale.US)
 
-        val spellType = runCatching { SpellType.valueOf(strings[3]) }.getOrElse {
-            player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[3]))
+        val spellType = runCatching { SpellType.find(strings[2]) }.getOrElse {
+            player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[2]))
             return
         }
 
@@ -45,20 +44,23 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
         if (!item.isWandMaterial()) {
             player.sendMessage(
                 messages.get(MessageKeys.INVALID_WAND_MATERIAL)
-                    .replace("<item>", item.type.name)
+                    .replace("<item>", item.formattedTypeName())
                     .replace("<allowed_material>", "Stick")
             )
             return
         }
         if(!item.isWand()) ItemUtils.turnIntoWand(item)
         val spellList = ItemUtils.getAvailableSpells(item)
+        println("1. Available spells: ${ItemUtils.getAvailableSpells(item)}")
 
         if(spellList.contains(spellType)) {
             player.sendMessage(messages.get(MessageKeys.SPELL_ALREADY_PRESENT))
             return
         }
+        println("2. Available spells: ${ItemUtils.getAvailableSpells(item)}")
         spellList.add(spellType)
         ItemUtils.setAvailableSpells(item, spellList)
+        println("3. Available spells: ${ItemUtils.getAvailableSpells(item)}")
         player.sendMessage(messages.get(MessageKeys.ADDED_SPELL_TO_WAND).replace("<spell>", spellType.displayName))
     }
 

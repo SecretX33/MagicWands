@@ -1,6 +1,5 @@
 package com.github.secretx33.magicwands.commands.subcommands
 
-import com.github.secretx33.chestquest.commands.subcommands.SubCommand
 import com.github.secretx33.magicwands.config.*
 import com.github.secretx33.magicwands.manager.SpellManager
 import com.github.secretx33.magicwands.utils.CustomKoinComponent

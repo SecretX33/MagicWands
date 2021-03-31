@@ -10,14 +10,37 @@ depend: [ProtocolLib, Vault]
 commands:
   wand:
     description: ${name}
-    usage: /<command>
+    usage: /<command> <sub> [parameters]
 
 permissions:
+
   magicwands.*:
     description: Gives access to all ${name} commands. Default to players with op.
     default: op
     children:
-      magicwands.edit: true
-  magicwands.edit:
-    description: Allows a player to create, mark, unmark and edit "quest" chests
+      magicwands.reload: true
+      magicwands.spell: true
+
+  magicwands.reload:
+    description: Allows one to reload all plugin configurations.
+    default: false
+
+  magicwands.spell:
+    description: Grant access to the command 'spell'.
+    default: false
+
+  magicwands.skins:
+    description: Grand access to the command 'changeskin'.
+    default: false
+
+  magicwands.skins.stick:
+    description: Grand access to the Stick wand skin.
+    default: false
+
+  magicwands.skins.bone:
+    description: Grand access to the Bone wand skin.
+    default: false
+
+  magicwands.skins.blaze_rod:
+    description: Grand access to the Blaze Rod wand skin.
     default: false

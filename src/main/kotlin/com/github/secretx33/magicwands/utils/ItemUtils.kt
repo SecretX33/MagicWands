@@ -1,6 +1,7 @@
 package com.github.secretx33.magicwands.utils
 
 import com.github.secretx33.magicwands.model.SpellType
+import com.github.secretx33.magicwands.model.WandSkin
 import com.github.secretx33.magicwands.utils.ItemUtils.castCountKey
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -15,8 +16,6 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 import java.text.DecimalFormat
-import java.util.*
-import kotlin.collections.ArrayList
 
 @KoinApiExtension
 object ItemUtils: CustomKoinComponent {
@@ -24,9 +23,10 @@ object ItemUtils: CustomKoinComponent {
     private val formatter = DecimalFormat("#,###")
     private val gson = Gson()
     private val typeToken = object : TypeToken<List<SpellType>>() {}.type
+
     val castCountKey = NamespacedKey(plugin, "spell_cast_count")
-    val selectedSpell = NamespacedKey(plugin, "selected_spell")
-    val availableSpells = NamespacedKey(plugin, "available_spell")
+    private val selectedSpell = NamespacedKey(plugin, "selected_spell")
+    private val availableSpells = NamespacedKey(plugin, "available_spell")
 
     fun turnIntoWand(item: ItemStack) {
         require(item.type.isWandMaterial()) { "Item ${item.type} cannot be a wand" }
@@ -34,22 +34,29 @@ object ItemUtils: CustomKoinComponent {
 
         meta.apply {
             persistentDataContainer.set(castCountKey, PersistentDataType.LONG, 0)
-            persistentDataContainer.set(availableSpells, PersistentDataType.TAG_CONTAINER, persistentDataContainer.adapterContext.newPersistentDataContainer())
-            setDisplayName("${ChatColor.BOLD}${ChatColor.BLUE}Magic Wand")
-            item.addUnsafeEnchantment(Enchantment.DURABILITY, 1)
-            addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
-            lore = makeWandLore(meta, getWandSpell(item))
+            persistentDataContainer.set(availableSpells, PersistentDataType.STRING, "[]")
+            setDisplayName("${ChatColor.BLUE}${ChatColor.BOLD}Magic Wand ${WandSkin.of(item.type).wandComplement}")
+            addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_PLACED_ON)
+            lore = makeWandLore(meta, null)
         }
         item.itemMeta = meta
+        item.addUnsafeEnchantment(Enchantment.DURABILITY, 1)
     }
 
     private fun makeWandLore(itemMeta: ItemMeta, selectedSpell: SpellType?): List<String> {
         val casts = itemMeta.persistentDataContainer.getOrDefault(castCountKey, PersistentDataType.LONG, 0L)
-        return listOf("${ChatColor.GREEN}A long, long time ago a magician were brutally killed, he said \"Do you think it's over? Oh, no, it's ${ChatColor.BOLD}just${ChatColor.GREEN} the beginning\". Right after saying that, he casted a powerful spell that send many of his wands to those who could get vengeance in his name.",
+        return listOf("${ChatColor.GREEN}A long, long time ago a magician were brutally",
+        "${ChatColor.GREEN} killed, he said \"Do you think it's over? Oh, no, it's",
+        "${ChatColor.DARK_GREEN}${ChatColor.BOLD}JUST${ChatColor.RESET} ${ChatColor.GREEN}the beginning\". Right after saying that, he",
+        "${ChatColor.GREEN}casted a powerful spell that send many of His",
+        "${ChatColor.GREEN}wands to those who could get vengeance in his",
+        "${ChatColor.GREEN}name.",
         "",
-        "Selected spell: ${ChatColor.BLUE}${selectedSpell?.displayName ?: "${ChatColor.DARK_GRAY}<none>"}${ChatColor.RESET}",
+        "Selected spell: ${ChatColor.BLUE}${selectedSpell?.displayName ?: "${ChatColor.GRAY}<none>"}${ChatColor.RESET}",
         "",
-        "${ChatColor.GREEN}This wand has casted ${formatter.format(casts)} spells.")
+        "Available spells: ${ChatColor.LIGHT_PURPLE}${ChatColor.ITALIC}${getAvailableSpells(itemMeta).sorted().joinToString()}",
+        "",
+        "${ChatColor.GREEN}This wand has casted ${ChatColor.AQUA}${formatter.format(casts)}${ChatColor.GREEN} spells.")
     }
 
     fun increaseCastCount(item: ItemStack) {
@@ -70,6 +77,12 @@ object ItemUtils: CustomKoinComponent {
         return SpellType.valueOf(string)
     }
 
+    private fun getAvailableSpells(itemMeta: ItemMeta): MutableList<SpellType> {
+        val spells = itemMeta.persistentDataContainer.get(availableSpells, PersistentDataType.STRING)
+            ?: throw IllegalStateException("Wand doesn't have any saved spells in it")
+        return gson.fromJson(spells, typeToken)
+    }
+
     fun getAvailableSpells(wand: ItemStack): MutableList<SpellType> {
         require(wand.isWand()) { "Item passed as wand is not a wand" }
         val spells = wand.itemMeta?.persistentDataContainer?.get(availableSpells, PersistentDataType.STRING)
@@ -82,16 +95,20 @@ object ItemUtils: CustomKoinComponent {
         val meta = wand.itemMeta ?: throw IllegalStateException("This should not happen")
 
         meta.apply {
-            persistentDataContainer.set(selectedSpell, PersistentDataType.STRING, gson.toJson(list, typeToken))
+            persistentDataContainer.set(availableSpells, PersistentDataType.STRING, gson.toJson(list, typeToken))
             lore = makeWandLore(meta, null)
         }
         wand.itemMeta = meta
     }
 }
 
-fun Material.isWandMaterial() = this == Material.STICK || this == Material.BLAZE_ROD || this == Material.BONE
+fun Material.isWandMaterial() = WandSkin.isWandMaterial(this)
 
 fun ItemStack.isWandMaterial() = type.isWandMaterial()
 
 @KoinApiExtension
-fun ItemStack?.isWand(): Boolean = this != null && (type == Material.STICK || type == Material.BLAZE_ROD || type == Material.BONE) && (itemMeta?.persistentDataContainer?.has(castCountKey, PersistentDataType.LONG) == true)
+fun ItemStack?.isWand(): Boolean = this != null && isWandMaterial() && (itemMeta?.persistentDataContainer?.has(castCountKey, PersistentDataType.LONG) == true)
+
+fun Material.formattedTypeName(): String = name.replace('_', ' ').capitalizeFully()
+
+fun ItemStack.formattedTypeName(): String = type.formattedTypeName()

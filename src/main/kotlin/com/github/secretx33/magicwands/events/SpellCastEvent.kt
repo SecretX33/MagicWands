@@ -15,15 +15,24 @@ open class SpellCastEvent(player: Player, val wand: ItemStack, val spellType: Sp
     init { require(wand.isWand()) { "Item passed as Wand is not a wand!" } }
 
     private var isCancelled = false
-    private val handlers = HandlerList()
 
     override fun getHandlers(): HandlerList {
-        return handlers
+        return SpellCastEvent.handlers
     }
 
     override fun isCancelled(): Boolean = isCancelled
 
     override fun setCancelled(isCancelled: Boolean) {
         this.isCancelled = isCancelled
+    }
+
+    companion object {
+        @JvmStatic
+        private val handlers = HandlerList()
+
+        @JvmStatic
+        fun getHandlerList(): HandlerList {
+            return handlers
+        }
     }
 }

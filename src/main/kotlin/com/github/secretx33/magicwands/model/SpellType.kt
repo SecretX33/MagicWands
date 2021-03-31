@@ -1,10 +1,10 @@
 package com.github.secretx33.magicwands.model
 
 import com.github.secretx33.magicwands.utils.capitalizeFully
-import com.github.secretx33.magicwands.utils.upperFirst
 import java.util.*
 
 enum class SpellType {
+    NONE,
     BLIND,
     BLINK,
     ENSNARE,
@@ -18,4 +18,9 @@ enum class SpellType {
     val configLearnPrice = "spells.${name.toLowerCase(Locale.US)}.learn-price"
     val configDuration = "spells.${name.toLowerCase(Locale.US)}.duration"
     val displayName = name.replace('_',' ').capitalizeFully()
+
+    companion object {
+        fun find(string: String): SpellType = values()
+            .first { it.name.equals(string, ignoreCase = true) || it.displayName.equals(string, ignoreCase = true) }
+    }
 }

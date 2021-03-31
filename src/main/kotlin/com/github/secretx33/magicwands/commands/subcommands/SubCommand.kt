@@ -1,4 +1,4 @@
-package com.github.secretx33.chestquest.commands.subcommands
+package com.github.secretx33.magicwands.commands.subcommands
 
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player

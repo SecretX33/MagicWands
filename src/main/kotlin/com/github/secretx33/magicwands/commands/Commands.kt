@@ -1,7 +1,8 @@
 package com.github.secretx33.magicwands.commands
 
-import com.github.secretx33.chestquest.commands.subcommands.SubCommand
+import com.github.secretx33.magicwands.commands.subcommands.SubCommand
 import com.github.secretx33.magicwands.commands.subcommands.ReloadCommand
+import com.github.secretx33.magicwands.commands.subcommands.SpellCommand
 import com.github.secretx33.magicwands.config.Const.PLUGIN_COMMAND_PREFIX
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -11,12 +12,12 @@ import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinApiExtension
 import java.util.*
-import kotlin.collections.ArrayList
 
 @KoinApiExtension
 class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
 
-    private val subcommands: List<SubCommand> = listOf(ReloadCommand())
+    private val subcommands: List<SubCommand> = listOf(ReloadCommand(),
+        SpellCommand())
 
     init {
         plugin.getCommand(PLUGIN_COMMAND_PREFIX)?.let { cmd ->

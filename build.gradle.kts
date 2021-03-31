@@ -53,8 +53,6 @@ artifacts.archives(tasks.shadowJar)
 
 tasks.shadowJar {
     archiveFileName.set(rootProject.name + ".jar")
-    relocate("com.zaxxer.hikari", "com.github.secretx33.dependencies.hikari")
-    relocate("com.squareup.moshi", "com.github.secretx33.dependencies.moshi")
     relocate("okio", "com.github.secretx33.dependencies.moshi.okio")
     relocate("org.koin", "com.github.secretx33.dependencies.koin")
     relocate("org.sqlite", "com.github.secretx33.dependencies.sqlite")
@@ -67,10 +65,10 @@ tasks.shadowJar {
     exclude("META-INF/**")
 }
 
-tasks.register("customCleanUp", Delete::class){
-    delete("$rootDir/build/libs/${tasks.shadowJar.get().archiveFileName.get()}")
-}
-tasks.shadowJar.get().dependsOn(tasks["customCleanUp"])
+//tasks.register("customCleanUp", Delete::class){
+//    delete("$rootDir/build/libs/${tasks.shadowJar.get().archiveFileName.get()}")
+//}
+//tasks.shadowJar.get().dependsOn(tasks["customCleanUp"])
 
 tasks.withType<JavaCompile> { options.encoding = "UTF-8" }
 

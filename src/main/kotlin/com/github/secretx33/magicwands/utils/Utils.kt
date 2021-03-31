@@ -24,11 +24,11 @@ fun PlayerInteractEvent.isRightClick() = action == Action.RIGHT_CLICK_AIR || act
 
 fun Player.getTarget(range: Int): Entity? = world.rayTraceEntities(location, location.direction, range.toDouble())?.hitEntity
 
-fun String.upperFirst(): String {
-    if(isEmpty()) return this
-    val array = toCharArray()
-    array[0] = array[0].toUpperCase()
-    return array.toString()
-}
+//fun String.upperFirst(): String {
+//    if(isEmpty()) return this
+//    val array = toCharArray()
+//    array[0] = array[0].toUpperCase()
+//    return array.toString()
+//}
 
 fun String.capitalizeFully(): String = WordUtils.capitalizeFully(this)
