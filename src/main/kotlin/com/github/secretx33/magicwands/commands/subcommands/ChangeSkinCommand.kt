@@ -19,43 +19,43 @@ class ChangeSkinCommand : SubCommand(), CustomKoinComponent {
     private val messages by inject<Messages>()
 
     override fun onCommandByPlayer(player: Player, alias: String, strings: Array<String>) {
-        if(strings.size < 3) {
+        if(strings.size < 2) {
             player.sendMessage("${ChatColor.RED}Usage: /$alias $name <skinname>")
             return
         }
         val item = player.inventory.itemInMainHand
-        val skinName = strings[2]
+        val skinName = strings.sliceArray(IntRange(1, strings.lastIndex)).joinToString(separator = " ")
 
-        if (!item.isWandMaterial()) {
-            player.sendMessage(messages.get(MessageKeys.INVALID_WAND_MATERIAL)
-                .replace("<item>", item.formattedTypeName())
-                .replace("<allowed_material>", "Stick"))
+        // player not holding a wand
+        if(!item.isWand()) {
+            player.sendMessage(messages.get(MessageKeys.NOT_HOLDING_A_WAND))
             return
         }
         val skin = WandSkin.of(skinName)
 
         // skin name doesn't exist
         if(skin == null) {
-            player.sendMessage(messages.get(MessageKeys.INVALID_SKIN_NAME)
-                    .replace("<skinname>", skinName))
+            player.sendMessage(messages.get(MessageKeys.INVALID_SKIN_NAME).replace("<skin>", skinName))
             return
         }
 
-        // player didn't bought skin yet
+        // player haven't bought skin yet
         if(!player.hasPermission(skin.permission)) {
-            player.sendMessage(messages.get(MessageKeys.WAND_SKIN_NOT_BOUGHT)
-                .replace("<skinname>", skinName))
+            println("Permission is ${skin.permission}")
+            player.sendMessage(messages.get(MessageKeys.WAND_SKIN_NOT_BOUGHT).replace("<skin>", skin.displayName))
             return
         }
 
         // player wand is already using the skin asked
         if(item.type == skin.material) {
-            player.sendMessage(messages.get(MessageKeys.WAND_SKIN_IS_ALREADY_THAT)
-                .replace("<skinname>", skinName))
+            player.sendMessage(messages.get(MessageKeys.WAND_SKIN_IS_ALREADY_THAT).replace("<skin>", skin.displayName))
             return
         }
 
-
+        val newWand = ItemUtils.changeSkin(item, skin)
+        player.inventory.setItemInMainHand(newWand)
+        player.updateInventory()
+        player.sendMessage(messages.get(MessageKeys.SUCCESSFULLY_CHANGED_WAND_SKIN).replace("<skin>", skin.displayName))
     }
 
     override fun onCommandByConsole(sender: CommandSender, alias: String, strings: Array<String>) {

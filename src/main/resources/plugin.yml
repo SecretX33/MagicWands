@@ -20,6 +20,10 @@ permissions:
     children:
       magicwands.reload: true
       magicwands.spell: true
+      magicwands.skins: true
+      magicwands.skins.stick: true
+      magicwands.skins.bone: true
+      magicwands.skins.blaze_rod: true
 
   magicwands.reload:
     description: Allows one to reload all plugin configurations.

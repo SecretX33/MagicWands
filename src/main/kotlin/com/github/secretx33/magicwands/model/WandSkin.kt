@@ -9,12 +9,11 @@ import java.util.*
 
 enum class WandSkin(val material: Material, val wandComplement: String) {
     STICK(Material.STICK, "${ChatColor.GRAY}${ChatColor.BOLD}(${Material.STICK.formattedTypeName()})"),
-    BLAZE_ROD(Material.BLAZE_ROD, "${Colors.BLAZE_ROD_ORANGE}${ChatColor.BOLD}(${Material.STICK.formattedTypeName()})"),
-    BONE(Material.STICK, "${Colors.BONE_RED}${ChatColor.BOLD}(${Material.STICK.formattedTypeName()})");
+    BONE(Material.BONE, "${Colors.BONE_RED}${ChatColor.BOLD}(${Material.BONE.formattedTypeName()})"),
+    BLAZE_ROD(Material.BLAZE_ROD, "${Colors.BLAZE_ROD_ORANGE}${ChatColor.BOLD}(${Material.BLAZE_ROD.formattedTypeName()})");
 
     val permission = "magicwands.skins.${material.name.toLowerCase(Locale.US)}"
-
-    val displayName = material.name.capitalizeFully()
+    val displayName = material.name.replace('_', ' ').capitalizeFully()
 
     companion object {
         fun of(material: Material): WandSkin = values().firstOrNull { it.material == material } ?: throw IllegalArgumentException("Material $material is not a wand material")

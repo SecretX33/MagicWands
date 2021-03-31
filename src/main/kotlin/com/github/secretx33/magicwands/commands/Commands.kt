@@ -1,5 +1,6 @@
 package com.github.secretx33.magicwands.commands
 
+import com.github.secretx33.magicwands.commands.subcommands.ChangeSkinCommand
 import com.github.secretx33.magicwands.commands.subcommands.SubCommand
 import com.github.secretx33.magicwands.commands.subcommands.ReloadCommand
 import com.github.secretx33.magicwands.commands.subcommands.SpellCommand
@@ -16,7 +17,8 @@ import java.util.*
 @KoinApiExtension
 class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
 
-    private val subcommands: List<SubCommand> = listOf(ReloadCommand(),
+    private val subcommands: List<SubCommand> = listOf(ChangeSkinCommand(),
+        ReloadCommand(),
         SpellCommand())
 
     init {

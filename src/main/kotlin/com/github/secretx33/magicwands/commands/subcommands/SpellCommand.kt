@@ -29,7 +29,7 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
         }
         val sub = strings[1].toLowerCase(Locale.US)
 
-        val spellType = runCatching { SpellType.find(strings[2]) }.getOrElse {
+        val spellType = runCatching { SpellType.of(strings[2]) }.getOrElse {
             player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[2]))
             return
         }
@@ -51,16 +51,13 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
         }
         if(!item.isWand()) ItemUtils.turnIntoWand(item)
         val spellList = ItemUtils.getAvailableSpells(item)
-        println("1. Available spells: ${ItemUtils.getAvailableSpells(item)}")
 
         if(spellList.contains(spellType)) {
             player.sendMessage(messages.get(MessageKeys.SPELL_ALREADY_PRESENT))
             return
         }
-        println("2. Available spells: ${ItemUtils.getAvailableSpells(item)}")
         spellList.add(spellType)
         ItemUtils.setAvailableSpells(item, spellList)
-        println("3. Available spells: ${ItemUtils.getAvailableSpells(item)}")
         player.sendMessage(messages.get(MessageKeys.ADDED_SPELL_TO_WAND).replace("<spell>", spellType.displayName))
     }
 

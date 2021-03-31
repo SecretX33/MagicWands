@@ -4,7 +4,6 @@ import com.github.secretx33.magicwands.utils.capitalizeFully
 import java.util.*
 
 enum class SpellType {
-    NONE,
     BLIND,
     BLINK,
     ENSNARE,
@@ -20,7 +19,10 @@ enum class SpellType {
     val displayName = name.replace('_',' ').capitalizeFully()
 
     companion object {
-        fun find(string: String): SpellType = values()
+        fun of(string: String): SpellType = values()
             .first { it.name.equals(string, ignoreCase = true) || it.displayName.equals(string, ignoreCase = true) }
+
+        fun ofOrNull(string: String?): SpellType? = values()
+            .firstOrNull { it.name.equals(string, ignoreCase = true) || it.displayName.equals(string, ignoreCase = true) }
     }
 }

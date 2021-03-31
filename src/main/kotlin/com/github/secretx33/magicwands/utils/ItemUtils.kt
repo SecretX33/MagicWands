@@ -34,6 +34,7 @@ object ItemUtils: CustomKoinComponent {
 
         meta.apply {
             persistentDataContainer.set(castCountKey, PersistentDataType.LONG, 0)
+            persistentDataContainer.set(selectedSpell, PersistentDataType.STRING, "")
             persistentDataContainer.set(availableSpells, PersistentDataType.STRING, "[]")
             setDisplayName("${ChatColor.BLUE}${ChatColor.BOLD}Magic Wand ${WandSkin.of(item.type).wandComplement}")
             addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_PLACED_ON)
@@ -68,6 +69,32 @@ object ItemUtils: CustomKoinComponent {
         }
         meta.lore = makeWandLore(meta, getWandSpell(item))
         item.itemMeta = meta
+    }
+
+    fun changeSkin(wand: ItemStack, skin: WandSkin): ItemStack {
+        require(wand.isWand()) { "Item passed as wand is not a wand" }
+        val newWand = ItemStack(skin.material).apply { turnIntoWand(this) }
+        copyPluginKeys(wand, newWand)
+        return newWand
+    }
+
+    private fun copyPluginKeys(old: ItemStack, new: ItemStack) {
+        val oldMeta = old.itemMeta ?: throw IllegalStateException("itemMeta of oldWand came null")
+        val newMeta = new.itemMeta ?: throw IllegalStateException("itemMeta of newWand came null")
+
+        val selected: String?
+        oldMeta.persistentDataContainer.run {
+            newMeta.persistentDataContainer.set(castCountKey, PersistentDataType.LONG, get(castCountKey, PersistentDataType.LONG)!!)
+            selected = get(selectedSpell, PersistentDataType.STRING)
+            if(selected != null){
+                newMeta.persistentDataContainer.set(selectedSpell, PersistentDataType.STRING, selected)
+            } else {
+                newMeta.persistentDataContainer.remove(selectedSpell)
+            }
+            newMeta.persistentDataContainer.set(availableSpells, PersistentDataType.STRING, get(availableSpells, PersistentDataType.STRING)!!)
+        }
+        newMeta.lore = makeWandLore(newMeta, SpellType.ofOrNull(selected))
+        new.itemMeta = newMeta
     }
 
     fun getWandSpell(wand: ItemStack): SpellType {
