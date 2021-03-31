@@ -32,9 +32,6 @@ class BlockSpellCastListener (
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private fun BlockSpellCastEvent.onSuccess() {
-        when(spellType){
-            SpellType.BLINK -> spellManager.castBlink(this)
-            else -> {}
-        }
+        if(spellType == SpellType.BLINK) spellManager.castBlink(this)
     }
 }

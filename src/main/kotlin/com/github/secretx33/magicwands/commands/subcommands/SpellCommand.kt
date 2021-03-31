@@ -11,7 +11,6 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinApiExtension
 import java.util.*
-import kotlin.collections.ArrayList
 
 @KoinApiExtension
 class SpellCommand : SubCommand(), CustomKoinComponent {
@@ -30,15 +29,19 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
             return
         }
         val sub = strings[2].toLowerCase(Locale.US)
+        val spellType = runCatching { SpellType.valueOf(strings[3]) }.getOrElse {
+            player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[3]))
+            return
+        }
 
         if(sub == "bind")
-            bindSpell(item, player)
+            bindSpell(player, item, spellType)
         else if(sub == "remove")
             bindSpell(item, player)
 
     }
 
-    private fun bindSpell(item: ItemStack, player: Player) {
+    private fun bindSpell(player: Player, item: ItemStack, spellType: SpellType) {
         if (!item.type.isWandMaterial()) {
             player.sendMessage(
                 messages.get(MessageKeys.INVALID_WAND_MATERIAL)
@@ -48,8 +51,15 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
             return
         }
         if(!item.isWand()) ItemUtils.turnIntoWand(item)
+        val spellList = ItemUtils.getAvailableSpells(item)
 
-
+        if(spellList.contains(spellType)) {
+            player.sendMessage(messages.get(MessageKeys.SPELL_ALREADY_PRESENT))
+            return
+        }
+        spellList.add(spellType)
+        ItemUtils.setAvailableSpells(item, spellList)
+        player.sendMessage(messages.get(MessageKeys.ADDED_SPELL_TO_WAND).replace("<spell>", spellType.displayName))
     }
 
     private fun removeSpell(item: ItemStack, player: Player) {
@@ -62,7 +72,7 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
             return
         }
         if (item.isWand()) {
-            player.sendMessage(messages.get(MessageKeys.ITEM_IS_ALREARY_WAND))
+            player.sendMessage(messages.get(MessageKeys.ITEM_IS_ALREADY_WAND))
             return
         }
     }

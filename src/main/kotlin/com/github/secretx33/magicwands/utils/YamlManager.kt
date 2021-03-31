@@ -16,7 +16,7 @@ class YamlManager (
 
     private val fileName: String = path.replace('\\', '/').split('/').last().appendIfMissing(".yml")
     private val relativePath: String = path.replace('\\', '/').appendIfMissing(".yml")
-    private val file: File = File(plugin.dataFolder.absolutePath, "dsadsa")
+    private val file: File = File(plugin.dataFolder.absolutePath, relativePath)
 
     fun reload() {
         if(!plugin.dataFolder.exists()) plugin.dataFolder.mkdir()

@@ -2,6 +2,8 @@ package com.github.secretx33.magicwands.utils
 
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.utils.ItemUtils.castCountKey
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -13,13 +15,18 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 import java.text.DecimalFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 @KoinApiExtension
 object ItemUtils: CustomKoinComponent {
     private val plugin: Plugin by inject()
     private val formatter = DecimalFormat("#,###")
+    private val gson = Gson()
+    private val typeToken = object : TypeToken<List<SpellType>>() {}.type
     val castCountKey = NamespacedKey(plugin, "spell_cast_count")
     val selectedSpell = NamespacedKey(plugin, "selected_spell")
+    val availableSpells = NamespacedKey(plugin, "available_spell")
 
     fun turnIntoWand(item: ItemStack) {
         require(item.type.isWandMaterial()) { "Item ${item.type} cannot be a wand" }
@@ -27,6 +34,7 @@ object ItemUtils: CustomKoinComponent {
 
         meta.apply {
             persistentDataContainer.set(castCountKey, PersistentDataType.LONG, 0)
+            persistentDataContainer.set(availableSpells, PersistentDataType.TAG_CONTAINER, persistentDataContainer.adapterContext.newPersistentDataContainer())
             setDisplayName("${ChatColor.BOLD}${ChatColor.BLUE}Magic Wand")
             item.addUnsafeEnchantment(Enchantment.DURABILITY, 1)
             addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
@@ -57,8 +65,24 @@ object ItemUtils: CustomKoinComponent {
 
     fun getWandSpell(wand: ItemStack): SpellType {
         require(wand.isWand()) { "Item passed as wand is not a wand" }
-        val string = wand.itemMeta?.persistentDataContainer?.get(selectedSpell, PersistentDataType.STRING) ?: throw IllegalStateException("Wand has no selected enchant")
+        val string = wand.itemMeta?.persistentDataContainer?.get(selectedSpell, PersistentDataType.STRING)
+            ?: throw IllegalStateException("Wand has no selected enchant")
         return SpellType.valueOf(string)
+    }
+
+    fun getAvailableSpells(wand: ItemStack): MutableList<SpellType> {
+        require(wand.isWand()) { "Item passed as wand is not a wand" }
+        val spells = wand.itemMeta?.persistentDataContainer?.get(availableSpells, PersistentDataType.STRING)
+            ?: throw IllegalStateException("Wand doesn't have any saved spells in it")
+        return gson.fromJson(spells, typeToken)
+    }
+
+    fun setAvailableSpells(wand: ItemStack, list: List<SpellType>) {
+        require(wand.isWand()) { "Item passed as wand is not a wand" }
+        val meta = wand.itemMeta ?: throw IllegalStateException("This should not happen")
+
+        meta.persistentDataContainer.set(selectedSpell, PersistentDataType.STRING, gson.toJson(list, typeToken))
+        wand.itemMeta = meta
     }
 }
 
