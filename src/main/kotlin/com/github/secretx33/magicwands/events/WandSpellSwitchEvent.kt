@@ -14,13 +14,22 @@ class WandSpellSwitchEvent(player: Player, val wand: ItemStack) : PlayerEvent(pl
     init { require(wand.isWand()) { "Item passed as Wand is not a wand!" } }
 
     private var isCancelled = false
-    private val handlers = HandlerList()
 
-    override fun getHandlers(): HandlerList = handlers
+    override fun getHandlers(): HandlerList = WandSpellSwitchEvent.handlers
 
     override fun isCancelled(): Boolean = isCancelled
 
     override fun setCancelled(isCancelled: Boolean) {
         this.isCancelled = isCancelled
+    }
+
+    companion object {
+        @JvmStatic
+        private val handlers = HandlerList()
+
+        @JvmStatic
+        fun getHandlerList(): HandlerList {
+            return handlers
+        }
     }
 }

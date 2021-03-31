@@ -21,7 +21,7 @@ class SpellFuelManager(private val config: Config) {
         var quantityNeeded = config.get(spell.configFuelAmount, 5)
         val fuelList = config.get<List<String>>(ConfigKeys.SPELL_FUEL).mapTo(HashSet()) { Material.valueOf(it) }
 
-        for(item in player.inventory) {
+        for(item in player.inventory.filterNotNull()) {
             if(!fuelList.contains(item.type)) continue
 
             if(item.amount >= quantityNeeded) {

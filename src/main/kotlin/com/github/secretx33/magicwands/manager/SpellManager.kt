@@ -24,6 +24,7 @@ import org.bukkit.potion.PotionEffectType
 import org.koin.core.component.KoinApiExtension
 import java.lang.Runnable
 import java.lang.StrictMath.pow
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.IllegalStateException
 import kotlin.math.*
@@ -32,14 +33,14 @@ import kotlin.math.*
 class SpellManager(private val plugin: Plugin, private val config: Config, private val messages: Messages) {
 
     private val manager = YamlManager(plugin, "spells_learned")
-    private val cooldown = ConcurrentHashMap<Pair<Player, SpellType>, Long>()
+    private val cooldown = ConcurrentHashMap<Pair<UUID, SpellType>, Long>()
     private val tempModification = ConcurrentHashMap<Job, TempModification>()
 
     fun getSpellCD(player: Player, spellType: SpellType): Long
-        = max(0L, (cooldown.getOrDefault(Pair(player, spellType), 0L) - System.currentTimeMillis()))
+        = max(0L, (cooldown.getOrDefault(Pair(player.uniqueId, spellType), 0L).also { println("Cooldown is $it") } - System.currentTimeMillis()).also { println("Cooldown 2 is $it") })
 
     fun addSpellCD(player: Player, spellType: SpellType) {
-        cooldown[Pair(player, spellType)] = System.currentTimeMillis() + config.get(spellType.configCooldown, 7)
+        cooldown[Pair(player.uniqueId, spellType)] = System.currentTimeMillis() + config.get(spellType.configCooldown, 7) * 1000
     }
 
     fun knows(player: Player, spellType: SpellType): Boolean {

@@ -104,6 +104,23 @@ object ItemUtils: CustomKoinComponent {
         return SpellType.valueOf(string)
     }
 
+    fun getWandSpellOrNull(wand: ItemStack): SpellType? {
+        require(wand.isWand()) { "Item passed as wand is not a wand" }
+        val string = wand.itemMeta?.persistentDataContainer?.get(selectedSpell, PersistentDataType.STRING)
+        return SpellType.ofOrNull(string)
+    }
+
+    fun setWandSpell(wand: ItemStack, type: SpellType) {
+        require(wand.isWand()) { "Item passed as wand is not a wand" }
+        val meta = wand.itemMeta ?: throw IllegalStateException("This should not happen")
+
+        meta.apply {
+            persistentDataContainer.set(selectedSpell, PersistentDataType.STRING, type.name)
+            lore = makeWandLore(meta, type)
+        }
+        wand.itemMeta = meta
+    }
+
     private fun getAvailableSpells(itemMeta: ItemMeta): MutableList<SpellType> {
         val spells = itemMeta.persistentDataContainer.get(availableSpells, PersistentDataType.STRING)
             ?: throw IllegalStateException("Wand doesn't have any saved spells in it")

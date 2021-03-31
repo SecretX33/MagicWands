@@ -37,11 +37,12 @@ enum class MessageKeys(val default: String) {
     INVALID_WAND_MATERIAL("${ChatColor.RED}<item> cannot be an wand, please use a <allowed_material>."),
     ITEM_NOT_A_WAND("${ChatColor.RED}This item is not a wand!"),
     NOT_ENOUGH_FUEL("You don't have enough fuel to cast this spell."),
+    SWITCHED_SPELL("${ChatColor.BLUE}Changed active spell to <spell>."),
     SUCCESSFULLY_CHANGED_WAND_SKIN("${ChatColor.GREEN}Successfully set your wand's skin to <skin>"),
     REMOVED_SPELL_OF_WAND("${ChatColor.GREEN}Successfully removed <spell> of your wand."),
     SPELL_ALREADY_PRESENT("${ChatColor.RED}This spell already exist in your wand."),
     SPELL_DOESNT_EXIST("${ChatColor.RED}Spell <spell> doesn't exist, please type a valid one."),
-    SPELL_IN_COOLDOWN("Spell is in cooldown right now, <cooldown> seconds remaining."),
+    SPELL_IN_COOLDOWN("${ChatColor.GOLD}<spell> is in cooldown right now, <cooldown> seconds remaining."),
     SPELL_NOT_PRESENT("${ChatColor.RED}This wand doesn't have <spell> bound to it.");
 
     val configEntry = this.name.toLowerCase(Locale.US).replace('_','-')

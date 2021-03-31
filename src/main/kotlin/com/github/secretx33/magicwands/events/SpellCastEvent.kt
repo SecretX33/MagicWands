@@ -16,9 +16,7 @@ open class SpellCastEvent(player: Player, val wand: ItemStack, val spellType: Sp
 
     private var isCancelled = false
 
-    override fun getHandlers(): HandlerList {
-        return SpellCastEvent.handlers
-    }
+    override fun getHandlers(): HandlerList = SpellCastEvent.handlers
 
     override fun isCancelled(): Boolean = isCancelled
 

@@ -20,6 +20,9 @@
 # Enable spell effects
 enable-effects: true
 
+# Show message when cycling selected spell
+enable-message-on-spell-switch: true
+
 # list of all spell properties
 spells:
   # spell name

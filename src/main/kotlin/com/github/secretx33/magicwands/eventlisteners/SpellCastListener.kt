@@ -13,6 +13,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
+import kotlin.math.ceil
 
 @KoinApiExtension
 class SpellCastListener (
@@ -26,7 +27,8 @@ class SpellCastListener (
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     private fun SpellCastEvent.trySpellCast() {
-        require(spellManager.knows(player, spellType)) { "Player is trying to use a spell he doesn't know... HOW?" }
+        // TODO("enable again when learning system is implemented")
+//        require(spellManager.knows(player, spellType)) { "Player is trying to use a spell he doesn't know... HOW?" }
 
         // not enough fuel
         if(!fuelManager.hasEnoughFuel(player, spellType)) {
@@ -38,7 +40,9 @@ class SpellCastListener (
         // still in cooldown
         val cd = spellManager.getSpellCD(player, spellType)
         if(cd > 0) {
-            player.sendMessage(messages.get(MessageKeys.SPELL_IN_COOLDOWN).replace("<cooldown>", cd.toString()))
+            player.sendMessage(messages.get(MessageKeys.SPELL_IN_COOLDOWN)
+                .replace("<cooldown>", (ceil(cd / 1000.0).toLong()).toString())
+                .replace("<spell>", spellType.displayName))
             isCancelled = true
         }
     }

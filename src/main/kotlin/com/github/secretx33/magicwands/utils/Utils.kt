@@ -18,9 +18,9 @@ object Utils: CustomKoinComponent {
     fun debugMessage(msg: String) = console.sendMessage("$PLUGIN_CHAT_PREFIX $msg")
 }
 
-fun PlayerInteractEvent.isLeftClick() = action == Action.RIGHT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK
+fun PlayerInteractEvent.isLeftClick() = action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK
 
-fun PlayerInteractEvent.isRightClick() = action == Action.RIGHT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK
+fun PlayerInteractEvent.isRightClick() = action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK
 
 fun Player.getTarget(range: Int): Entity? = world.rayTraceEntities(location, location.direction, range.toDouble())?.hitEntity
 

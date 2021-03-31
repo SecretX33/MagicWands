@@ -20,15 +20,17 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
 
     private val mod = module {
         single<Plugin> { this@MagicWands } bind JavaPlugin::class
+        single { server.consoleSender }
         single { Messages(get()) }
         single { Config(get()) }
         single { SpellFuelManager(get()) }
         single { SpellManager(get(), get(), get()) }
         single { BlockSpellCastListener(get(), get(), get()) }
         single { EntitySpellCastListener(get(), get()) }
-        single { SpellCastListener(get(), get(), get(), get()) }
         single { PreventCraftListener(get()) }
-        single { WandUseListener(get(), get()) }
+        single { SpellCastListener(get(), get(), get(), get()) }
+        single { WandSpellSwitchListener(get(), get(), get()) }
+        single { WandUseListener(get()) }
         single { Commands(get()) }
     }
 
@@ -45,6 +47,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         get<PreventCraftListener>()
         get<SpellCastListener>()
         get<WandUseListener>()
+        get<WandSpellSwitchListener>()
         get<Commands>()
     }
 

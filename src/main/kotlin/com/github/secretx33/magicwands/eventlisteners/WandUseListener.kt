@@ -6,10 +6,8 @@ import com.github.secretx33.magicwands.events.SpellCastEvent
 import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
 import com.github.secretx33.magicwands.manager.SpellManager
 import com.github.secretx33.magicwands.model.SpellType.*
-import com.github.secretx33.magicwands.utils.ItemUtils
-import com.github.secretx33.magicwands.utils.isLeftClick
-import com.github.secretx33.magicwands.utils.isRightClick
-import com.github.secretx33.magicwands.utils.isWand
+import com.github.secretx33.magicwands.utils.*
+import com.github.secretx33.magicwands.utils.Utils.consoleMessage
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -21,7 +19,7 @@ import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class WandUseListener(plugin: Plugin, private val spellManager: SpellManager,) : Listener {
+class WandUseListener(plugin: Plugin) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
@@ -31,7 +29,8 @@ class WandUseListener(plugin: Plugin, private val spellManager: SpellManager,) :
         if(!item.isWand()) return
 
         if(isLeftClick()) {
-            val event = getSpellEvent(player, item)
+            consoleMessage("player interact4")
+            val event = getSpellEvent(player, item) ?: return
             Bukkit.getServer().pluginManager.callEvent(event)
             return
         }
@@ -42,10 +41,9 @@ class WandUseListener(plugin: Plugin, private val spellManager: SpellManager,) :
         }
     }
 
-    private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent {
-        val type = ItemUtils.getWandSpell(wand)
-
-        return when(type) {
+    private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent? {
+        return when(val type = ItemUtils.getWandSpellOrNull(wand)) {
+            null -> null
             BLIND, ENSNARE, POISON, THRUST -> EntitySpellCastEvent(player, wand, type)
             BLINK -> BlockSpellCastEvent(player, wand, type)
             else -> SpellCastEvent(player, wand, type)
