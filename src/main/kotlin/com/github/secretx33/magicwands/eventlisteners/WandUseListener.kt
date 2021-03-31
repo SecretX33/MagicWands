@@ -5,8 +5,8 @@ import com.github.secretx33.magicwands.events.EntitySpellCastEvent
 import com.github.secretx33.magicwands.events.SpellCastEvent
 import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
 import com.github.secretx33.magicwands.manager.SpellManager
-import com.github.secretx33.magicwands.spell.SpellType
-import com.github.secretx33.magicwands.spell.SpellType.*
+import com.github.secretx33.magicwands.model.SpellType.*
+import com.github.secretx33.magicwands.utils.ItemUtils
 import com.github.secretx33.magicwands.utils.isLeftClick
 import com.github.secretx33.magicwands.utils.isRightClick
 import com.github.secretx33.magicwands.utils.isWand
@@ -43,7 +43,7 @@ class WandUseListener(plugin: Plugin, private val spellManager: SpellManager,) :
     }
 
     private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent {
-        val type = spellManager.getWandSpell(wand)
+        val type = ItemUtils.getWandSpell(wand)
 
         return when(type) {
             BLIND, ENSNARE, POISON, THRUST -> EntitySpellCastEvent(player, wand, type)

@@ -1,9 +1,7 @@
 package com.github.secretx33.magicwands.events
 
-import com.github.secretx33.magicwands.spell.SpellType
-import com.github.secretx33.magicwands.utils.getTarget
+import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.utils.isWand
-import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.HandlerList

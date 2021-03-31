@@ -1,4 +1,4 @@
-package com.github.secretx33.magicwands.spell
+package com.github.secretx33.magicwands.model
 
 import java.util.*
 

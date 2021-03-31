@@ -25,7 +25,7 @@ class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
         }
     }
 
-    override fun onCommand(sender: CommandSender, command: Command, s: String, strings: Array<String>): Boolean {
+    override fun onCommand(sender: CommandSender, command: Command, alias: String, strings: Array<String>): Boolean {
         if (strings.isEmpty()) return true
         for (i in strings.indices) {
             strings[i] = strings[i].toLowerCase(Locale.US)
@@ -33,9 +33,9 @@ class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
         val sub = strings[0]
         subcommands.firstOrNull { it.hasPermission(sender) && (it.name == sub || it.aliases.contains(sub)) }?.let { cmd ->
             if(sender is Player) {
-                cmd.onCommandByPlayer(sender, strings)
+                cmd.onCommandByPlayer(sender, alias, strings)
             } else {
-                cmd.onCommandByConsole(sender, strings)
+                cmd.onCommandByConsole(sender, alias, strings)
             }
         }
         return true

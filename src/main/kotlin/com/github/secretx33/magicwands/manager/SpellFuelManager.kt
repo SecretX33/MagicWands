@@ -2,7 +2,7 @@ package com.github.secretx33.magicwands.manager
 
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.ConfigKeys
-import com.github.secretx33.magicwands.spell.SpellType
+import com.github.secretx33.magicwands.model.SpellType
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack

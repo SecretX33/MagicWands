@@ -1,11 +1,10 @@
 package com.github.secretx33.magicwands.eventlisteners
 
+import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.events.BlockSpellCastEvent
-import com.github.secretx33.magicwands.manager.SpellFuelManager
 import com.github.secretx33.magicwands.manager.SpellManager
-import com.github.secretx33.magicwands.spell.SpellType
-import com.github.secretx33.magicwands.utils.ItemUtils
+import com.github.secretx33.magicwands.model.SpellType
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
@@ -18,6 +17,7 @@ import org.koin.core.component.KoinApiExtension
 class BlockSpellCastListener (
     plugin: Plugin,
     private val spellManager: SpellManager,
+    private val messages: Messages,
 ) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
@@ -25,8 +25,8 @@ class BlockSpellCastListener (
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     private fun BlockSpellCastEvent.trySpellCast() {
         if(block.type == Material.AIR) {
+            player.sendMessage(messages.get(MessageKeys.CANNOT_BLINK_TO_THERE))
             isCancelled = true
-            return
         }
     }
 

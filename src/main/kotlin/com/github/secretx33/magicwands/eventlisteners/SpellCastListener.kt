@@ -5,7 +5,7 @@ import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.events.SpellCastEvent
 import com.github.secretx33.magicwands.manager.SpellFuelManager
 import com.github.secretx33.magicwands.manager.SpellManager
-import com.github.secretx33.magicwands.spell.SpellType.*
+import com.github.secretx33.magicwands.model.SpellType.*
 import com.github.secretx33.magicwands.utils.ItemUtils
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
