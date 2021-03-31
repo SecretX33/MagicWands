@@ -43,11 +43,11 @@ object ItemUtils: CustomKoinComponent {
         item.itemMeta = meta
     }
 
-    private fun makeWandLore(itemMeta: ItemMeta, selectedSpell: SpellType): List<String> {
+    private fun makeWandLore(itemMeta: ItemMeta, selectedSpell: SpellType?): List<String> {
         val casts = itemMeta.persistentDataContainer.getOrDefault(castCountKey, PersistentDataType.LONG, 0L)
-        return listOf("${ChatColor.GREEN}A long, long time ago a magician were brutally killed, he said \"Do you think it's over? Oh, no, it's ${ChatColor.BOLD}just${ChatColor.GREEN} the beginning\". Right after saying that, he casted a powerful spell that send many of his wands to those who could get vengeance in his name.${ChatColor.RESET}",
+        return listOf("${ChatColor.GREEN}A long, long time ago a magician were brutally killed, he said \"Do you think it's over? Oh, no, it's ${ChatColor.BOLD}just${ChatColor.GREEN} the beginning\". Right after saying that, he casted a powerful spell that send many of his wands to those who could get vengeance in his name.",
         "",
-        "Selected spell: ${ChatColor.BLUE}${selectedSpell.name.replace('_', ' ')}${ChatColor.RESET}",
+        "Selected spell: ${ChatColor.BLUE}${selectedSpell?.displayName ?: "${ChatColor.DARK_GRAY}<none>"}${ChatColor.RESET}",
         "",
         "${ChatColor.GREEN}This wand has casted ${formatter.format(casts)} spells.")
     }
@@ -81,12 +81,17 @@ object ItemUtils: CustomKoinComponent {
         require(wand.isWand()) { "Item passed as wand is not a wand" }
         val meta = wand.itemMeta ?: throw IllegalStateException("This should not happen")
 
-        meta.persistentDataContainer.set(selectedSpell, PersistentDataType.STRING, gson.toJson(list, typeToken))
+        meta.apply {
+            persistentDataContainer.set(selectedSpell, PersistentDataType.STRING, gson.toJson(list, typeToken))
+            lore = makeWandLore(meta, null)
+        }
         wand.itemMeta = meta
     }
 }
 
 fun Material.isWandMaterial() = this == Material.STICK || this == Material.BLAZE_ROD || this == Material.BONE
+
+fun ItemStack.isWandMaterial() = type.isWandMaterial()
 
 @KoinApiExtension
 fun ItemStack?.isWand(): Boolean = this != null && (type == Material.STICK || type == Material.BLAZE_ROD || type == Material.BONE) && (itemMeta?.persistentDataContainer?.has(castCountKey, PersistentDataType.LONG) == true)

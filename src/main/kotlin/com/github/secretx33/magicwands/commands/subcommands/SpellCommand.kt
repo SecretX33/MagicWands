@@ -15,8 +15,8 @@ import java.util.*
 @KoinApiExtension
 class SpellCommand : SubCommand(), CustomKoinComponent {
 
-    override val name: String = "reload"
-    override val permission: String = "reload"
+    override val name: String = "spell"
+    override val permission: String = "spell"
     override val aliases: List<String> = listOf(name, "rel", "r")
 
     private val messages by inject<Messages>()
@@ -29,6 +29,7 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
             return
         }
         val sub = strings[2].toLowerCase(Locale.US)
+
         val spellType = runCatching { SpellType.valueOf(strings[3]) }.getOrElse {
             player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[3]))
             return
@@ -37,12 +38,11 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
         if(sub == "bind")
             bindSpell(player, item, spellType)
         else if(sub == "remove")
-            bindSpell(item, player)
-
+            removeSpell(player, item, spellType)
     }
 
     private fun bindSpell(player: Player, item: ItemStack, spellType: SpellType) {
-        if (!item.type.isWandMaterial()) {
+        if (!item.isWandMaterial()) {
             player.sendMessage(
                 messages.get(MessageKeys.INVALID_WAND_MATERIAL)
                     .replace("<item>", item.type.name)
@@ -62,19 +62,19 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
         player.sendMessage(messages.get(MessageKeys.ADDED_SPELL_TO_WAND).replace("<spell>", spellType.displayName))
     }
 
-    private fun removeSpell(item: ItemStack, player: Player) {
-        if (!item.type.isWandMaterial()) {
-            player.sendMessage(
-                messages.get(MessageKeys.INVALID_WAND_MATERIAL)
-                    .replace("<item>", item.type.name)
-                    .replace("<allowed_material>", "Stick")
-            )
+    private fun removeSpell(player: Player, item: ItemStack, spellType: SpellType) {
+        if (!item.isWand()) {
+            player.sendMessage(messages.get(MessageKeys.ITEM_NOT_A_WAND))
             return
         }
-        if (item.isWand()) {
-            player.sendMessage(messages.get(MessageKeys.ITEM_IS_ALREADY_WAND))
+        val spellList = ItemUtils.getAvailableSpells(item)
+
+        if(!spellList.remove(spellType)) {
+            player.sendMessage(messages.get(MessageKeys.SPELL_NOT_PRESENT))
             return
         }
+        ItemUtils.setAvailableSpells(item, spellList)
+        player.sendMessage(messages.get(MessageKeys.REMOVED_SPELL_OF_WAND).replace("<spell>", spellType.displayName))
     }
 
     override fun onCommandByConsole(sender: CommandSender, alias: String, strings: Array<String>) {
@@ -84,9 +84,9 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
     override fun getCompletor(sender: CommandSender, length: Int, hint: String, strings: Array<String>): List<String> {
         if(sender !is Player) return emptyList()
 
-        val list: List<String> = when(length) {
+        val list = when(length) {
             2 -> listOf("bind", "remove")
-            3 -> SpellType.values().map { it.name.toLowerCase(Locale.US).upperFirst() }
+            3 -> SpellType.values().map { it.displayName }
             else -> emptyList()
         }
         return list.filter { it.startsWith(hint, ignoreCase = true) }

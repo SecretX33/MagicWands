@@ -48,7 +48,7 @@ class WandUseListener(plugin: Plugin, private val spellManager: SpellManager,) :
         return when(type) {
             BLIND, ENSNARE, POISON, THRUST -> EntitySpellCastEvent(player, wand, type)
             BLINK -> BlockSpellCastEvent(player, wand, type)
-            LEAP, VANISH -> SpellCastEvent(player, wand, type)
+            else -> SpellCastEvent(player, wand, type)
         }
     }
 }

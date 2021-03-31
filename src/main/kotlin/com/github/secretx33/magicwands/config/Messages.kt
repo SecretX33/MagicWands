@@ -21,21 +21,23 @@ class Messages(plugin: Plugin) {
         manager.reload()
     }
 
-    private fun String.correctColorCodes(): String = ChatColor.translateAlternateColorCodes('§', this)
+    private fun String.correctColorCodes(): String = ChatColor.translateAlternateColorCodes('&', this)
 }
 
 enum class MessageKeys(val default: String) {
     ADDED_SPELL_TO_WAND("${ChatColor.GREEN}Successfully added <spell> to your wand."),
+    CANNOT_BLINK_TO_THERE("Sorry, you cannot blink to there"),
+    CASTED_VANISH("You vanished!"),
+    CONFIGS_RELOADED("Configs were reloaded."),
     CONSOLE_CANNOT_USE("Sorry, the console cannot use this command."),
     INVALID_WAND_MATERIAL("${ChatColor.RED}<item> cannot be an wand, please use a <allowed_material>."),
-    CONFIGS_RELOADED("Configs were reloaded."),
+    ITEM_NOT_A_WAND("${ChatColor.RED}This item is not a wand!"),
     NOT_ENOUGH_FUEL("You don't have enough fuel to cast this spell."),
-    CASTED_VANISH("You vanished!"),
+    REMOVED_SPELL_OF_WAND("${ChatColor.GREEN}Successfully removed <spell> of your wand."),
     SPELL_ALREADY_PRESENT("${ChatColor.RED}This spell already exist in your wand."),
-    CANNOT_BLINK_TO_THERE("Sorry, you cannot blink to there"),
     SPELL_DOESNT_EXIST("${ChatColor.RED}Spell <spell> doesn't exist, please type a valid one."),
     SPELL_IN_COOLDOWN("Spell is in cooldown right now, <cooldown> seconds remaining."),
-    ITEM_IS_ALREADY_WAND("This item is already a wand!");
+    SPELL_NOT_PRESENT("${ChatColor.RED}This wand doesn't have <spell> bound to it.");
 
     val configEntry = this.name.toLowerCase(Locale.US).replace('_','-')
 }

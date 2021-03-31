@@ -91,7 +91,7 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
         val duration: Long = config.get(spellType.configDuration, 0) * 1000L
-        val cuboid = makeCuboidAround(target)
+        val cuboid = target.makeCuboidAround()
 
         val task = object : TempModification {
             val originalBlocks = cuboid.allSidesBlockList().map { it.state }
@@ -112,16 +112,16 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
         })
     }
 
-    private fun makeCuboidAround(entity: LivingEntity): Cuboid {
-        val lowerBound = entity.location.clone().apply {
-            x -= ceil(entity.width)
-            y -= ceil(entity.height)
-            z -= ceil(entity.width)
+    private fun LivingEntity.makeCuboidAround(): Cuboid {
+        val lowerBound = location.clone().apply {
+            x -= ceil(width)
+            y -= ceil(height)
+            z -= ceil(width)
         }
-        val upperBound = entity.location.clone().apply {
-            x += ceil(entity.width)
-            y += ceil(entity.height)
-            z += ceil(entity.width)
+        val upperBound = location.clone().apply {
+            x += ceil(width)
+            y += ceil(height)
+            z += ceil(width)
         }
         return Cuboid(lowerBound, upperBound)
     }

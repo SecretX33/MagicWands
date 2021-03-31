@@ -17,10 +17,7 @@ permissions:
     description: Gives access to all ${name} commands. Default to players with op.
     default: op
     children:
-      cq.edit: true
-      cq.resetprogress: true
-      cq.reload: true
-      cq.debug: true
+      magicwands.edit: true
   magicwands.edit:
     description: Allows a player to create, mark, unmark and edit "quest" chests
     default: false

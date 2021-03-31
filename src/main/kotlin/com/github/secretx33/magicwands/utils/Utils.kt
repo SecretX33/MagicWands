@@ -1,8 +1,8 @@
 package com.github.secretx33.magicwands.utils
 
 import com.github.secretx33.magicwands.config.Const.PLUGIN_CHAT_PREFIX
-import org.bukkit.block.Block
 import org.bukkit.command.ConsoleCommandSender
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.text.WordUtils
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
@@ -30,3 +30,5 @@ fun String.upperFirst(): String {
     array[0] = array[0].toUpperCase()
     return array.toString()
 }
+
+fun String.capitalizeFully(): String = WordUtils.capitalizeFully(this)
