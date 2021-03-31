@@ -9,10 +9,14 @@ import com.github.secretx33.magicwands.model.SpellType.*
 import com.github.secretx33.magicwands.utils.*
 import com.github.secretx33.magicwands.utils.Utils.consoleMessage
 import org.bukkit.Bukkit
+import org.bukkit.entity.Entity
+import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
@@ -23,22 +27,36 @@ class WandUseListener(plugin: Plugin) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.NORMAL)
     private fun PlayerInteractEvent.onWandInteract() {
         val item = item ?: return
         if(!item.isWand()) return
 
         if(isLeftClick()) {
-            consoleMessage("player interact4")
             val event = getSpellEvent(player, item) ?: return
+            isCancelled = true
             Bukkit.getServer().pluginManager.callEvent(event)
             return
         }
 
         if(isRightClick()) {
             val event = WandSpellSwitchEvent(player, item)
+            isCancelled = true
             Bukkit.getServer().pluginManager.callEvent(event)
         }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    private fun EntityDamageByEntityEvent.onWandInteract() {
+        if(!damager.isPlayer() || !damageIsMelee()) return
+
+        val player = damager as Player
+        val item = player.inventory.itemInMainHand
+        if(!item.isWand()) return
+
+        val event = getSpellEvent(player, item) ?: return
+        isCancelled = true
+        Bukkit.getServer().pluginManager.callEvent(event)
     }
 
     private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent? {
@@ -49,4 +67,8 @@ class WandUseListener(plugin: Plugin) : Listener {
             else -> SpellCastEvent(player, wand, type)
         }
     }
+
+    private fun Entity.isPlayer() = type == EntityType.PLAYER
+
+    private fun EntityDamageEvent.damageIsMelee() = this.cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK
 }

@@ -16,6 +16,7 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 import java.text.DecimalFormat
+import java.util.*
 
 @KoinApiExtension
 object ItemUtils: CustomKoinComponent {
@@ -53,7 +54,7 @@ object ItemUtils: CustomKoinComponent {
         "${ChatColor.GREEN}wands to those who could get vengeance in his",
         "${ChatColor.GREEN}name.",
         "",
-        "Selected spell: ${ChatColor.BLUE}${selectedSpell?.displayName ?: "${ChatColor.GRAY}<none>"}${ChatColor.RESET}",
+        "Selected spell: ${ChatColor.BLUE}${ChatColor.ITALIC}${selectedSpell?.displayName?.toUpperCase(Locale.US) ?: "${ChatColor.RESET}${ChatColor.GRAY}<none>"}${ChatColor.RESET}",
         "",
         "Available spells: ${ChatColor.LIGHT_PURPLE}${ChatColor.ITALIC}${getAvailableSpells(itemMeta).sorted().joinToString()}",
         "",

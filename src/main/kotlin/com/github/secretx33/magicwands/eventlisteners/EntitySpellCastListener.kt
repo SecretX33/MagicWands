@@ -22,7 +22,7 @@ class EntitySpellCastListener (
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     private fun EntitySpellCastEvent.trySpellCast() {
-        if(target == null || target.location.world == null)
+        if(target == null || target.location.world == null || target.uniqueId == player.uniqueId)
             isCancelled = true
     }
 

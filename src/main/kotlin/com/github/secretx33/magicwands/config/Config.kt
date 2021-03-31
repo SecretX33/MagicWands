@@ -38,6 +38,8 @@ class Config(plugin: Plugin) {
 
 enum class ConfigKeys(val configEntry: String, val defaultValue: Any) {
     ENABLE_EFFECTS("enable-effects", true),
+    DISABLE_ALL_COOLDOWNS("disable-all-cooldowns", false),
+    DISABLE_FUEL_USAGE("disable-fuel-usage", false),
     ENABLE_MESSAGE_ON_SPELL_SWITCH("enable-message-on-spell-switch", true),
     SPELL_FUEL("spell-fuel", listOf("COAL", "CHARCOAL")),
 }

@@ -19,17 +19,22 @@
 
 # Enable spell effects
 enable-effects: true
-
 # Show message when cycling selected spell
 enable-message-on-spell-switch: true
+# Disable spell cooldowns GLOBALLY (use with CAUTION)
+disable-all-cooldowns: false
+# Disable fuel usage GLOBALLY (use with CAUTION)
+disable-fuel-usage: false
 
 # list of all spell properties
 spells:
   # spell name
   leap:
-    learn-price: 100  # price to learn it
-    fuel-usage: 5     # how much fuel the spell is going to use
-    cooldown: 7       # cooldown, in seconds
+    learn-price: 100          # price to learn it
+    fuel-usage: 5             # how much fuel the spell is going to use
+    cooldown: 7               # cooldown, in seconds
+    height-multiplier: 1.0    # how high will the player jump
+    distance-multiplier: 1.0  # how far the player will jump
 
   blink:
     learn-price: 100
@@ -45,8 +50,8 @@ spells:
   poison:
     learn-price: 100
     fuel-usage: 10
-    cooldown: 12
-    duration: 5
+    cooldown: 15
+    duration: 7
 
   vanish:
     learn-price: 100

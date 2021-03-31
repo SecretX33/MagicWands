@@ -11,10 +11,14 @@ class SpellFuelManager(private val config: Config) {
 
     fun hasEnoughFuel(player: Player, spell: SpellType): Boolean {
         val quantityNeeded = config.get(spell.configFuelAmount, 5)
-        val fuelList = config.get<List<String>>(ConfigKeys.SPELL_FUEL).map { ItemStack(Material.valueOf(it)) }
+        val fuelList = config.get<List<String>>(ConfigKeys.SPELL_FUEL).mapTo(HashSet()) { Material.valueOf(it) }
         val inv = player.inventory
 
-        return fuelList.any { fuel -> inv.containsAtLeast(fuel, quantityNeeded) }
+        val quantity = inv.contents.asSequence()
+            .filter { it != null && fuelList.contains(it.type) }
+            .map { it.amount }
+            .reduceOrNull { acc, item -> acc + item } ?: 0
+        return quantity >= quantityNeeded
     }
 
     fun consumeFuel(player: Player, spell: SpellType) {

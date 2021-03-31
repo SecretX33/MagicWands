@@ -10,14 +10,12 @@ import com.github.secretx33.magicwands.model.Cuboid
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.model.TempModification
 import com.github.secretx33.magicwands.utils.YamlManager
-import com.github.secretx33.magicwands.utils.isWand
 import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -37,7 +35,7 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
     private val tempModification = ConcurrentHashMap<Job, TempModification>()
 
     fun getSpellCD(player: Player, spellType: SpellType): Long
-        = max(0L, (cooldown.getOrDefault(Pair(player.uniqueId, spellType), 0L).also { println("Cooldown is $it") } - System.currentTimeMillis()).also { println("Cooldown 2 is $it") })
+        = max(0L, (cooldown.getOrDefault(Pair(player.uniqueId, spellType), 0L) - System.currentTimeMillis()))
 
     fun addSpellCD(player: Player, spellType: SpellType) {
         cooldown[Pair(player.uniqueId, spellType)] = System.currentTimeMillis() + config.get(spellType.configCooldown, 7) * 1000
@@ -65,17 +63,20 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
         val spellType = event.spellType
         val duration = config.get(spellType.configDuration, 0)
 
-        player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, duration, 1, false, false))
+        player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, duration * 20, 1, false, false))
         player.sendMessage(messages.get(MessageKeys.CASTED_VANISH))
     }
 
     fun castLeap(event: SpellCastEvent) {
         val player = event.player
+        val type = event.spellType
+        val heightMulti = config.get("${type.configRoot}.height-multiplier", 1.0)
+        val distanceMulti = config.get("${type.configRoot}.distance-multiplier", 1.0)
 
         val impulse = player.location.direction.apply {
-            x *= 3
-            y = 1.5
-            z *= 3
+            x *= 2.8 * distanceMulti
+            y = 1.5 * heightMulti
+            z *= 2.8 * distanceMulti
         }
         player.velocity = impulse
     }
@@ -85,7 +86,7 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
         val spellType = event.spellType
         val duration = config.get(spellType.configDuration, 0)
 
-        target.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, duration, 1))
+        target.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, duration * 20, 1))
     }
 
     fun castEnsnare(event: EntitySpellCastEvent) {
@@ -99,11 +100,11 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
 
             override fun make() {
                 cuboid.allSidesBlockList().forEach {
-                    cuboid.world.getBlockAt(it.location).type = Material.BEDROCK
+                    cuboid.world.getBlockAt(it.location).type = Material.CRYING_OBSIDIAN
                 }
             }
 
-            override fun unmake() { originalBlocks.forEach { it.update() } }
+            override fun unmake() { originalBlocks.forEach { it.update(true) } }
         }
         val job = scheduleJob(task, duration)
         tempModification[job] = task
@@ -116,7 +117,7 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
     private fun LivingEntity.makeCuboidAround(): Cuboid {
         val lowerBound = location.clone().apply {
             x -= ceil(width)
-            y -= ceil(height)
+            y -= 1
             z -= ceil(width)
         }
         val upperBound = location.clone().apply {
@@ -135,11 +136,14 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
     }
 
     fun castPoison(event: EntitySpellCastEvent) {
+        val player = event.player
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
         val duration = config.get(spellType.configDuration, 0)
 
-        target.addPotionEffect(PotionEffect(PotionEffectType.POISON, duration, 7))
+        target.addPotionEffect(PotionEffect(PotionEffectType.POISON, duration * 20, 7))
+        player.sendMessage(messages.get(MessageKeys.POISONED_TARGET).replace("<target>", target.customName ?: target.name))
+        if(target is Player) target.sendMessage(messages.get(MessageKeys.GOT_POISONED).replace("<caster>", player.name))
     }
 
     fun castBlink(event: BlockSpellCastEvent) {

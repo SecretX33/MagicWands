@@ -1,5 +1,7 @@
 package com.github.secretx33.magicwands.eventlisteners
 
+import com.github.secretx33.magicwands.config.Config
+import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.events.SpellCastEvent
@@ -20,6 +22,7 @@ class SpellCastListener (
     plugin: Plugin,
     private val fuelManager: SpellFuelManager,
     private val spellManager: SpellManager,
+    private val config: Config,
     private val messages: Messages,
 ) : Listener {
 
@@ -31,7 +34,7 @@ class SpellCastListener (
 //        require(spellManager.knows(player, spellType)) { "Player is trying to use a spell he doesn't know... HOW?" }
 
         // not enough fuel
-        if(!fuelManager.hasEnoughFuel(player, spellType)) {
+        if(!fuelManager.hasEnoughFuel(player, spellType) && !config.get<Boolean>(ConfigKeys.DISABLE_FUEL_USAGE)) {
             player.sendMessage(messages.get(MessageKeys.NOT_ENOUGH_FUEL))
             isCancelled = true
             return
@@ -39,7 +42,7 @@ class SpellCastListener (
 
         // still in cooldown
         val cd = spellManager.getSpellCD(player, spellType)
-        if(cd > 0) {
+        if(cd > 0 && !config.get<Boolean>(ConfigKeys.DISABLE_ALL_COOLDOWNS)) {
             player.sendMessage(messages.get(MessageKeys.SPELL_IN_COOLDOWN)
                 .replace("<cooldown>", (ceil(cd / 1000.0).toLong()).toString())
                 .replace("<spell>", spellType.displayName))
@@ -49,7 +52,8 @@ class SpellCastListener (
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private fun SpellCastEvent.onSuccess() {
-        fuelManager.consumeFuel(player, spellType)
+        if(!config.get<Boolean>(ConfigKeys.DISABLE_FUEL_USAGE))
+            fuelManager.consumeFuel(player, spellType)
 
         when(spellType){
             LEAP -> spellManager.castLeap(this)
@@ -57,6 +61,7 @@ class SpellCastListener (
             else -> {}
         }
         ItemUtils.increaseCastCount(wand)
-        spellManager.addSpellCD(player, spellType)
+        if(!config.get<Boolean>(ConfigKeys.DISABLE_ALL_COOLDOWNS))
+            spellManager.addSpellCD(player, spellType)
     }
 }

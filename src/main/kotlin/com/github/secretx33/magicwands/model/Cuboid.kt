@@ -64,6 +64,14 @@ class Cuboid(point1: Location, point2: Location) {
                 blockList.add(ceil)
             }
         }
+        // Removing corners
+        blockList.removeIf {
+            it.location.run {
+                (x == xMin.toDouble() || x == xMax.toDouble()) &&
+                (y == yMin.toDouble() || y == yMax.toDouble()) &&
+                (z == zMin.toDouble() || z == zMax.toDouble())
+            }
+        }
 
         // There is no walls on this cuboid, just floor and ceil
         if (yMax - yMin < 3) return blockList

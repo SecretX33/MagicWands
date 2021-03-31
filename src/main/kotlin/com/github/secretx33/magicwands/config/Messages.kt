@@ -7,7 +7,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class Messages(plugin: Plugin) {
-    private val manager = YamlManager(plugin, "messages")
+    private val manager = YamlManager(plugin, "messages/messages")
     private val cache = ConcurrentHashMap<MessageKeys, String>()
 
     fun get(key: MessageKeys, default: String? = null): String {
@@ -25,6 +25,8 @@ class Messages(plugin: Plugin) {
 }
 
 enum class MessageKeys(val default: String) {
+    GOT_POISONED("${ChatColor.GREEN}You have been poisoned by <caster>."),
+    POISONED_TARGET("${ChatColor.GREEN}You have poisoned <target>."),
     ADDED_SPELL_TO_WAND("${ChatColor.GREEN}Successfully added <spell> to your wand."),
     CANNOT_BLINK_TO_THERE("Sorry, you cannot blink to there"),
     CASTED_VANISH("You vanished!"),
