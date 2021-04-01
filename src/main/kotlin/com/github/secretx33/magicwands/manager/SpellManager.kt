@@ -18,7 +18,6 @@ import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.InventoryHolder
-import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -27,17 +26,16 @@ import java.lang.Runnable
 import java.lang.StrictMath.pow
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.IllegalStateException
 import kotlin.collections.HashSet
 import kotlin.math.*
 
 @KoinApiExtension
 class SpellManager(private val plugin: Plugin, private val config: Config, private val messages: Messages) {
 
-    private val manager = YamlManager(plugin, "spells_learned")
-    private val cooldown = ConcurrentHashMap<Pair<UUID, SpellType>, Long>()
+    private val manager = YamlManager(plugin, "spells_learned/spells_learned")
+    private val cooldown = HashMap<Pair<UUID, SpellType>, Long>()
     private val tempModification = ConcurrentHashMap<Job, TempModification>()
-    private val blocksBlackList = Collections.synchronizedSet(HashSet<Location>())
+    private val blocksBlackList = HashSet<Location>()
 
     fun getSpellCD(player: Player, spellType: SpellType): Long
         = max(0L, (cooldown.getOrDefault(Pair(player.uniqueId, spellType), 0L) - System.currentTimeMillis()))
@@ -72,20 +70,6 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
         player.sendMessage(messages.get(MessageKeys.CASTED_VANISH))
     }
 
-    fun castLeap(event: SpellCastEvent) {
-        val player = event.player
-        val type = event.spellType
-        val heightMulti = config.get("${type.configRoot}.height-multiplier", 1.0)
-        val distanceMulti = config.get("${type.configRoot}.distance-multiplier", 1.0)
-
-        val impulse = player.location.direction.apply {
-            x *= 2.8 * distanceMulti
-            y = 1.5 * heightMulti
-            z *= 2.8 * distanceMulti
-        }
-        player.velocity = impulse
-    }
-
     fun castBlind(event: EntitySpellCastEvent) {
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
@@ -101,6 +85,7 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
         val cuboid = target.makeCuboidAround()
         val blockList = cuboid.allSidesBlockList().filter { !blocksBlackList.contains(it.location) }
         val blockListLocation = blockList.map { it.location }
+
         blocksBlackList.addAll(blockListLocation)
 
         val task = object : TempModification {
@@ -119,12 +104,14 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
                 blocksBlackList.removeAll(blockListLocation)
             }
         }
-        val job = scheduleJob(task, duration)
-        tempModification[job] = task
         task.make()
         target.teleport(cuboid.center.apply {
             y = cuboid.yMin + 1.0
+            yaw = target.location.yaw
+            pitch = target.location.pitch
         })
+        val job = scheduleUnmake(task, duration)
+        tempModification[job] = task
     }
 
     private fun LivingEntity.makeCuboidAround(): Cuboid {
@@ -141,7 +128,7 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
         return Cuboid(lowerBound, upperBound)
     }
 
-    private fun scheduleJob(task: TempModification, delay: Long) = CoroutineScope(Dispatchers.Default).launch {
+    private fun scheduleUnmake(task: TempModification, delay: Long) = CoroutineScope(Dispatchers.Default).launch {
         delay(delay)
         if(!isActive) return@launch
         tempModification.remove(coroutineContext.job)
@@ -172,18 +159,37 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
         })
     }
 
+    fun castLeap(event: SpellCastEvent) {
+        val player = event.player
+        val type = event.spellType
+        val h = config.get("${type.configRoot}.height-multiplier", 1.0)
+        val heightMulti = if(h <= 1) h else sqrt(h)
+        val distanceMulti = config.get("${type.configRoot}.distance-multiplier", 1.0)
+
+        val impulse = player.location.direction.apply {
+            x *= distanceMulti
+            y = heightMulti
+            z *= distanceMulti
+        }
+        player.velocity = impulse
+    }
+
     fun castThrust(event: EntitySpellCastEvent) {
         val player = event.player
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
+        val type = event.spellType
+        val h = config.get("${type.configRoot}.height-multiplier", 1.0)
+        val heightMulti = if(h <= 1) h else sqrt(h)
+        val distanceMulti = config.get("${type.configRoot}.distance-multiplier", 1.0)
 
-        target.thrustedBy(player)
+        target.thrustBy(player, heightMulti = heightMulti, distanceMulti = distanceMulti)
     }
 
-    private fun LivingEntity.thrustedBy(atk: Entity) {
-        val src = atk.location.clone().apply {
+    private fun LivingEntity.thrustBy(atk: Entity, heightMulti: Double, distanceMulti: Double) {
+        val src = atk.location.apply {
             y += atk.height / 2
         }
-        val dest = this.location.clone()
+        val dest = this.location
         val difX = dest.x - src.x
         val difZ = dest.z - src.z
         val difY = dest.y - src.y
@@ -192,11 +198,11 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
         val yaw = Math.toDegrees(atan2(difZ, difX))
         src.pitch = pitch.toFloat()
         src.yaw = yaw.toFloat() - 90f
-        val v = src.direction
-        v.x *= 1.75
-        v.y = 1.5
-        v.z *= 1.75
-        velocity = v
+        val impulse = src.direction
+        impulse.x *= distanceMulti
+        impulse.y = heightMulti
+        impulse.z *= distanceMulti
+        velocity = impulse
     }
 
     private fun runSync(delay: Long = 0L, block: () -> Unit) {

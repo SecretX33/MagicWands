@@ -4,10 +4,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.text.WordUtils
 import org.bukkit.plugin.Plugin
 import java.io.*
-import java.nio.file.FileSystems
 import kotlin.math.max
 
 class YamlManager (

@@ -6,6 +6,6 @@ private typealias BungeeColor = net.md_5.bungee.api.ChatColor
 
 object Colors {
 
-    val BONE_RED = BungeeColor.of(Color(237, 78, 66))
-    val BLAZE_ROD_ORANGE = BungeeColor.of(Color(245, 182, 66))
+    val BONE_RED: BungeeColor = BungeeColor.of(Color(237, 78, 66))
+    val BLAZE_ROD_ORANGE: BungeeColor = BungeeColor.of(Color(245, 182, 66))
 }

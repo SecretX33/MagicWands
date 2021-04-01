@@ -26,7 +26,7 @@ class Cuboid(point1: Location, point2: Location) {
     private val yMaxCentered: Double = yMax + 0.5
     private val zMinCentered: Double = zMin + 0.5
     private val zMaxCentered: Double = zMax + 0.5
-    val world: World = point1.world ?: throw IllegalArgumentException("World cannot be null")
+    private val world: World = point1.world ?: throw IllegalArgumentException("World cannot be null")
 
     fun bordersBlockList(): Set<Block> {
         val blockList = HashSet<Block>()
@@ -74,7 +74,7 @@ class Cuboid(point1: Location, point2: Location) {
         }
 
         // There is no walls on this cuboid, just floor and ceil
-        if (yMax - yMin < 3) return blockList
+        if (yMax - yMin < 2) return blockList.also { println("not running completely") }
 
         // For all block in between floor and ceil
         for (y in yMin + 1..yMax - 1) {
@@ -145,7 +145,7 @@ class Cuboid(point1: Location, point2: Location) {
         get() = zMax - zMin + 1
 
     fun isIn(loc: Location): Boolean {
-        return loc.world === world && loc.blockX >= xMin && loc.blockX <= xMax && loc.blockY >= yMin && loc.blockY <= yMax && loc
+        return loc.world?.uid == world.uid && loc.blockX >= xMin && loc.blockX <= xMax && loc.blockY >= yMin && loc.blockY <= yMax && loc
             .blockZ >= zMin && loc.blockZ <= zMax
     }
 
@@ -154,7 +154,7 @@ class Cuboid(point1: Location, point2: Location) {
     }
 
     fun isInWithMarge(loc: Location, marge: Double): Boolean {
-        return loc.world === world && loc.x >= xMinCentered - marge && loc.x <= xMaxCentered + marge && loc.y >= yMinCentered - marge && loc
+        return loc.world?.uid == world.uid && loc.x >= xMinCentered - marge && loc.x <= xMaxCentered + marge && loc.y >= yMinCentered - marge && loc
             .getY() <= yMaxCentered + marge && loc.z >= zMinCentered - marge && loc.z <= zMaxCentered + marge
     }
 }
