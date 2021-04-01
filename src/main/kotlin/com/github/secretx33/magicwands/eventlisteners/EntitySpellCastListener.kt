@@ -1,7 +1,5 @@
 package com.github.secretx33.magicwands.eventlisteners
 
-import com.github.secretx33.magicwands.config.MessageKeys
-import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.events.EntitySpellCastEvent
 import com.github.secretx33.magicwands.manager.SpellManager
 import com.github.secretx33.magicwands.model.SpellType.*

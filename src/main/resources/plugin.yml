@@ -6,6 +6,7 @@ authors: [SecretX]
 description: Magic wands, for everyone.
 website: https://github.com/SecretX33
 depend: [ProtocolLib, Vault]
+softdepend: [WorldGuard]
 
 commands:
   wand:

@@ -2,7 +2,6 @@ package com.github.secretx33.magicwands.config
 
 import com.github.secretx33.magicwands.utils.YamlManager
 import org.bukkit.plugin.Plugin
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class Config(plugin: Plugin) {
@@ -20,6 +19,8 @@ class Config(plugin: Plugin) {
     fun <T> get(key: ConfigKeys): T = get(key.configEntry, key.defaultValue) as T
 
     fun <T> get(key: ConfigKeys, default: T): T = get(key.configEntry, default)
+
+    fun has(path: String): Boolean = manager.contains(path)
 
     fun set(key: String, value: Any) {
         cache[key] = value

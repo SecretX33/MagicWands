@@ -3,7 +3,10 @@ package com.github.secretx33.magicwands.commands.subcommands
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.model.WandSkin
-import com.github.secretx33.magicwands.utils.*
+import com.github.secretx33.magicwands.utils.CustomKoinComponent
+import com.github.secretx33.magicwands.utils.ItemUtils
+import com.github.secretx33.magicwands.utils.inject
+import com.github.secretx33.magicwands.utils.isWand
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player

@@ -4,12 +4,8 @@ import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
-import com.github.secretx33.magicwands.events.SpellCastEvent
 import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
-import com.github.secretx33.magicwands.manager.SpellFuelManager
-import com.github.secretx33.magicwands.manager.SpellManager
 import com.github.secretx33.magicwands.utils.ItemUtils
-import com.github.secretx33.magicwands.utils.Utils.consoleMessage
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority

@@ -3,6 +3,7 @@ package com.github.secretx33.magicwands.commands.subcommands
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.model.SpellType
+import com.github.secretx33.magicwands.model.WandSkin
 import com.github.secretx33.magicwands.utils.*
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
@@ -42,16 +43,19 @@ class SpellCommand : SubCommand(), CustomKoinComponent {
 
     private fun bindSpell(player: Player, item: ItemStack, spellType: SpellType) {
         if (!item.isWandMaterial()) {
-            player.sendMessage(
-                messages.get(MessageKeys.INVALID_WAND_MATERIAL)
-                    .replace("<item>", item.formattedTypeName())
-                    .replace("<allowed_material>", "Stick")
-            )
+            player.sendMessage(messages.get(MessageKeys.INVALID_WAND_MATERIAL)
+                .replace("<item>", item.formattedTypeName())
+                .replace("<allowed_material>", "Stick"))
+            return
+        }
+        val skin = WandSkin.of(item.type)
+        if(!player.hasPermission(skin.permission)) {
+            player.sendMessage(messages.get(MessageKeys.HAVENT_BOUGHT_THIS_MATERIAL_SKIN).replace("<item>", skin.displayName))
             return
         }
         if(!item.isWand()) ItemUtils.turnIntoWand(item)
-        val spellList = ItemUtils.getAvailableSpells(item)
 
+        val spellList = ItemUtils.getAvailableSpells(item)
         if(spellList.contains(spellType)) {
             player.sendMessage(messages.get(MessageKeys.SPELL_ALREADY_PRESENT))
             return

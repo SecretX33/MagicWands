@@ -18,6 +18,13 @@ enum class SpellType {
     val configCooldown = "$configRoot.cooldown"
     val configDuration = "$configRoot.duration"
     val configRange = "$configRoot.range"
+    val configEffect = "$configRoot.effect"
+    val configEffectEnabled = "$configEffect.enabled"
+    val configEffectType = "$configEffect.type"
+    val configEffectMainColor = "$configEffect.main-color"
+    val configEffectFadeColor = "$configEffect.fade-color"
+    val configEffectFlicker = "$configEffect.flicker"
+    val configEffectTrail = "$configEffect.trail"
     val displayName = name.replace('_',' ').capitalizeFully()
 
     companion object {

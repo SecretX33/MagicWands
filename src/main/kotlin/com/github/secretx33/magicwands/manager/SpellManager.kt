@@ -30,7 +30,12 @@ import kotlin.collections.HashSet
 import kotlin.math.*
 
 @KoinApiExtension
-class SpellManager(private val plugin: Plugin, private val config: Config, private val messages: Messages) {
+class SpellManager(
+    private val plugin: Plugin,
+    private val config: Config,
+    private val messages: Messages,
+    private val particlesHelper: ParticlesHelper,
+) {
 
     private val manager = YamlManager(plugin, "spells_learned/spells_learned")
     private val cooldown = HashMap<Pair<UUID, SpellType>, Long>()
@@ -79,11 +84,13 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
     }
 
     fun castEnsnare(event: EntitySpellCastEvent) {
+        val player = event.player
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
         val duration: Long = config.get(spellType.configDuration, 5) * 1000L
         val cuboid = target.makeCuboidAround()
-        val blockList = cuboid.allSidesBlockList().filter { !blocksBlackList.contains(it.location) }
+        val blockList = cuboid.allSidesBlockList().filter { it.type != Material.BEDROCK
+                && !blocksBlackList.contains(it.location) && WorldGuardHelper.canBreakBlock(it, player) }
         val blockListLocation = blockList.map { it.location }
 
         blocksBlackList.addAll(blockListLocation)
@@ -92,10 +99,10 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
             val originalBlocks = blockList.map { it.state }
 
             override fun make() {
-                blockList.forEach {
-                    (it.state as? InventoryHolder)?.inventory?.clear()
-                    it.type = Material.AIR
-                    it.type = Material.CRYING_OBSIDIAN
+                blockList.forEach { block ->
+                    (block.state as? InventoryHolder)?.inventory?.clear()
+                    block.type = Material.AIR
+                    block.type = Material.CRYING_OBSIDIAN
                 }
             }
 
@@ -172,6 +179,7 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
             z *= distanceMulti
         }
         player.velocity = impulse
+        particlesHelper.sendFireworkParticle(player.location, type)
     }
 
     fun castThrust(event: EntitySpellCastEvent) {

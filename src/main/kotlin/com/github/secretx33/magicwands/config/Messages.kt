@@ -25,10 +25,12 @@ class Messages(plugin: Plugin) {
 }
 
 enum class MessageKeys(val default: String) {
+    HAVENT_BOUGHT_THIS_MATERIAL_SKIN("${ChatColor.RED}You may not turn <item> into a wand, you haven't bought it's skin yet."),
+    CANNOT_USE_WAND_TO_CRAFT("${ChatColor.RED}You may not use a wand to craft items."),
     GOT_POISONED("${ChatColor.GREEN}You have been poisoned by <caster>."),
     POISONED_TARGET("${ChatColor.GREEN}You have poisoned <target>."),
     ADDED_SPELL_TO_WAND("${ChatColor.GREEN}Successfully added <spell> to your wand."),
-    CANNOT_BLINK_TO_THERE("Sorry, you cannot blink to there"),
+    CANNOT_BLINK_TO_THERE("Sorry, you cannot blink to there."),
     CASTED_VANISH("You vanished!"),
     NOT_HOLDING_A_WAND("${ChatColor.RED}The item in your hand is not a wand."),
     INVALID_SKIN_NAME("${ChatColor.RED}There is no skin named <skin>, please try again."),

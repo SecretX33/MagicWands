@@ -29,6 +29,7 @@ repositories {
         url = uri("https://plugins.gradle.org/m2/")
     }
     maven { url = uri("https://jitpack.io") }
+    maven { url = uri("https://maven.enginehub.org/repo/") }
 }
 
 dependencies {
@@ -43,6 +44,7 @@ dependencies {
     testCompileOnly("org.koin:koin-test:$koin_version")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.6.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.4")
 }
 
 // Disables the normal jar task

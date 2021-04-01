@@ -1,6 +1,8 @@
 package com.github.secretx33.magicwands.commands.subcommands
 
-import com.github.secretx33.magicwands.config.*
+import com.github.secretx33.magicwands.config.Config
+import com.github.secretx33.magicwands.config.MessageKeys
+import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.manager.SpellManager
 import com.github.secretx33.magicwands.utils.CustomKoinComponent
 import com.github.secretx33.magicwands.utils.Utils.consoleMessage
