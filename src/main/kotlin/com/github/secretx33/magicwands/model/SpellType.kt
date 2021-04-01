@@ -13,10 +13,11 @@ enum class SpellType {
     VANISH;
 
     val configRoot = "spells.${name.toLowerCase(Locale.US)}"
+    val configLearnPrice = "$configRoot.learn-price"
     val configFuelAmount = "$configRoot.fuel-usage"
     val configCooldown = "$configRoot.cooldown"
-    val configLearnPrice = "$configRoot.learn-price"
     val configDuration = "$configRoot.duration"
+    val configRange = "$configRoot.range"
     val displayName = name.replace('_',' ').capitalizeFully()
 
     companion object {

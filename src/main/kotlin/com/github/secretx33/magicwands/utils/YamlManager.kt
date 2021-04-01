@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.text.WordUtils
 import org.bukkit.plugin.Plugin
 import java.io.*
 import java.nio.file.FileSystems
@@ -141,7 +142,7 @@ class YamlManager (
 
     private fun addCommentsToFile(comments: List<Comment>): List<String> {
         // read the new file, removing all comments (from header)
-        val newFile = file.getLines().filter { !it.contains('#') } as MutableList<String>
+        val newFile = file.getLines().filter { !COMMENT_PATTERN.matcher(it).matches() } as MutableList<String>
 
         val fullLineComments = comments.filter { it.type == CommentType.FULL_MULTILINE || it.type == CommentType.FULL_LINE }
         for(comment in fullLineComments) {
