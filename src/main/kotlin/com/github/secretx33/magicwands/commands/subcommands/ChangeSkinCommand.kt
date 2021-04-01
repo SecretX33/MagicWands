@@ -17,7 +17,7 @@ class ChangeSkinCommand : SubCommand(), CustomKoinComponent {
 
     override val name: String = "changeskin"
     override val permission: String = "skins"
-    override val aliases: List<String> = listOf(name, "rel", "r")
+    override val aliases: List<String> = listOf(name, "changes", "cs")
 
     private val messages by inject<Messages>()
 

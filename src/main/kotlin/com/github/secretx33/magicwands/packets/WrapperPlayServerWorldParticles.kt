@@ -3,7 +3,6 @@ package com.github.secretx33.magicwands.packets
 import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.events.PacketContainer
 import com.comphenix.protocol.wrappers.EnumWrappers
-import com.comphenix.protocol.wrappers.WrappedParticle
 import org.bukkit.Location
 
 class WrapperPlayServerWorldParticles : AbstractPacket {

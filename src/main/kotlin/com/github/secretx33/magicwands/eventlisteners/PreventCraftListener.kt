@@ -2,7 +2,6 @@ package com.github.secretx33.magicwands.eventlisteners
 
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
-import com.github.secretx33.magicwands.utils.Utils.debugMessage
 import com.github.secretx33.magicwands.utils.isWand
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player

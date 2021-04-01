@@ -25,6 +25,7 @@ class Messages(plugin: Plugin) {
 }
 
 enum class MessageKeys(val default: String) {
+    COMMAND_PARAMETER_IS_INVALID("${ChatColor.RED}Command parameter <parameter> is invalid."),
     HAVENT_BOUGHT_THIS_MATERIAL_SKIN("${ChatColor.RED}You may not turn <item> into a wand, you haven't bought it's skin yet."),
     CANNOT_USE_WAND_TO_CRAFT("${ChatColor.RED}You may not use a wand to craft items."),
     GOT_POISONED("${ChatColor.GREEN}You have been poisoned by <caster>."),

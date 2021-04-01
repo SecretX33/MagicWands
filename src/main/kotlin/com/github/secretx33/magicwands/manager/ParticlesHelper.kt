@@ -31,6 +31,8 @@ class ParticlesHelper(private val config: Config) {
         val flicker = config.get(spellType.configEffectFlicker, false)
         val trail = config.get(spellType.configEffectTrail, false)
 
+        println("Flicker is $flicker, trail is $trail, fadeColor is $fadeColor, mainColor is $mainColor")
+
         val meta = fireworkMeta
         val effect = FireworkEffect.builder().with(type)
             .withColor(mainColor)
@@ -45,14 +47,20 @@ class ParticlesHelper(private val config: Config) {
 
     private fun String.toColor(): Color {
         val results = COLOR_PATTERN.find(this.trim())?.groupValues
-        if(results?.size != 3) {
+        if(results?.size != 4) {
+            println("Result size is ${results?.size ?: 0}")
             consoleMessage("${ChatColor.RED}Seems like you have malformed color string in your config file, please fix spell effect color entry with value '$this' and reload MagicWands plugin configuration.")
             return Color.FUCHSIA
         }
-        val r = results[0].toInt()
-        val g = results[1].toInt()
-        val b = results[2].toInt()
-        return Color.fromRGB(r, g, b)
+        val r = results[1].toInt()
+        val g = results[2].toInt()
+        val b = results[3].toInt()
+        return try {
+            Color.fromRGB(r, g, b)
+        } catch(e: IllegalArgumentException) {
+            consoleMessage("Seems like you have typed a invalid number, please only values between 0 and 255 to write the colors. Original error message: ${e.message}")
+            Color.FUCHSIA
+        }
     }
 
     private companion object {

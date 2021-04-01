@@ -26,7 +26,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { Config(get()) }
         single { SpellFuelManager(get()) }
         single { ParticlesHelper(get()) }
-        single { SpellManager(get(), get(), get()) }
+        single { SpellManager(get(), get(), get(), get()) }
         single { BlockSpellCastListener(get(), get(), get()) }
         single { EntitySpellCastListener(get(), get()) }
         single { PreventCraftListener(get(), get()) }

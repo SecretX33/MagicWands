@@ -17,8 +17,8 @@
 # +------------------------------------------------------+ #
 ############################################################
 
-# Enable spell effects
-enable-effects: true
+# Enable spell effects GLOBALLY
+enable-spell-effects: true
 # Show message when cycling selected spell
 enable-message-on-spell-switch: true
 # Disable spell cooldowns GLOBALLY (use with CAUTION)
@@ -37,9 +37,11 @@ spells:
     distance-multiplier: 1.3  # how far the player will leap
     effect:
       enabled: true
-      type: "BALL_LARGE"      # valid values: BALL, BALL_LARGE, BURST, CREEPER, STAR
-      main-color: ["151, 58, 208"]  # RGB, do like this (between square brackets) to use a single color
-      fade-color: ["112, 212, 99"]  # RGB, remove this field to disable Fade color effect
+      type: BALL_LARGE        # valid values: BALL, BALL_LARGE, BURST, CREEPER, STAR
+      main-color:
+        - 151, 58, 208        # RGB, do like this "r, g, b" format to use a single color, is mandatory to have at least one value
+      fade-color:
+        - 112, 212, 99        # RGB, leave it empty to disable fade color completely
       flicker: true           # true if this explosion has the Twinkle effect (glowstone dust)
       trail: true             # true if this explosion has the Trail effect (diamond)
 
@@ -52,14 +54,14 @@ spells:
     distance-multiplier: 1.4  # how far the player's target will be thrust
     effect:
       enabled: true
-      type: "BALL_LARGE"
+      type: BALL_LARGE
       main-color:
-        - "151, 58, 208"      # you can put multiple colors like this
-        - "54, 81, 155"       # in a list format
-        - "211, 120, 175"
+        - 151 58, 208         # you can put multiple colors like this
+        - 54 81, 155          # in a list format
+        - 211 120, 175   
       fade-color:
-        - "112, 212, 99"      # and of course, multiple fade colors
-        - "184, 139, 35"      # as well in the same list format
+        - 112 212, 99         # and of course, multiple fade colors
+        - 184 139, 35         # as well in the same list format
       flicker: true
       trail: true
 
@@ -70,11 +72,13 @@ spells:
     range: 15                 # up until what range the player can blink, in blocks
     effect:
       enabled: true
-      type: "BALL_LARGE"      # valid values: BALL, BALL_LARGE, BURST, CREEPER, STAR
-      main-color: "151, 58, 208"  # RGB
-      fade-color: "112, 212, 99"  # RGB, remove this field to disable Fade color effect
-      flicker: true           # true if this explosion has the Twinkle effect (glowstone dust)
-      trail: true             # true if this explosion has the Trail effect (diamond)
+      type: BALL_LARGE
+      main-color: 
+        - 151, 58, 208 
+      fade-color: 
+        - 112, 212, 99
+      flicker: true
+      trail: true
 
   blind:
     learn-price: 100
@@ -84,11 +88,13 @@ spells:
     range: 8                 # up until what range the player can blind others, in blocks
     effect:
       enabled: true
-      type: "BALL_LARGE"      # valid values: BALL, BALL_LARGE, BURST, CREEPER, STAR
-      main-color: "151, 58, 208"  # RGB
-      fade-color: "112, 212, 99"  # RGB, remove this field to disable Fade color effect
-      flicker: true           # true if this explosion has the Twinkle effect (glowstone dust)
-      trail: true             # true if this explosion has the Trail effect (diamond)
+      type: BALL_LARGE
+      main-color: 
+        - 151, 58, 208 
+      fade-color: 
+        - 112, 212, 99
+      flicker: true
+      trail: true
 
   poison:
     learn-price: 100
@@ -98,11 +104,13 @@ spells:
     range: 7                  # up until what range the player can poison others, in blocks
     effect:
       enabled: true
-      type: "BALL_LARGE"      # valid values: BALL, BALL_LARGE, BURST, CREEPER, STAR
-      main-color: "151, 58, 208"  # RGB
-      fade-color: "112, 212, 99"  # RGB, remove this field to disable Fade color effect
-      flicker: true           # true if this explosion has the Twinkle effect (glowstone dust)
-      trail: true             # true if this explosion has the Trail effect (diamond)
+      type: BALL_LARGE
+      main-color: 
+        - 151, 58, 208 
+      fade-color: 
+        - 112, 212, 99
+      flicker: true
+      trail: true
 
   vanish:
     learn-price: 100
@@ -111,11 +119,13 @@ spells:
     duration: 5
     effect:
       enabled: true
-      type: "BALL_LARGE"      # valid values: BALL, BALL_LARGE, BURST, CREEPER, STAR
-      main-color: "151, 58, 208"  # RGB
-      fade-color: "112, 212, 99"  # RGB, remove this field to disable Fade color effect
-      flicker: true           # true if this explosion has the Twinkle effect (glowstone dust)
-      trail: true             # true if this explosion has the Trail effect (diamond)
+      type: BALL_LARGE
+      main-color: 
+        - 151, 58, 208 
+      fade-color: 
+        - 112, 212, 99
+      flicker: true
+      trail: true
 
   ensnare:
     learn-price: 100
@@ -125,11 +135,13 @@ spells:
     range: 6                  # up until what range the player can trap others, in blocks
     effect:
       enabled: true
-      type: "BALL_LARGE"      # valid values: BALL, BALL_LARGE, BURST, CREEPER, STAR
-      main-color: "151, 58, 208"  # RGB
-      fade-color: "112, 212, 99"  # RGB, remove this field to disable Fade color effect
-      flicker: true           # true if this explosion has the Twinkle effect (glowstone dust)
-      trail: true             # true if this explosion has the Trail effect (diamond)
+      type: BALL_LARGE
+      main-color: 
+        - 151, 58, 208 
+      fade-color: 
+        - 112, 212, 99
+      flicker: true
+      trail: true
 
 # Material list here https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html, Ctrl + F is your friend
 # Add as many fuels as you want, just don't leave this list empty

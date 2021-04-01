@@ -1,9 +1,6 @@
 package com.github.secretx33.magicwands.commands
 
-import com.github.secretx33.magicwands.commands.subcommands.ChangeSkinCommand
-import com.github.secretx33.magicwands.commands.subcommands.ReloadCommand
-import com.github.secretx33.magicwands.commands.subcommands.SpellCommand
-import com.github.secretx33.magicwands.commands.subcommands.SubCommand
+import com.github.secretx33.magicwands.commands.subcommands.*
 import com.github.secretx33.magicwands.config.Const.PLUGIN_COMMAND_PREFIX
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -18,8 +15,10 @@ import java.util.*
 class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
 
     private val subcommands: List<SubCommand> = listOf(ChangeSkinCommand(),
+        EffectCommand(),
         ReloadCommand(),
-        SpellCommand())
+        SpellbindCommand(),
+        SpellremoveCommand())
 
     init {
         plugin.getCommand(PLUGIN_COMMAND_PREFIX)?.let { cmd ->

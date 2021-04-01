@@ -20,7 +20,9 @@ permissions:
     default: op
     children:
       magicwands.reload: true
-      magicwands.spell: true
+      magicwands.toggleeffect: true
+      magicwands.spellbind: true
+      magicwands.spellremove: true
       magicwands.skins: true
       magicwands.skins.stick: true
       magicwands.skins.bone: true
@@ -30,8 +32,16 @@ permissions:
     description: Allows one to reload all plugin configurations.
     default: false
 
-  magicwands.spell:
-    description: Grant access to the command 'spell'.
+  magicwands.toggleeffect:
+    description: Grant access to the commands 'effect toggle', 'effect enable' and 'effect disable'.
+    default: false
+
+  magicwands.spellbind:
+    description: Grant access to the command 'spellbind'.
+    default: false
+
+  magicwands.spellremove:
+    description: Grant access to the command 'spellremove'.
     default: false
 
   magicwands.skins:
