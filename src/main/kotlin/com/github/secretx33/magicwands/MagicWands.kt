@@ -30,7 +30,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { PreventCraftListener(get()) }
         single { SpellCastListener(get(), get(), get(), get(), get()) }
         single { WandSpellSwitchListener(get(), get(), get()) }
-        single { WandUseListener(get()) }
+        single { WandUseListener(get(), get()) }
         single { Commands(get()) }
     }
 

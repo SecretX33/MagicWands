@@ -1,5 +1,6 @@
 package com.github.secretx33.magicwands.eventlisteners
 
+import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.events.BlockSpellCastEvent
 import com.github.secretx33.magicwands.events.EntitySpellCastEvent
 import com.github.secretx33.magicwands.events.SpellCastEvent
@@ -23,7 +24,7 @@ import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class WandUseListener(plugin: Plugin) : Listener {
+class WandUseListener(plugin: Plugin, private val config: Config) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
@@ -62,8 +63,8 @@ class WandUseListener(plugin: Plugin) : Listener {
     private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent? {
         return when(val type = ItemUtils.getWandSpellOrNull(wand)) {
             null -> null
-            BLIND, ENSNARE, POISON, THRUST -> EntitySpellCastEvent(player, wand, type)
-            BLINK -> BlockSpellCastEvent(player, wand, type)
+            BLIND, ENSNARE, POISON, THRUST -> EntitySpellCastEvent(player, wand, type, config.get(type.configRange, 5))
+            BLINK -> BlockSpellCastEvent(player, wand, type, config.get(type.configRange, 5))
             else -> SpellCastEvent(player, wand, type)
         }
     }

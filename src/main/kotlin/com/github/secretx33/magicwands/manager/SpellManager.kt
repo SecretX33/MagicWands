@@ -12,10 +12,13 @@ import com.github.secretx33.magicwands.model.TempModification
 import com.github.secretx33.magicwands.utils.YamlManager
 import kotlinx.coroutines.*
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.inventory.InventoryHolder
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -25,6 +28,7 @@ import java.lang.StrictMath.pow
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.IllegalStateException
+import kotlin.collections.HashSet
 import kotlin.math.*
 
 @KoinApiExtension
@@ -33,6 +37,7 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
     private val manager = YamlManager(plugin, "spells_learned")
     private val cooldown = ConcurrentHashMap<Pair<UUID, SpellType>, Long>()
     private val tempModification = ConcurrentHashMap<Job, TempModification>()
+    private val blocksBlackList = Collections.synchronizedSet(HashSet<Location>())
 
     fun getSpellCD(player: Player, spellType: SpellType): Long
         = max(0L, (cooldown.getOrDefault(Pair(player.uniqueId, spellType), 0L) - System.currentTimeMillis()))
@@ -92,19 +97,27 @@ class SpellManager(private val plugin: Plugin, private val config: Config, priva
     fun castEnsnare(event: EntitySpellCastEvent) {
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
-        val duration: Long = config.get(spellType.configDuration, 0) * 1000L
+        val duration: Long = config.get(spellType.configDuration, 5) * 1000L
         val cuboid = target.makeCuboidAround()
+        val blockList = cuboid.allSidesBlockList().filter { !blocksBlackList.contains(it.location) }
+        val blockListLocation = blockList.map { it.location }
+        blocksBlackList.addAll(blockListLocation)
 
         val task = object : TempModification {
-            val originalBlocks = cuboid.allSidesBlockList().map { it.state }
+            val originalBlocks = blockList.map { it.state }
 
             override fun make() {
-                cuboid.allSidesBlockList().forEach {
-                    cuboid.world.getBlockAt(it.location).type = Material.CRYING_OBSIDIAN
+                blockList.forEach {
+                    (it.state as? InventoryHolder)?.inventory?.clear()
+                    it.type = Material.AIR
+                    it.type = Material.CRYING_OBSIDIAN
                 }
             }
 
-            override fun unmake() { originalBlocks.forEach { it.update(true) } }
+            override fun unmake() {
+                originalBlocks.forEach { it.update(true, false) }
+                blocksBlackList.removeAll(blockListLocation)
+            }
         }
         val job = scheduleJob(task, duration)
         tempModification[job] = task

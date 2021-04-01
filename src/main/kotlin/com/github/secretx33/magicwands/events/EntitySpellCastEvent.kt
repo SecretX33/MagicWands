@@ -8,7 +8,9 @@ import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class EntitySpellCastEvent(player: Player, wand: ItemStack, spellType: SpellType) : SpellCastEvent(player, wand, spellType) {
+class EntitySpellCastEvent(player: Player, wand: ItemStack, spellType: SpellType, range: Int) : SpellCastEvent(player, wand, spellType) {
 
-    val target: LivingEntity? = player.getTarget(15) as? LivingEntity
+    val target: LivingEntity? = player.getTarget(range)
+
+    init { require(range > 0) { "range has to be greater than zero, value passed is $range" } }
 }

@@ -66,7 +66,7 @@ spells:
     learn-price: 100
     fuel-usage: 10
     cooldown: 12
-    duration: 5
+    duration: 5              # DON'T USE VALUE LOWER THAN 2
     range: 6                 # up until what range the player can trap others, in blocks
 
   thrust:

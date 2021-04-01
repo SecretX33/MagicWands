@@ -28,7 +28,7 @@ class EntitySpellCastListener (
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private fun EntitySpellCastEvent.onSuccess() {
-        val target = target ?: return
+        if(target == null) return
 
         when(spellType){
             BLIND -> spellManager.castBlind(this)

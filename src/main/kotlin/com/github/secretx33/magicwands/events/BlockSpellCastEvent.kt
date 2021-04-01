@@ -8,7 +8,9 @@ import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class BlockSpellCastEvent(player: Player, wand: ItemStack, spellType: SpellType) : SpellCastEvent(player, wand, spellType) {
+class BlockSpellCastEvent(player: Player, wand: ItemStack, spellType: SpellType, range: Int) : SpellCastEvent(player, wand, spellType) {
 
     val block: Block = player.getTargetBlock(null, 15)
+
+    init { require(range > 0) { "range has to be greater than zero, value passed is $range" } }
 }
