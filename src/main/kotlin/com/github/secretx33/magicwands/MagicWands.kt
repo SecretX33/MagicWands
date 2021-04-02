@@ -25,10 +25,11 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { Messages(get()) }
         single { Config(get()) }
         single { SpellFuelManager(get()) }
-        single { ParticlesHelper(get()) }
+        single { ParticlesHelper(get(), get()) }
         single { SpellManager(get(), get(), get(), get()) }
         single { BlockSpellCastListener(get(), get(), get()) }
         single { EntitySpellCastListener(get(), get()) }
+        single { FireworkDamageWorkaroundListener(get()) }
         single { PreventCraftListener(get(), get()) }
         single { SpellCastListener(get(), get(), get(), get(), get()) }
         single { WandSpellSwitchListener(get(), get(), get()) }
@@ -45,6 +46,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         }
         get<BlockSpellCastListener>()
         get<EntitySpellCastListener>()
+        get<FireworkDamageWorkaroundListener>()
         get<SpellCastListener>()
         get<PreventCraftListener>()
         get<SpellCastListener>()

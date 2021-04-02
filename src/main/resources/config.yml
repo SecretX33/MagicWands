@@ -56,12 +56,12 @@ spells:
       enabled: true
       type: BALL_LARGE
       main-color:
-        - 151 58, 208         # you can put multiple colors like this
-        - 54 81, 155          # in a list format
-        - 211 120, 175   
+        - 151, 58, 208         # you can put multiple colors like this
+        - 54, 81, 155          # in a list format
+        - 211, 120, 175
       fade-color:
-        - 112 212, 99         # and of course, multiple fade colors
-        - 184 139, 35         # as well in the same list format
+        - 112, 212, 99         # and of course, multiple fade colors
+        - 184, 139, 35         # as well in the same list format
       flicker: true
       trail: true
 
@@ -75,8 +75,7 @@ spells:
       type: BALL_LARGE
       main-color: 
         - 151, 58, 208 
-      fade-color: 
-        - 112, 212, 99
+      fade-color: []          # this one doesn't have any fade color effects
       flicker: true
       trail: true
 

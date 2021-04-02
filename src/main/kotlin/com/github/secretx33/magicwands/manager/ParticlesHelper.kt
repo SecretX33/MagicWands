@@ -4,22 +4,24 @@ import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.utils.Utils.consoleMessage
-import org.bukkit.ChatColor
-import org.bukkit.Color
-import org.bukkit.FireworkEffect
-import org.bukkit.Location
+import org.bukkit.*
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Firework
+import org.bukkit.persistence.PersistentDataType
+import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class ParticlesHelper(private val config: Config) {
+class ParticlesHelper(private val plugin: Plugin, private val config: Config) {
+
+    private val fireworkId = NamespacedKey(plugin, "custom_firework")
 
     fun sendFireworkParticle(loc: Location, spellType: SpellType) {
         if(!config.get<Boolean>(ConfigKeys.ENABLE_EFFECTS) || !config.get(spellType.configEffectEnabled, true)) return
         val world = loc.world ?: return
 
         val firework = world.spawnEntity(loc, EntityType.FIREWORK) as Firework
+        firework.persistentDataContainer.set(fireworkId, PersistentDataType.BYTE, 1)
         firework.applyEffects(spellType)
         firework.detonate()
     }
@@ -30,8 +32,6 @@ class ParticlesHelper(private val config: Config) {
         val fadeColor = config.get(spellType.configEffectFadeColor, emptyList<String>()).map { it.toColor() }
         val flicker = config.get(spellType.configEffectFlicker, false)
         val trail = config.get(spellType.configEffectTrail, false)
-
-        println("Flicker is $flicker, trail is $trail, fadeColor is $fadeColor, mainColor is $mainColor")
 
         val meta = fireworkMeta
         val effect = FireworkEffect.builder().with(type)
@@ -48,7 +48,7 @@ class ParticlesHelper(private val config: Config) {
     private fun String.toColor(): Color {
         val results = COLOR_PATTERN.find(this.trim())?.groupValues
         if(results?.size != 4) {
-            println("Result size is ${results?.size ?: 0}")
+            consoleMessage("Result size is ${results?.size ?: 0}")
             consoleMessage("${ChatColor.RED}Seems like you have malformed color string in your config file, please fix spell effect color entry with value '$this' and reload MagicWands plugin configuration.")
             return Color.FUCHSIA
         }

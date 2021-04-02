@@ -66,21 +66,28 @@ class SpellManager(
 
     fun reload() = manager.reload()
 
-    fun castVanish(event: SpellCastEvent) {
-        val player = event.player
-        val spellType = event.spellType
-        val duration = config.get(spellType.configDuration, 0)
-
-        player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, duration * 20, 1, false, false))
-        player.sendMessage(messages.get(MessageKeys.CASTED_VANISH))
-    }
-
     fun castBlind(event: EntitySpellCastEvent) {
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
-        val duration = config.get(spellType.configDuration, 0)
+        val duration = config.get(spellType.configDuration, 1)
 
         target.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, duration * 20, 1))
+        particlesHelper.sendFireworkParticle(target.location.apply { y += target.height * 0.7 }, spellType)
+    }
+
+    fun castBlink(event: BlockSpellCastEvent) {
+        val player = event.player
+        val block = event.block
+
+        val previousLocation = player.location
+        player.teleport(block.location.clone().apply {
+            x += 0.5
+            y += 1.15
+            z += 0.5
+            pitch = player.location.pitch
+            yaw = player.location.yaw
+        })
+        particlesHelper.sendFireworkParticle(previousLocation, event.spellType)
     }
 
     fun castEnsnare(event: EntitySpellCastEvent) {
@@ -119,6 +126,7 @@ class SpellManager(
         })
         val job = scheduleUnmake(task, duration)
         tempModification[job] = task
+        particlesHelper.sendFireworkParticle(cuboid.center, spellType)
     }
 
     private fun LivingEntity.makeCuboidAround(): Cuboid {
@@ -142,30 +150,6 @@ class SpellManager(
         runSync { task.unmake() }
     }
 
-    fun castPoison(event: EntitySpellCastEvent) {
-        val player = event.player
-        val target = event.target ?: throw IllegalStateException("Target cannot be null")
-        val spellType = event.spellType
-        val duration = config.get(spellType.configDuration, 0)
-
-        target.addPotionEffect(PotionEffect(PotionEffectType.POISON, duration * 20, 7))
-        player.sendMessage(messages.get(MessageKeys.POISONED_TARGET).replace("<target>", target.customName ?: target.name))
-        if(target is Player) target.sendMessage(messages.get(MessageKeys.GOT_POISONED).replace("<caster>", player.name))
-    }
-
-    fun castBlink(event: BlockSpellCastEvent) {
-        val player = event.player
-        val block = event.block
-
-        player.teleport(block.location.clone().apply {
-            x += 0.5
-            y += 0.25
-            z += 0.5
-            pitch = player.location.pitch
-            yaw = player.location.yaw
-        })
-    }
-
     fun castLeap(event: SpellCastEvent) {
         val player = event.player
         val type = event.spellType
@@ -179,7 +163,19 @@ class SpellManager(
             z *= distanceMulti
         }
         player.velocity = impulse
-        particlesHelper.sendFireworkParticle(player.location, type)
+        particlesHelper.sendFireworkParticle(player.location.apply { y += 0.25 }, type)
+    }
+
+    fun castPoison(event: EntitySpellCastEvent) {
+        val player = event.player
+        val target = event.target ?: throw IllegalStateException("Target cannot be null")
+        val spellType = event.spellType
+        val duration = config.get(spellType.configDuration, 0)
+
+        target.addPotionEffect(PotionEffect(PotionEffectType.POISON, duration * 20, 7))
+        player.sendMessage(messages.get(MessageKeys.POISONED_TARGET).replace("<target>", target.customName ?: target.name))
+        if(target is Player) target.sendMessage(messages.get(MessageKeys.GOT_POISONED).replace("<caster>", player.name))
+        particlesHelper.sendFireworkParticle(target.location.apply { y += target.height * 0.65 }, spellType)
     }
 
     fun castThrust(event: EntitySpellCastEvent) {
@@ -191,6 +187,7 @@ class SpellManager(
         val distanceMulti = config.get("${type.configRoot}.distance-multiplier", 1.0)
 
         target.thrustBy(player, heightMulti = heightMulti, distanceMulti = distanceMulti)
+        particlesHelper.sendFireworkParticle(target.location.apply { y += target.height * 0.6 }, type)
     }
 
     private fun LivingEntity.thrustBy(atk: Entity, heightMulti: Double, distanceMulti: Double) {
@@ -211,6 +208,16 @@ class SpellManager(
         impulse.y = heightMulti
         impulse.z *= distanceMulti
         velocity = impulse
+    }
+
+    fun castVanish(event: SpellCastEvent) {
+        val player = event.player
+        val spellType = event.spellType
+        val duration = config.get(spellType.configDuration, 0)
+
+        player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, duration * 20, 1, false, false))
+        player.sendMessage(messages.get(MessageKeys.CASTED_VANISH))
+        particlesHelper.sendFireworkParticle(player.location.apply { y += player.height * 0.7 }, spellType)
     }
 
     private fun runSync(delay: Long = 0L, block: () -> Unit) {
