@@ -54,7 +54,7 @@ spells:
     distance-multiplier: 1.4  # how far the player's target will be thrust
     effect:
       enabled: true
-      type: BALL_LARGE
+      type: BURST
       main-color:
         - 151, 58, 208         # you can put multiple colors like this
         - 54, 81, 155          # in a list format
@@ -62,8 +62,8 @@ spells:
       fade-color:
         - 112, 212, 99         # and of course, multiple fade colors
         - 184, 139, 35         # as well in the same list format
-      flicker: true
-      trail: true
+      flicker: false
+      trail: false
 
   blink:
     learn-price: 100
@@ -72,9 +72,9 @@ spells:
     range: 15                 # up until what range the player can blink, in blocks
     effect:
       enabled: true
-      type: BALL_LARGE
+      type: BALL
       main-color: 
-        - 151, 58, 208 
+        - 229, 84, 84
       fade-color: []          # this one doesn't have any fade color effects
       flicker: true
       trail: true
@@ -92,8 +92,8 @@ spells:
         - 151, 58, 208 
       fade-color: 
         - 112, 212, 99
-      flicker: true
-      trail: true
+      flicker: false
+      trail: false
 
   poison:
     learn-price: 100
@@ -104,12 +104,12 @@ spells:
     effect:
       enabled: true
       type: BALL_LARGE
-      main-color: 
-        - 151, 58, 208 
-      fade-color: 
-        - 112, 212, 99
+      main-color:
+        - 54, 234, 54
+      fade-color:
+        - 194, 225, 74
       flicker: true
-      trail: true
+      trail: false
 
   vanish:
     learn-price: 100
@@ -130,15 +130,15 @@ spells:
     learn-price: 100
     fuel-usage: 10
     cooldown: 12
-    duration: 5               # DON'T USE VALUE LOWER THAN 2
+    duration: 5               # DON'T USE VALUE LOWER THAN 1
     range: 6                  # up until what range the player can trap others, in blocks
     effect:
       enabled: true
       type: BALL_LARGE
-      main-color: 
-        - 151, 58, 208 
-      fade-color: 
-        - 112, 212, 99
+      main-color:
+        - 244, 251, 19
+      fade-color:
+        - 251, 166, 19
       flicker: true
       trail: true
 
