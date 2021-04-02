@@ -12,13 +12,14 @@ import kotlinx.coroutines.sync.withPermit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.HashMap
 
 class LearnedSpellsManager(plugin: Plugin) {
 
     private val writeLock = Semaphore(1)
     private val manager = YamlManager(plugin, "spells_learned/spells_learned")
-    private val cache = HashMap<UUID, Set<SpellType>>()
+    private val cache = ConcurrentHashMap<UUID, Set<SpellType>>()
 //    private val gson = Gson()
 //    private val spellTypeSetToken = object : TypeToken<Set<SpellType>>() {}.type
 
@@ -36,6 +37,13 @@ class LearnedSpellsManager(plugin: Plugin) {
         }
         cache[uuid] = HashSet()
         return false
+    }
+
+    fun getKnownSpells(player: Player): Set<SpellType> {
+        val uuid = player.uniqueId
+        return cache.getOrPut(uuid) {
+            manager.getList(uuid.toString())?.mapNotNullTo(HashSet()) { SpellType.ofOrNull(it as? String) } ?: HashSet()
+        }
     }
 
     fun addSpell(player: Player, spell: SpellType) = CoroutineScope(Dispatchers.IO).launch {

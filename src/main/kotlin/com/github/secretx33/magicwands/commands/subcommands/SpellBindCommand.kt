@@ -2,6 +2,7 @@ package com.github.secretx33.magicwands.commands.subcommands
 
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
+import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.model.WandSkin
 import com.github.secretx33.magicwands.utils.*
@@ -18,6 +19,7 @@ class SpellBindCommand : SubCommand(), CustomKoinComponent {
     override val permission: String = "spellbind"
     override val aliases: List<String> = listOf(name, "spellb", "sb")
 
+    private val learnedSpells by inject<LearnedSpellsManager>()
     private val messages by inject<Messages>()
 
     override fun onCommandByPlayer(player: Player, alias: String, strings: Array<String>) {
@@ -29,6 +31,10 @@ class SpellBindCommand : SubCommand(), CustomKoinComponent {
         }
         val spellType = SpellType.ofOrNull(strings[1]) ?: run {
             player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[1]))
+            return
+        }
+        if(!learnedSpells.knows(player, spellType)) {
+            player.sendMessage(messages.get(MessageKeys.CANNOT_BIND_UNKNOWN_SPELL))
             return
         }
         bindSpell(player, item, spellType)
@@ -69,11 +75,12 @@ class SpellBindCommand : SubCommand(), CustomKoinComponent {
 
         val spells = SpellType.values().map { it.displayName } as MutableList
         val item = sender.inventory.itemInMainHand
+        val knownSpells = learnedSpells.getKnownSpells(sender).map { it.displayName }
         if(item.isWand()) {
             spells.removeAll(ItemUtils.getAvailableSpells(item).map { it.displayName })
             if(spells.isEmpty() && hint.isBlank())
                 spells.add(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_ALL_SPELLS))
         }
-        return spells.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
+        return spells.filter { knownSpells.contains(it) && it.startsWith(hint, ignoreCase = true) }.sorted()
     }
 }

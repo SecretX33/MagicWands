@@ -45,6 +45,7 @@ class ForceLearnCommand : SubCommand(), CustomKoinComponent {
     override fun getCompletor(sender: CommandSender, length: Int, hint: String, strings: Array<String>): List<String> {
         if(sender !is Player || length != 2) return emptyList()
 
-        return SpellType.values().filter { it.displayName.startsWith(hint, ignoreCase = true) }.map { it.displayName }
+        val knownSpells = learnedSpells.getKnownSpells(sender)
+        return SpellType.values().filter { !knownSpells.contains(it) && it.displayName.startsWith(hint, ignoreCase = true) }.map { it.displayName }
     }
 }
