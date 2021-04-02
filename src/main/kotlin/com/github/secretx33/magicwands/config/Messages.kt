@@ -33,6 +33,8 @@ enum class MessageKeys(val default: String) {
     ADDED_SPELL_TO_WAND("${ChatColor.GREEN}Successfully added <spell> to your wand."),
     CANNOT_BLINK_TO_THERE("Sorry, you cannot blink to there."),
     CASTED_VANISH("You vanished!"),
+    TAB_COMPLETION_WAND_HAS_ALL_SPELLS("<wand_already_has_all_spells>"),
+    TAB_COMPLETION_WAND_HAS_NO_SPELLS("<wand_has_no_spells>"),
     NOT_HOLDING_A_WAND("${ChatColor.RED}The item in your hand is not a wand."),
     INVALID_SKIN_NAME("${ChatColor.RED}There is no skin named <skin>, please try again."),
     WAND_SKIN_NOT_BOUGHT("${ChatColor.RED}Seems like you haven't bought out amazing skin <skin> yet :("),

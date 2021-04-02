@@ -68,10 +68,13 @@ class SpellbindCommand : SubCommand(), CustomKoinComponent {
         return when(length) {
             2 -> {
                 val item = sender.inventory.itemInMainHand
-                val spells = SpellType.values().toMutableList()
-                if(item.isWand())
-                    spells.removeAll(ItemUtils.getAvailableSpells(item))
-                return spells.map { it.displayName }.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
+                val spells = SpellType.values().map { it.displayName } as MutableList
+                if(item.isWand()) {
+                    spells.removeAll(ItemUtils.getAvailableSpells(item).map { it.displayName })
+                    if(spells.isEmpty() && hint.isBlank())
+                        spells.add(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_ALL_SPELLS))
+                }
+                return spells.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
             }
             else -> emptyList()
         }

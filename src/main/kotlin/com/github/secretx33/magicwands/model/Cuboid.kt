@@ -52,7 +52,7 @@ class Cuboid(point1: Location, point2: Location) {
         return blockList
     }
 
-    fun allSidesBlockList(): Set<Block> {
+    fun getFloorAndCeil(): Set<Block> {
         val blockList = HashSet<Block>()
 
         // Adding floor and ceil of cube
@@ -64,18 +64,14 @@ class Cuboid(point1: Location, point2: Location) {
                 blockList.add(ceil)
             }
         }
-        // Removing corners
-        blockList.removeIf {
-            it.location.run {
-                (x == xMin.toDouble() || x == xMax.toDouble()) &&
-                (y == yMin.toDouble() || y == yMax.toDouble()) &&
-                (z == zMin.toDouble() || z == zMax.toDouble())
-            }
-        }
+        return blockList
+    }
 
+    fun getWalls(): Set<Block> {
         // There is no walls on this cuboid, just floor and ceil
-        if (yMax - yMin < 2) return blockList.also { println("not running completely") }
+        if (yMax - yMin < 2) return emptySet()
 
+        val blockList = HashSet<Block>()
         // For all block in between floor and ceil
         for (y in yMin + 1..yMax - 1) {
             // Get North and South Walls

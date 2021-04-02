@@ -61,12 +61,12 @@ class SpellremoveCommand  : SubCommand(), CustomKoinComponent {
         return when(length) {
             2 -> {
                 val item = sender.inventory.itemInMainHand
-                val enchants = if(item.isWand()) {
-                    ItemUtils.getAvailableSpells(item)
-                } else {
-                    SpellType.values().toList()
-                }
-                return enchants.map { it.displayName }.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
+                val enchants = if(item.isWand())
+                    ItemUtils.getAvailableSpells(item).takeIf { it.isNotEmpty() }?.map { it.displayName } ?: listOf(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_NO_SPELLS))
+                else
+                    SpellType.values().map { it.displayName }
+
+                return enchants.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
             }
             else -> emptyList()
         }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.block.Block
 import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
@@ -94,10 +95,16 @@ class SpellManager(
         val player = event.player
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
-        val duration: Long = config.get(spellType.configDuration, 5) * 1000L
+        val duration = config.get(spellType.configDuration, 5) * 1000
+        val fatigueLevel = config.get("${spellType.configRoot}.mining-fatigue-level", 0)
+        val fatigueDuration = config.get("${spellType.configRoot}.mining-fatigue-duration", 5)
+        println("miningFatigueLevel is $fatigueLevel, miningFatigueDuration is $fatigueDuration")
         val cuboid = target.makeCuboidAround()
-        val blockList = cuboid.allSidesBlockList().filter { it.type != Material.BEDROCK
-                && !blocksBlackList.contains(it.location) && WorldGuardHelper.canBreakBlock(it, player) }
+
+        val floorCeil = cuboid.getFloorAndCeil().filter { it.playerCanBreak(player) }
+        val walls = cuboid.getWalls().filter { it.playerCanBreak(player) }
+
+        val blockList = floorCeil + walls
         val blockListLocation = blockList.map { it.location }
 
         blocksBlackList.addAll(blockListLocation)
@@ -106,15 +113,20 @@ class SpellManager(
             val originalBlocks = blockList.map { it.state }
 
             override fun make() {
-                blockList.forEach { block ->
+                floorCeil.forEach { block ->
                     (block.state as? InventoryHolder)?.inventory?.clear()
                     block.type = Material.AIR
-                    block.type = Material.CRYING_OBSIDIAN
+                    block.type = Material.STONE_BRICKS
+                }
+                walls.forEach { block ->
+                    (block.state as? InventoryHolder)?.inventory?.clear()
+                    block.type = Material.AIR
+                    block.type = Material.IRON_BARS
                 }
             }
 
             override fun unmake() {
-                originalBlocks.forEach { it.update(true, false) }
+                originalBlocks.forEach { it.update(true, true) }
                 blocksBlackList.removeAll(blockListLocation)
             }
         }
@@ -124,10 +136,14 @@ class SpellManager(
             yaw = target.location.yaw
             pitch = target.location.pitch
         })
-        val job = scheduleUnmake(task, duration)
+        val job = scheduleUnmake(task, duration.toLong())
         tempModification[job] = task
         particlesHelper.sendFireworkParticle(cuboid.center, spellType)
+        if(fatigueLevel > 0)
+            target.addPotionEffect(PotionEffect(PotionEffectType.SLOW_DIGGING, fatigueDuration * 20, max(fatigueLevel - 1, 0)))
     }
+
+    private fun Block.playerCanBreak(player: Player): Boolean = type != Material.BEDROCK && !blocksBlackList.contains(location) && WorldGuardHelper.canBreakBlock(this, player)
 
     private fun LivingEntity.makeCuboidAround(): Cuboid {
         val lowerBound = location.clone().apply {
@@ -171,10 +187,13 @@ class SpellManager(
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
         val duration = config.get(spellType.configDuration, 0)
+        val poisonLevel = config.get("${spellType.configRoot}.poison-level", 4)
+        println("poisonLevel is $poisonLevel")
 
-        target.addPotionEffect(PotionEffect(PotionEffectType.POISON, duration * 20, 7))
+        target.addPotionEffect(PotionEffect(PotionEffectType.POISON, duration * 20, max(poisonLevel - 1, 0)))
         player.sendMessage(messages.get(MessageKeys.POISONED_TARGET).replace("<target>", target.customName ?: target.name))
-        if(target is Player) target.sendMessage(messages.get(MessageKeys.GOT_POISONED).replace("<caster>", player.name))
+        if(target is Player)
+            target.sendMessage(messages.get(MessageKeys.GOT_POISONED).replace("<caster>", player.name))
         particlesHelper.sendFireworkParticle(target.location.apply { y += target.height * 0.65 }, spellType)
     }
 

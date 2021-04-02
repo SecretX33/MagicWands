@@ -43,7 +43,7 @@ spells:
       fade-color:
         - 112, 212, 99        # RGB, leave it empty to disable fade color completely
       flicker: true           # true if this explosion has the Twinkle effect (glowstone dust)
-      trail: true             # true if this explosion has the Trail effect (diamond)
+      trail: true             # true if this explosion has the Trail effect (more particles & they stay longer)
 
   thrust:
     learn-price: 100
@@ -73,7 +73,7 @@ spells:
     effect:
       enabled: true
       type: BALL
-      main-color: 
+      main-color:
         - 229, 84, 84
       fade-color: []          # this one doesn't have any fade color effects
       flicker: true
@@ -88,12 +88,30 @@ spells:
     effect:
       enabled: true
       type: BALL_LARGE
-      main-color: 
-        - 151, 58, 208 
-      fade-color: 
+      main-color:
+        - 151, 58, 208
+      fade-color:
         - 112, 212, 99
       flicker: false
       trail: false
+
+  ensnare:
+    learn-price: 100
+    fuel-usage: 10
+    cooldown: 12
+    duration: 5
+    range: 6                     # up until what range the player can trap others, in blocks
+    mining-fatigue-level: 1      # add mining fatigue to make escape the trap more challenging, read about it here https://minecraft.fandom.com/wiki/Mining_Fatigue for more information about what changes in each level, optionally use 0 to disable the effect
+    mining-fatigue-duration: 3   # how many seconds the mining fatigue will last
+    effect:
+      enabled: true
+      type: BALL_LARGE
+      main-color:
+        - 244, 251, 19
+      fade-color:
+        - 251, 166, 19
+      flicker: true
+      trail: true
 
   poison:
     learn-price: 100
@@ -101,6 +119,7 @@ spells:
     cooldown: 15
     duration: 7
     range: 7                  # up until what range the player can poison others, in blocks
+    poison-level: 7           # what level of poison will be applied, valid values: 1-31, by my tests around 7 to 10 is where the poison is stronger, because after 10 there's a grace period in which the player cannot take damage
     effect:
       enabled: true
       type: BALL_LARGE
@@ -119,30 +138,14 @@ spells:
     effect:
       enabled: true
       type: BALL_LARGE
-      main-color: 
-        - 151, 58, 208 
-      fade-color: 
+      main-color:
+        - 151, 58, 208
+      fade-color:
         - 112, 212, 99
       flicker: true
       trail: true
 
-  ensnare:
-    learn-price: 100
-    fuel-usage: 10
-    cooldown: 12
-    duration: 5               # DON'T USE VALUE LOWER THAN 1
-    range: 6                  # up until what range the player can trap others, in blocks
-    effect:
-      enabled: true
-      type: BALL_LARGE
-      main-color:
-        - 244, 251, 19
-      fade-color:
-        - 251, 166, 19
-      flicker: true
-      trail: true
-
-# Material list here https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html, Ctrl + F is your friend
+# Material list here https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html, Ctrl + F is your friend, use the name exactly as listed in the website
 # Add as many fuels as you want, just don't leave this list empty
 spell-fuel:
   - COAL
