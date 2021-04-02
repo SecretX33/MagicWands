@@ -17,8 +17,9 @@ class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
     private val subcommands: List<SubCommand> = listOf(ChangeSkinCommand(),
         EffectCommand(),
         ReloadCommand(),
-        SpellbindCommand(),
-        SpellremoveCommand())
+        SetOwnerCommand(),
+        SpellBindCommand(),
+        SpellRemoveCommand())
 
     init {
         plugin.getCommand(PLUGIN_COMMAND_PREFIX)?.let { cmd ->

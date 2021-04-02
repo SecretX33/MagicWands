@@ -96,9 +96,8 @@ class SpellManager(
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
         val duration = config.get(spellType.configDuration, 5) * 1000
-        val fatigueLevel = config.get("${spellType.configRoot}.mining-fatigue-level", 0)
+        val fatiguePotency = config.get("${spellType.configRoot}.mining-fatigue-potency", 0)
         val fatigueDuration = config.get("${spellType.configRoot}.mining-fatigue-duration", 5)
-        println("miningFatigueLevel is $fatigueLevel, miningFatigueDuration is $fatigueDuration")
         val cuboid = target.makeCuboidAround()
 
         val floorCeil = cuboid.getFloorAndCeil().filter { it.playerCanBreak(player) }
@@ -139,8 +138,8 @@ class SpellManager(
         val job = scheduleUnmake(task, duration.toLong())
         tempModification[job] = task
         particlesHelper.sendFireworkParticle(cuboid.center, spellType)
-        if(fatigueLevel > 0)
-            target.addPotionEffect(PotionEffect(PotionEffectType.SLOW_DIGGING, fatigueDuration * 20, max(fatigueLevel - 1, 0)))
+        if(fatiguePotency > 0)
+            target.addPotionEffect(PotionEffect(PotionEffectType.SLOW_DIGGING, fatigueDuration * 20, max(fatiguePotency - 1, 0)))
     }
 
     private fun Block.playerCanBreak(player: Player): Boolean = type != Material.BEDROCK && !blocksBlackList.contains(location) && WorldGuardHelper.canBreakBlock(this, player)
@@ -187,13 +186,26 @@ class SpellManager(
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
         val duration = config.get(spellType.configDuration, 0)
-        val poisonLevel = config.get("${spellType.configRoot}.poison-level", 4)
-        println("poisonLevel is $poisonLevel")
+        val poisonPotency = config.get("${spellType.configRoot}.poison-potency", 4)
 
-        target.addPotionEffect(PotionEffect(PotionEffectType.POISON, duration * 20, max(poisonLevel - 1, 0)))
+        target.addPotionEffect(PotionEffect(PotionEffectType.POISON, duration * 20, max(poisonPotency - 1, 0)))
         player.sendMessage(messages.get(MessageKeys.POISONED_TARGET).replace("<target>", target.customName ?: target.name))
         if(target is Player)
             target.sendMessage(messages.get(MessageKeys.GOT_POISONED).replace("<caster>", player.name))
+        particlesHelper.sendFireworkParticle(target.location.apply { y += target.height * 0.65 }, spellType)
+    }
+
+    fun castSlow(event: EntitySpellCastEvent) {
+        val player = event.player
+        val target = event.target ?: throw IllegalStateException("Target cannot be null")
+        val spellType = event.spellType
+        val duration = config.get(spellType.configDuration, 2)
+        val slowPotency = config.get("${spellType.configRoot}.slow-potency", 1)
+
+        target.addPotionEffect(PotionEffect(PotionEffectType.SLOW, duration * 20, max(slowPotency - 1, 0)))
+        player.sendMessage(messages.get(MessageKeys.SLOWED_TARGET).replace("<target>", target.customName ?: target.name))
+        if(target is Player)
+            target.sendMessage(messages.get(MessageKeys.GOT_SLOWED).replace("<caster>", player.name))
         particlesHelper.sendFireworkParticle(target.location.apply { y += target.height * 0.65 }, spellType)
     }
 

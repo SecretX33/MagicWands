@@ -20,6 +20,7 @@ class EntitySpellCastListener (
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     private fun EntitySpellCastEvent.trySpellCast() {
+        println("aaaa")
         if(target == null || target.location.world == null || target.uniqueId == player.uniqueId)
             isCancelled = true
     }
@@ -32,6 +33,7 @@ class EntitySpellCastListener (
             BLIND -> spellManager.castBlind(this)
             ENSNARE -> spellManager.castEnsnare(this)
             POISON -> spellManager.castPoison(this)
+            SLOW -> spellManager.castSlow(this)
             THRUST -> spellManager.castThrust(this)
             else -> {}
         }

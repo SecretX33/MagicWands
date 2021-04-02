@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class SpellbindCommand : SubCommand(), CustomKoinComponent {
+class SpellBindCommand : SubCommand(), CustomKoinComponent {
 
     override val name: String = "spellbind"
     override val permission: String = "spellbind"
@@ -36,9 +36,11 @@ class SpellbindCommand : SubCommand(), CustomKoinComponent {
 
     private fun bindSpell(player: Player, item: ItemStack, spellType: SpellType) {
         if (!item.isWandMaterial()) {
+            val allowedMaterials =
+                WandSkin.values().filter { player.hasPermission(it.permission) }.joinToString { it.displayName }
             player.sendMessage(messages.get(MessageKeys.INVALID_WAND_MATERIAL)
                 .replace("<item>", item.formattedTypeName())
-                .replace("<allowed_material>", "Stick"))
+                .replace("<allowed_material>", allowedMaterials))
             return
         }
         val skin = WandSkin.of(item.type)
@@ -46,7 +48,7 @@ class SpellbindCommand : SubCommand(), CustomKoinComponent {
             player.sendMessage(messages.get(MessageKeys.HAVENT_BOUGHT_THIS_MATERIAL_SKIN).replace("<item>", skin.displayName))
             return
         }
-        if(!item.isWand()) ItemUtils.turnIntoWand(item)
+        if(!item.isWand()) ItemUtils.turnIntoWand(item, player)
 
         val spellList = ItemUtils.getAvailableSpells(item)
         if(spellList.contains(spellType)) {
@@ -63,20 +65,15 @@ class SpellbindCommand : SubCommand(), CustomKoinComponent {
     }
 
     override fun getCompletor(sender: CommandSender, length: Int, hint: String, strings: Array<String>): List<String> {
-        if(sender !is Player) return emptyList()
+        if(sender !is Player || length != 2) return emptyList()
 
-        return when(length) {
-            2 -> {
-                val item = sender.inventory.itemInMainHand
-                val spells = SpellType.values().map { it.displayName } as MutableList
-                if(item.isWand()) {
-                    spells.removeAll(ItemUtils.getAvailableSpells(item).map { it.displayName })
-                    if(spells.isEmpty() && hint.isBlank())
-                        spells.add(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_ALL_SPELLS))
-                }
-                return spells.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
-            }
-            else -> emptyList()
+        val spells = SpellType.values().map { it.displayName } as MutableList
+        val item = sender.inventory.itemInMainHand
+        if(item.isWand()) {
+            spells.removeAll(ItemUtils.getAvailableSpells(item).map { it.displayName })
+            if(spells.isEmpty() && hint.isBlank())
+                spells.add(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_ALL_SPELLS))
         }
+        return spells.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
     }
 }

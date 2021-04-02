@@ -9,6 +9,7 @@ enum class SpellType {
     ENSNARE,
     LEAP,
     POISON,
+    SLOW,
     THRUST,
     VANISH;
 

@@ -8,6 +8,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.koin.core.component.KoinApiExtension
+import java.util.*
 
 @KoinApiExtension
 object Utils: CustomKoinComponent {
@@ -25,3 +26,5 @@ fun PlayerInteractEvent.isRightClick() = action == Action.RIGHT_CLICK_AIR || act
 fun Player.getTarget(range: Int): LivingEntity? = world.rayTraceEntities(eyeLocation, eyeLocation.direction, range.toDouble()) { it is LivingEntity && it.uniqueId != uniqueId }?.hitEntity as? LivingEntity
 
 fun String.capitalizeFully(): String = WordUtils.capitalizeFully(this)
+
+fun String.toUuid(): UUID = UUID.fromString(this)

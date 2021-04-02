@@ -44,7 +44,7 @@ permissions:
     description: Grant access to the command 'spellremove'.
     default: false
 
-  magicwands.skins:
+  magicwands.changeskin:
     description: Grand access to the command 'changeskin'.
     default: false
 

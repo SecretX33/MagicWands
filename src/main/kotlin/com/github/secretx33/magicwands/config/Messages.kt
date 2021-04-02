@@ -25,14 +25,19 @@ class Messages(plugin: Plugin) {
 }
 
 enum class MessageKeys(val default: String) {
+    PLAYER_NOT_FOUND("${ChatColor.RED}Player <player> was not found, you may only use online players for this command."),
     COMMAND_PARAMETER_IS_INVALID("${ChatColor.RED}Command parameter <parameter> is invalid."),
     HAVENT_BOUGHT_THIS_MATERIAL_SKIN("${ChatColor.RED}You may not turn <item> into a wand, you haven't bought it's skin yet."),
     CANNOT_USE_WAND_TO_CRAFT("${ChatColor.RED}You may not use a wand to craft items."),
     GOT_POISONED("${ChatColor.GREEN}You have been poisoned by <caster>."),
+    GOT_SLOWED("${ChatColor.GREEN}You have been slowed by <caster>."),
     POISONED_TARGET("${ChatColor.GREEN}You have poisoned <target>."),
+    SLOWED_TARGET("${ChatColor.GREEN}You have slowed <target>."),
     ADDED_SPELL_TO_WAND("${ChatColor.GREEN}Successfully added <spell> to your wand."),
     CANNOT_BLINK_TO_THERE("Sorry, you cannot blink to there."),
     CASTED_VANISH("You vanished!"),
+    CHANGED_WAND_OWNER("${ChatColor.GREEN}Wand's new owner is now ${ChatColor.GOLD}<player>!"),
+    CANNOT_USE_ANOTHERS_WAND("${ChatColor.RED}The wand is your hand is not yours! It's owned by <owner>, you cannot use it!"),
     TAB_COMPLETION_WAND_HAS_ALL_SPELLS("<wand_already_has_all_spells>"),
     TAB_COMPLETION_WAND_HAS_NO_SPELLS("<wand_has_no_spells>"),
     NOT_HOLDING_A_WAND("${ChatColor.RED}The item in your hand is not a wand."),

@@ -16,7 +16,7 @@ import org.koin.core.component.KoinApiExtension
 class ChangeSkinCommand : SubCommand(), CustomKoinComponent {
 
     override val name: String = "changeskin"
-    override val permission: String = "skins"
+    override val permission: String = "changeskin"
     override val aliases: List<String> = listOf(name, "changes", "cs")
 
     private val messages by inject<Messages>()
@@ -55,7 +55,7 @@ class ChangeSkinCommand : SubCommand(), CustomKoinComponent {
             return
         }
 
-        val newWand = ItemUtils.changeSkin(item, skin)
+        val newWand = ItemUtils.changeSkin(item, skin, player)
         player.inventory.setItemInMainHand(newWand)
         player.updateInventory()
         player.sendMessage(messages.get(MessageKeys.SUCCESSFULLY_CHANGED_WAND_SKIN).replace("<skin>", skin.displayName))
@@ -66,9 +66,8 @@ class ChangeSkinCommand : SubCommand(), CustomKoinComponent {
     }
 
     override fun getCompletor(sender: CommandSender, length: Int, hint: String, strings: Array<String>): List<String> {
-        if(sender !is Player) return emptyList()
-        val list = if(length == 2) WandSkin.values().map { it.displayName } else emptyList()
+        if(sender !is Player || length != 2) return emptyList()
 
-        return list.filter { it.startsWith(hint, ignoreCase = true) }
+        return WandSkin.values().map { it.displayName }.filter { it.startsWith(hint, ignoreCase = true) }
     }
 }

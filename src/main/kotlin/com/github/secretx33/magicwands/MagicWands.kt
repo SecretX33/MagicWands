@@ -4,6 +4,7 @@ import com.github.secretx33.magicwands.commands.Commands
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.eventlisteners.*
+import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.manager.ParticlesHelper
 import com.github.secretx33.magicwands.manager.SpellFuelManager
 import com.github.secretx33.magicwands.manager.SpellManager
@@ -25,6 +26,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { Messages(get()) }
         single { Config(get()) }
         single { SpellFuelManager(get()) }
+        single { LearnedSpellsManager(get()) }
         single { ParticlesHelper(get(), get()) }
         single { SpellManager(get(), get(), get(), get()) }
         single { BlockSpellCastListener(get(), get(), get()) }
@@ -33,7 +35,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { PreventCraftListener(get(), get()) }
         single { SpellCastListener(get(), get(), get(), get(), get()) }
         single { WandSpellSwitchListener(get(), get(), get()) }
-        single { WandUseListener(get(), get()) }
+        single { WandUseListener(get(), get(), get()) }
         single { Commands(get()) }
     }
 

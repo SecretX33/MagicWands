@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class SpellremoveCommand  : SubCommand(), CustomKoinComponent {
+class SpellRemoveCommand  : SubCommand(), CustomKoinComponent {
 
     override val name: String = "spellremove"
     override val permission: String = "spellremove"
@@ -56,19 +56,14 @@ class SpellremoveCommand  : SubCommand(), CustomKoinComponent {
     }
 
     override fun getCompletor(sender: CommandSender, length: Int, hint: String, strings: Array<String>): List<String> {
-        if(sender !is Player) return emptyList()
+        if(sender !is Player || length != 2) return emptyList()
 
-        return when(length) {
-            2 -> {
-                val item = sender.inventory.itemInMainHand
-                val enchants = if(item.isWand())
-                    ItemUtils.getAvailableSpells(item).takeIf { it.isNotEmpty() }?.map { it.displayName } ?: listOf(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_NO_SPELLS))
-                else
-                    SpellType.values().map { it.displayName }
+        val item = sender.inventory.itemInMainHand
+        val enchants = if(item.isWand())
+            ItemUtils.getAvailableSpells(item).takeIf { it.isNotEmpty() }?.map { it.displayName } ?: listOf(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_NO_SPELLS))
+        else
+            SpellType.values().map { it.displayName }
 
-                return enchants.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
-            }
-            else -> emptyList()
-        }
+        return enchants.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
     }
 }

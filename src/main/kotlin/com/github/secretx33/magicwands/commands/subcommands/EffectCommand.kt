@@ -54,10 +54,9 @@ class EffectCommand  : SubCommand(), CustomKoinComponent {
     }
 
     override fun getCompletor(sender: CommandSender, length: Int, hint: String, strings: Array<String>): List<String> {
-        return if(length == 2)
-            listOf("toggle", "enable", "disable").filter { it.startsWith(hint, ignoreCase = true) }
-        else
-            emptyList()
+        if(length != 2) return emptyList()
+
+        return listOf("toggle", "enable", "disable").filter { it.startsWith(hint, ignoreCase = true) }
     }
 
 }

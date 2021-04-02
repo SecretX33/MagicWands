@@ -1,15 +1,16 @@
 package com.github.secretx33.magicwands.eventlisteners
 
 import com.github.secretx33.magicwands.config.Config
+import com.github.secretx33.magicwands.config.MessageKeys
+import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.events.BlockSpellCastEvent
 import com.github.secretx33.magicwands.events.EntitySpellCastEvent
 import com.github.secretx33.magicwands.events.SpellCastEvent
 import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
+import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.model.SpellType.*
-import com.github.secretx33.magicwands.utils.ItemUtils
-import com.github.secretx33.magicwands.utils.isLeftClick
-import com.github.secretx33.magicwands.utils.isRightClick
-import com.github.secretx33.magicwands.utils.isWand
+import com.github.secretx33.magicwands.utils.*
+import com.github.secretx33.magicwands.utils.Utils.consoleMessage
 import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
@@ -25,7 +26,12 @@ import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class WandUseListener(plugin: Plugin, private val config: Config) : Listener {
+class WandUseListener (
+    plugin: Plugin,
+    private val config: Config,
+    private val messages: Messages,
+    private val learnedSpells: LearnedSpellsManager
+) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
@@ -33,6 +39,14 @@ class WandUseListener(plugin: Plugin, private val config: Config) : Listener {
     private fun PlayerInteractEvent.onWandInteract() {
         val item = item ?: return
         if(!item.isWand()) return
+
+        // player is using another's wand
+        if(!item.isWandOwner(player)) {
+            isCancelled = true
+            val owner = ItemUtils.getWandOwnerName(item)
+            player.sendMessage(messages.get(MessageKeys.CANNOT_USE_ANOTHERS_WAND).replace("<owner>", owner))
+            return
+        }
 
         if(isLeftClick()) {
             val event = getSpellEvent(player, item) ?: return
@@ -64,7 +78,7 @@ class WandUseListener(plugin: Plugin, private val config: Config) : Listener {
     private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent? {
         return when(val type = ItemUtils.getWandSpellOrNull(wand)) {
             null -> null
-            BLIND, ENSNARE, POISON, THRUST -> EntitySpellCastEvent(player, wand, type, config.get(type.configRange, 5))
+            BLIND, ENSNARE, POISON, SLOW, THRUST -> EntitySpellCastEvent(player, wand, type, config.get(type.configRange, 5))
             BLINK -> BlockSpellCastEvent(player, wand, type, config.get(type.configRange, 5))
             else -> SpellCastEvent(player, wand, type)
         }
