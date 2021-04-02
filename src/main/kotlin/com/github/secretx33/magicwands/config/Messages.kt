@@ -25,6 +25,7 @@ class Messages(plugin: Plugin) {
 }
 
 enum class MessageKeys(val default: String) {
+    CANNOT_CAST_UNKNOWN_SPELL("${ChatColor.RED}You cannot use spell <spell> because you don't know it yet."),
     PLAYER_NOT_FOUND("${ChatColor.RED}Player <player> was not found, you may only use online players for this command."),
     COMMAND_PARAMETER_IS_INVALID("${ChatColor.RED}Command parameter <parameter> is invalid."),
     HAVENT_BOUGHT_THIS_MATERIAL_SKIN("${ChatColor.RED}You may not turn <item> into a wand, you haven't bought it's skin yet."),
@@ -53,6 +54,10 @@ enum class MessageKeys(val default: String) {
     SUCCESSFULLY_CHANGED_WAND_SKIN("${ChatColor.GREEN}Successfully set your wand's skin to <skin>"),
     REMOVED_SPELL_OF_WAND("${ChatColor.GREEN}Successfully removed <spell> of your wand."),
     SPELL_ALREADY_PRESENT("${ChatColor.RED}This spell already exist in your wand."),
+    LEARNED_SPELL("${ChatColor.GREEN}You learned spell <spell>!"),
+    FORGOT_SPELL("${ChatColor.GREEN}You forgot spell <spell>!"),
+    YOU_DONT_KNOW_THIS_SPELL("${ChatColor.RED}You cannot forget a spell you don't know."),
+    YOU_ALREADY_KNOW_THIS_SPELL("${ChatColor.RED}You already already know <spell>."),
     SPELL_DOESNT_EXIST("${ChatColor.RED}Spell <spell> doesn't exist, please type a valid one."),
     SPELL_IN_COOLDOWN("${ChatColor.GOLD}<spell> is in cooldown right now, <cooldown> seconds remaining."),
     SPELL_NOT_PRESENT("${ChatColor.RED}This wand doesn't have <spell> bound to it.");

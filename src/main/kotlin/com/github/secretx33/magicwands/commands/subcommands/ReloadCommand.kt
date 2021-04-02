@@ -3,6 +3,7 @@ package com.github.secretx33.magicwands.commands.subcommands
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
+import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.manager.SpellManager
 import com.github.secretx33.magicwands.utils.CustomKoinComponent
 import com.github.secretx33.magicwands.utils.Utils.consoleMessage
@@ -20,6 +21,7 @@ class ReloadCommand : SubCommand(), CustomKoinComponent {
 
     private val config by inject<Config>()
     private val spellManager by inject<SpellManager>()
+    private val learnedSpells by inject<LearnedSpellsManager>()
     private val messages by inject<Messages>()
 
     override fun onCommandByPlayer(player: Player, alias: String, strings: Array<String>) {
@@ -29,6 +31,7 @@ class ReloadCommand : SubCommand(), CustomKoinComponent {
     override fun onCommandByConsole(sender: CommandSender, alias: String, strings: Array<String>) {
         config.reload()
         spellManager.reload()
+        learnedSpells.reload()
         messages.reload()
         sender.sendMessage(messages.get(MessageKeys.CONFIGS_RELOADED))
         if(sender is Player) consoleMessage(messages.get(MessageKeys.CONFIGS_RELOADED))

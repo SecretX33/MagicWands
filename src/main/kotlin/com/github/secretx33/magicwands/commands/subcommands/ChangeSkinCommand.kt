@@ -23,7 +23,7 @@ class ChangeSkinCommand : SubCommand(), CustomKoinComponent {
 
     override fun onCommandByPlayer(player: Player, alias: String, strings: Array<String>) {
         if(strings.size < 2) {
-            player.sendMessage("${ChatColor.RED}Usage: /$alias $name <skinname>")
+            player.sendMessage("${ChatColor.RED}Usage: /$alias $name <skin>")
             return
         }
         val item = player.inventory.itemInMainHand

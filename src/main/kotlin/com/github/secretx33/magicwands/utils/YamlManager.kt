@@ -105,6 +105,8 @@ class YamlManager (
                 while(currentLine.isBlank() || commentMatcher.matches()) {
                     lastStoredIndex++
                     commentArray.add(currentLine)
+                    // breaks if we are on the last line already
+                    if(fileLines.lastIndex < (lastStoredIndex + 1)) break
                     // prepare the check on the next line
                     currentLine = fileLines[lastStoredIndex + 1]
                     commentMatcher = COMMENT_PATTERN.matcher(currentLine)

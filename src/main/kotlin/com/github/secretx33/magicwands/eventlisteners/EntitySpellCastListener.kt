@@ -20,7 +20,6 @@ class EntitySpellCastListener (
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     private fun EntitySpellCastEvent.trySpellCast() {
-        println("aaaa")
         if(target == null || target.location.world == null || target.uniqueId == player.uniqueId)
             isCancelled = true
     }

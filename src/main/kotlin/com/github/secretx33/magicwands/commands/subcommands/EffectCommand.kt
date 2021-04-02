@@ -13,7 +13,7 @@ import org.koin.core.component.KoinApiExtension
 import java.util.*
 
 @KoinApiExtension
-class EffectCommand  : SubCommand(), CustomKoinComponent {
+class EffectCommand : SubCommand(), CustomKoinComponent {
 
     override val name: String = "effect"
     override val permission: String = "toggleeffect"

@@ -151,7 +151,7 @@ object ItemUtils: CustomKoinComponent {
 
         meta.apply {
             persistentDataContainer.set(availableSpells, PersistentDataType.STRING, gson.toJson(list, typeToken))
-            lore = makeWandLore(meta, null)
+            updateLore(null)
         }
         wand.itemMeta = meta
     }

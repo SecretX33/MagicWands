@@ -49,7 +49,16 @@ class WandUseListener (
         }
 
         if(isLeftClick()) {
-            val event = getSpellEvent(player, item) ?: return
+            val selected = ItemUtils.getWandSpellOrNull(item) ?: run {
+                isCancelled = true
+                return
+            }
+            if(!learnedSpells.knows(player, selected)) {
+                isCancelled = true
+                player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_UNKNOWN_SPELL).replace("<spell>", selected.displayName))
+                return
+            }
+            val event = getSpellEvent(player, item)
             isCancelled = true
             Bukkit.getServer().pluginManager.callEvent(event)
             return
@@ -70,14 +79,22 @@ class WandUseListener (
         val item = player.inventory.itemInMainHand
         if(!item.isWand()) return
 
-        val event = getSpellEvent(player, item) ?: return
+        val selected = ItemUtils.getWandSpellOrNull(item) ?: run {
+            isCancelled = true
+            return
+        }
+        if(!learnedSpells.knows(player, selected)) {
+            isCancelled = true
+            player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_UNKNOWN_SPELL).replace("<spell>", selected.displayName))
+            return
+        }
+        val event = getSpellEvent(player, item)
         isCancelled = true
         Bukkit.getServer().pluginManager.callEvent(event)
     }
 
-    private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent? {
-        return when(val type = ItemUtils.getWandSpellOrNull(wand)) {
-            null -> null
+    private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent {
+        return when(val type = ItemUtils.getWandSpell(wand)) {
             BLIND, ENSNARE, POISON, SLOW, THRUST -> EntitySpellCastEvent(player, wand, type, config.get(type.configRange, 5))
             BLINK -> BlockSpellCastEvent(player, wand, type, config.get(type.configRange, 5))
             else -> SpellCastEvent(player, wand, type)

@@ -29,7 +29,7 @@ class SpellRemoveCommand  : SubCommand(), CustomKoinComponent {
             player.sendMessage("${ChatColor.RED}Usage: /${alias} $name <spell>")
             return
         }
-        val spellType = runCatching { SpellType.of(strings[1]) }.getOrElse {
+        val spellType = SpellType.ofOrNull(strings[1]) ?: run {
             player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[1]))
             return
         }

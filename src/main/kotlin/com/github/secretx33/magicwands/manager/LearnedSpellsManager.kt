@@ -2,6 +2,8 @@ package com.github.secretx33.magicwands.manager
 
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.utils.YamlManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,8 +17,10 @@ import kotlin.collections.HashMap
 class LearnedSpellsManager(plugin: Plugin) {
 
     private val writeLock = Semaphore(1)
-    private val manager = YamlManager(plugin, "messages/messages")
+    private val manager = YamlManager(plugin, "spells_learned/spells_learned")
     private val cache = HashMap<UUID, Set<SpellType>>()
+//    private val gson = Gson()
+//    private val spellTypeSetToken = object : TypeToken<Set<SpellType>>() {}.type
 
     fun knows(player: Player, spell: SpellType): Boolean {
         val uuid = player.uniqueId
@@ -26,37 +30,48 @@ class LearnedSpellsManager(plugin: Plugin) {
             return cache[uuid]?.contains(spell) == true
 
         if(manager.contains(uuidString)) {
-            val list = manager.getList(uuidString)?.mapTo(HashSet()) { SpellType.of(it as String) } ?: emptySet()
+            val list = manager.getList(uuidString)?.mapNotNullTo(HashSet()) { SpellType.ofOrNull(it as? String) } ?: HashSet()
             cache[uuid] = list
             return list.contains(spell)
         }
-        cache[uuid] = emptySet()
+        cache[uuid] = HashSet()
         return false
     }
 
     fun addSpell(player: Player, spell: SpellType) = CoroutineScope(Dispatchers.IO).launch {
+        val uuid = player.uniqueId
         writeLock.withPermit {
-            val spellSet = cache.getOrPut(player.uniqueId) {
-                manager.getList(player.uniqueId.toString())?.mapTo(HashSet()) { SpellType.of(it as String) } ?: emptySet()
+            val spellSet = cache.getOrPut(uuid) {
+                manager.getList(uuid.toString())?.mapNotNullTo(HashSet()) { SpellType.ofOrNull(it as? String) } ?: HashSet()
             } as MutableSet<SpellType>
             spellSet.add(spell)
-            cache[player.uniqueId] = spellSet
+            cache[uuid] = spellSet
+            manager.set(uuid.toString(), spellSet.mapTo(ArrayList())  { it.name })
             manager.save().join()
         }
     }
 
     fun removeSpell(player: Player, spell: SpellType) = CoroutineScope(Dispatchers.IO).launch {
+        val uuid = player.uniqueId
         writeLock.withPermit {
-            val spellSet = cache.getOrPut(player.uniqueId) {
-                manager.getList(player.uniqueId.toString())?.mapTo(HashSet()) { SpellType.of(it as String) } ?: emptySet()
+            val spellSet = cache.getOrPut(uuid) {
+                manager.getList(player.uniqueId.toString())?.mapNotNullTo(HashSet()) { SpellType.ofOrNull(it as? String) } ?: HashSet()
             } as MutableSet<SpellType>
             spellSet.remove(spell)
-            cache[player.uniqueId] = spellSet
+            cache[uuid] = spellSet
+            manager.set(uuid.toString(), spellSet.mapTo(ArrayList()) { it.name })
             manager.save().join()
         }
     }
 
     fun removePlayerEntries(player: Player) = CoroutineScope(Dispatchers.Default).launch {
         writeLock.withPermit { cache.remove(player.uniqueId) }
+    }
+
+    fun reload() = CoroutineScope(Dispatchers.Default).launch {
+        writeLock.withPermit {
+            cache.clear()
+            manager.reload()
+        }
     }
 }
