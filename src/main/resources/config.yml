@@ -25,6 +25,8 @@ enable-message-on-spell-switch: true
 disable-all-cooldowns: false
 # Disable fuel usage GLOBALLY (use with CAUTION)
 disable-fuel-usage: false
+# Delete wand on player death (dying is scarier now, huh?)
+delete-wand-on-death: false
 
 # list of all spell properties
 spells:

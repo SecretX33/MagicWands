@@ -14,6 +14,7 @@ import com.github.secretx33.magicwands.utils.*
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinApiExtension
@@ -40,6 +41,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { BlockSpellCastListener(get(), get(), get()) }
         single { EntitySpellCastListener(get(), get()) }
         single { FireworkDamageWorkaroundListener(get(), get(named("firework"))) }
+        single { PlayerDeathListener(get(), get()) }
         single { PlayerLeaveListener(get(), get()) }
         single { PreventCraftListener(get(), get()) }
         single { PreventWandPickupListener(get()) }
@@ -62,6 +64,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         get<EntitySpellCastListener>()
         get<FireworkDamageWorkaroundListener>()
         get<SpellCastListener>()
+        get<PlayerDeathListener>()
         get<PlayerLeaveListener>()
         get<PreventCraftListener>()
         get<PreventWandPickupListener>()

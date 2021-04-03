@@ -26,8 +26,8 @@ class WandDropPacketListener(private val plugin: Plugin) {
 
                 val wrapper = WrapperPlayServerSpawnEntity(event.packet)
                 if(wrapper.type != EntityType.DROPPED_ITEM) return
-
                 val item = (wrapper.getEntity(event) as Item).itemStack
+                // is it a wand?
                 if(!item.isWand()) return
 
                 val ownerUuid = ItemUtils.getWandOwnerUuid(item) ?: run {
