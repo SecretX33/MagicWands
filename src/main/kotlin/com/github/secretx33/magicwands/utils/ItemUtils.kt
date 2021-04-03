@@ -166,6 +166,16 @@ object ItemUtils: CustomKoinComponent {
         return getWandOwnerName(meta)
     }
 
+    private fun getWandOwnerUuid(itemMeta: ItemMeta): UUID? {
+        return itemMeta.persistentDataContainer.get(ownerUuidKey, PersistentDataType.STRING)?.toUuid()
+            ?: return null.also { consoleMessage("${ChatColor.RED}Wand doesn't have a owner, something went wrong") }
+    }
+
+    fun getWandOwnerUuid(wand: ItemStack): UUID? {
+        val meta = wand.itemMeta ?: throw IllegalStateException("This should not happen")
+        return getWandOwnerUuid(meta)
+    }
+
     fun setWandOwner(player: Player, wand: ItemStack) {
         require(wand.isWand()) { "Item ${wand.type} is not a wand" }
 

@@ -8,12 +8,19 @@ import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.manager.ParticlesHelper
 import com.github.secretx33.magicwands.manager.SpellFuelManager
 import com.github.secretx33.magicwands.manager.SpellManager
+import com.github.secretx33.magicwands.packetlisteners.FireworkSpawnPacketListener
+import com.github.secretx33.magicwands.packetlisteners.WandDropPacketListener
 import com.github.secretx33.magicwands.utils.*
 import net.milkbowl.vault.economy.Economy
+import org.bukkit.Bukkit
+import org.bukkit.NamespacedKey
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.logger.Level
+import org.koin.core.qualifier.QualifierValue
+import org.koin.core.qualifier.StringQualifier
+import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -23,21 +30,25 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
     private val mod = module {
         single<Plugin> { this@MagicWands } bind JavaPlugin::class
         single { server.consoleSender }
+        single(named("firework")) { NamespacedKey(get<Plugin>(), "custom_firework") }
         single { Messages(get()) }
         single { Config(get()) }
         single { SpellFuelManager(get()) }
         single { LearnedSpellsManager(get()) }
-        single { ParticlesHelper(get(), get()) }
+        single { ParticlesHelper(get(), get(), get(named("firework"))) }
         single { SpellManager(get(), get(), get(), get()) }
         single { BlockSpellCastListener(get(), get(), get()) }
         single { EntitySpellCastListener(get(), get()) }
-        single { FireworkDamageWorkaroundListener(get()) }
+        single { FireworkDamageWorkaroundListener(get(), get(named("firework"))) }
         single { PlayerLeaveListener(get(), get()) }
         single { PreventCraftListener(get(), get()) }
+        single { PreventWandPickupListener(get()) }
         single { SpellCastListener(get(), get(), get(), get(), get()) }
         single { WandSpellSwitchListener(get(), get(), get()) }
         single { WandUseListener(get(), get(), get(), get()) }
         single { Commands(get()) }
+        single { FireworkSpawnPacketListener(get(), get(named("firework"))) }
+        single { WandDropPacketListener(get()) }
     }
 
     override fun onEnable() {
@@ -53,10 +64,15 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         get<SpellCastListener>()
         get<PlayerLeaveListener>()
         get<PreventCraftListener>()
+        get<PreventWandPickupListener>()
         get<SpellCastListener>()
-        get<WandUseListener>()
         get<WandSpellSwitchListener>()
+        get<WandUseListener>()
         get<Commands>()
+        if(isProtocolLibEnabled) {
+            get<FireworkSpawnPacketListener>()
+            get<WandDropPacketListener>()
+        }
     }
 
     override fun onDisable() {
@@ -64,4 +80,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         unloadKoinModules(mod)
         stopKoin()
     }
+
+    private val isProtocolLibEnabled
+        get() = Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")
 }

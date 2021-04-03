@@ -12,9 +12,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.Plugin
 
-class FireworkDamageWorkaroundListener(plugin: Plugin) : Listener {
-
-    private val fireworkId = NamespacedKey(plugin, "custom_firework")
+class FireworkDamageWorkaroundListener(plugin: Plugin, private val fireworkId: NamespacedKey) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
