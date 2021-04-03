@@ -34,7 +34,6 @@ class SpellTeacherManager(private val plugin: Plugin, private val config: Config
         writeLock.withPermit {
             list = manager.getStringList(configKey).deserialize()
         }
-        println("1. list size is ${list.size}")
 
         val nullWorlds = list.filterTo(HashSet()) { it.first.world == null }
         list.removeAll(nullWorlds)
@@ -53,11 +52,10 @@ class SpellTeacherManager(private val plugin: Plugin, private val config: Config
                 removeSpellTeachers(blockNotFound.map { m -> m.second })
             }
         }
-        println("2. list size is ${list.size}")
         cache.putAll(list)
     }
 
-    fun isSpellTeacher(location: Location): Boolean = cache.containsKey(location.block.location).also { println("block is at $location and cache is $cache") }
+    fun isSpellTeacher(location: Location): Boolean = cache.containsKey(location.block.location)
 
     fun getTeacherType(location: Location): SpellType = cache[location]?.spellType ?: throw NoSuchElementException("${ChatColor.RED}SpellType at $location was not found!")
 
