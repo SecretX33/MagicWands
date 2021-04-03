@@ -8,16 +8,24 @@ import java.util.concurrent.ConcurrentHashMap
 
 class Messages(plugin: Plugin) {
     private val manager = YamlManager(plugin, "messages/messages")
-    private val cache = ConcurrentHashMap<MessageKeys, String>()
+    private val stringCache = ConcurrentHashMap<MessageKeys, String>()
+    private val listCache = ConcurrentHashMap<MessageKeys, List<String>>()
 
     fun get(key: MessageKeys, default: String? = null): String {
-        return cache.getOrPut(key) {
+        return stringCache.getOrPut(key) {
             manager.getString(key.configEntry)?.correctColorCodes() ?: default ?: key.default
         }
     }
 
+    fun getList(key: MessageKeys): List<String> {
+        return listCache.getOrPut(key) {
+            manager.getStringList(key.configEntry).map { it.correctColorCodes() }
+        }
+    }
+
+
     fun reload() {
-        cache.clear()
+        stringCache.clear()
         manager.reload()
     }
 
@@ -25,6 +33,7 @@ class Messages(plugin: Plugin) {
 }
 
 enum class MessageKeys(val default: String) {
+    WAND_LORE(""),
     CANNOT_BIND_UNKNOWN_SPELL("${ChatColor.RED}You cannot bind spells you don't know."),
     CANNOT_CAST_UNKNOWN_SPELL("${ChatColor.RED}You cannot use spell <spell> because you don't know it yet."),
     PLAYER_NOT_FOUND("${ChatColor.RED}Player <player> was not found, you may only use online players for this command."),

@@ -1,5 +1,7 @@
 package com.github.secretx33.magicwands.utils
 
+import com.github.secretx33.magicwands.config.MessageKeys
+import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.model.WandSkin
 import com.github.secretx33.magicwands.utils.ItemUtils.castCountKey
@@ -22,6 +24,7 @@ import java.util.*
 @KoinApiExtension
 object ItemUtils: CustomKoinComponent {
     private val plugin: Plugin by inject()
+    private val messages: Messages by inject()
     private val formatter = DecimalFormat("#,###")
     private val gson = Gson()
     private val typeToken = object : TypeToken<List<SpellType>>() {}.type
@@ -51,21 +54,56 @@ object ItemUtils: CustomKoinComponent {
     }
 
     private fun makeWandLore(itemMeta: ItemMeta, selectedSpell: SpellType?): List<String> {
+        val selected = selectedSpell?.displayName?.toUpperCase(Locale.US) ?: "${ChatColor.RESET}${ChatColor.GRAY}<none>"
+        val availableSpells = getAvailableSpells(itemMeta).map { it.displayName.toUpperCase(Locale.US) }.sorted()
         val casts = itemMeta.persistentDataContainer.getOrDefault(castCountKey, PersistentDataType.LONG, 0L)
-        return listOf("${ChatColor.GREEN}A long, long time ago a magician were brutally",
-        "${ChatColor.GREEN} killed, he said \"Do you think it's over? Oh, no, it's",
-        "${ChatColor.DARK_GREEN}${ChatColor.BOLD}JUST${ChatColor.RESET} ${ChatColor.GREEN}the beginning\". Right after saying that, he",
-        "${ChatColor.GREEN}casted a powerful spell that send many of His",
-        "${ChatColor.GREEN}wands to those who could get vengeance in his",
-        "${ChatColor.GREEN}name.",
-        "",
-        "Selected spell: ${ChatColor.BLUE}${ChatColor.ITALIC}${selectedSpell?.displayName?.toUpperCase(Locale.US) ?: "${ChatColor.RESET}${ChatColor.GRAY}<none>"}${ChatColor.RESET}",
-        "",
-        "Available spells: ${ChatColor.LIGHT_PURPLE}${ChatColor.ITALIC}${getAvailableSpells(itemMeta).sorted().joinToString()}",
-        "",
-        "Owner: ${ChatColor.GOLD}${ChatColor.ITALIC}${getWandOwnerName(itemMeta)}",
-        "",
-        "${ChatColor.GREEN}This wand has casted ${ChatColor.AQUA}${formatter.format(casts)}${ChatColor.GREEN} spells.")
+        val owner = getWandOwnerName(itemMeta)
+
+        val lore = messages.getList(MessageKeys.WAND_LORE).map {
+            it.replace("<selected_spell>", selected)
+                .replace("<casts>", formatter.format(casts))
+                .replace("<owner>", owner)
+        } as MutableList
+
+        println("wand lore read from messages is $lore")
+
+        val maxLength = lore.map { it.length }.maxOrNull() ?: return emptyList()
+        val tagIndex = lore.indexOfFirst { it.contains("<available_spells>") }
+        // there is no <available_spells> tag in the wand lore
+        if(tagIndex < 0) return lore
+        // wand has no spell available
+        if(availableSpells.isEmpty()) {
+            lore[tagIndex] = lore[tagIndex].replace("<available_spells>", "${ChatColor.RESET}${ChatColor.GRAY}<none>")
+            return lore
+        }
+
+        var currentLine = tagIndex
+        // remove tag
+        lore[tagIndex] = lore[tagIndex].replace("<available_spells>", "")
+
+        availableSpells.forEachIndexed { i, spell ->
+            if(lore[currentLine].length > maxLength) currentLine++
+            if(i > 0 && lore[currentLine].length + spell.length + 2 > maxLength) {
+                lore[currentLine] += ","
+//                lore.add("")
+                currentLine++
+            }
+            if(currentLine == tagIndex) {
+                println("1. for $spell")
+                if (i > 0) lore[currentLine] += ", "
+                lore[currentLine] += spell
+            } else {
+                if(currentLine > lore.lastIndex || lore[currentLine].length + spell.length + 2 > maxLength) {
+                    println("2. for $spell")
+                    if(currentLine > lore.lastIndex) lore.add(spell)
+                } else {
+                    println("3. for $spell")
+                    lore[currentLine] += ", "
+                    lore[currentLine] += spell
+                }
+            }
+        }
+        return lore
     }
 
     fun increaseCastCount(item: ItemStack) {

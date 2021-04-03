@@ -48,7 +48,7 @@ class RemoveSpellCommand  : SubCommand(), CustomKoinComponent {
         val spellList = ItemUtils.getAvailableSpells(item)
 
         if(!spellList.remove(spellType)) {
-            player.sendMessage(messages.get(MessageKeys.SPELL_NOT_PRESENT))
+            player.sendMessage(messages.get(MessageKeys.SPELL_NOT_PRESENT).replace("<spell>", spellType.displayName))
             return
         }
         ItemUtils.setAvailableSpells(item, spellList)

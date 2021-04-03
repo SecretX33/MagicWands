@@ -1,1 +1,19 @@
-
+# <selected_spell>   => selected spell in the wand
+# <available_spells> => list of available spells
+# <casts>            => number of spells casted by the wand
+# <owner>            => name of the wand owner
+wand-lore:
+  - "&aA long, long time ago a magician were brutally"
+  - "&a killed, he said \"Do you think it's over? Oh, no, it's"
+  - "&2&lJUST&r &athe beginning\". Right after saying that, he"
+  - "&acasted a powerful spell that send many of His"
+  - "&awands to those who could get vengeance in his"
+  - "&aname."
+  - ""
+  - "Selected spell: &9&o<selected_spell>&r"
+  - ""
+  - "Available spells: &d&o<available_spells>"
+  - ""
+  - "Owner: &6&o<owner>"
+  - ""
+  - "&aThis wand has casted &b<casts>&a spells."
