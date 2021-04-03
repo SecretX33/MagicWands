@@ -58,7 +58,7 @@ class ParticlesHelper (
         return try {
             Color.fromRGB(r, g, b)
         } catch(e: IllegalArgumentException) {
-            consoleMessage("Seems like you have typed a invalid number, please only values between 0 and 255 to write the colors. Original error message: ${e.message}")
+            consoleMessage("Seems like you have typed a invalid number somewhere in '$this', please only use values between 0 and 255 to write the colors. Original error message: ${e.message}")
             Color.FUCHSIA
         }
     }

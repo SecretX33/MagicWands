@@ -34,7 +34,7 @@ class Config(plugin: Plugin) {
         manager.reload()
     }
 
-    fun saveAll() = manager.save()
+    fun save() = manager.save()
 }
 
 enum class ConfigKeys(val configEntry: String, val defaultValue: Any) {

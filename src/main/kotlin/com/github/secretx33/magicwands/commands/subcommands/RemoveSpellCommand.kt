@@ -14,11 +14,11 @@ import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class SpellRemoveCommand  : SubCommand(), CustomKoinComponent {
+class RemoveSpellCommand  : SubCommand(), CustomKoinComponent {
 
-    override val name: String = "spellremove"
-    override val permission: String = "spellremove"
-    override val aliases: List<String> = listOf(name, "spellr", "sr")
+    override val name: String = "removespell"
+    override val permission: String = "removespell"
+    override val aliases: List<String> = listOf(name, "removes", "rs")
 
     private val messages by inject<Messages>()
 

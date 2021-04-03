@@ -13,11 +13,11 @@ import org.bukkit.inventory.ItemStack
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class SpellBindCommand : SubCommand(), CustomKoinComponent {
+class BindSpellCommand : SubCommand(), CustomKoinComponent {
 
-    override val name: String = "spellbind"
-    override val permission: String = "spellbind"
-    override val aliases: List<String> = listOf(name, "spellb", "sb")
+    override val name: String = "bindspell"
+    override val permission: String = "bindspell"
+    override val aliases: List<String> = listOf(name, "binds", "bs")
 
     private val learnedSpells by inject<LearnedSpellsManager>()
     private val messages by inject<Messages>()
@@ -42,11 +42,14 @@ class SpellBindCommand : SubCommand(), CustomKoinComponent {
 
     private fun bindSpell(player: Player, item: ItemStack, spellType: SpellType) {
         if (!item.isWandMaterial()) {
-            val allowedMaterials =
-                WandSkin.values().filter { player.hasPermission(it.permission) }.joinToString { it.displayName }
+            val allowedMaterials = WandSkin.values().filter { player.hasPermission(it.permission) }.joinToString { it.displayName }
             player.sendMessage(messages.get(MessageKeys.INVALID_WAND_MATERIAL)
                 .replace("<item>", item.formattedTypeName())
                 .replace("<allowed_material>", allowedMaterials))
+            return
+        }
+        if(item.amount > 1) {
+            player.sendMessage(messages.get(MessageKeys.CANNOT_BIND_SPELLS_TO_MULTIPLE_ITEMS))
             return
         }
         val skin = WandSkin.of(item.type)

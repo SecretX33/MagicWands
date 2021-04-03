@@ -33,7 +33,7 @@ object ItemUtils: CustomKoinComponent {
     val ownerUuidKey = NamespacedKey(plugin, "wand_owner")
 
     fun turnIntoWand(item: ItemStack, player: Player) {
-        require(item.type.isWandMaterial()) { "Item ${item.type} cannot be a wand" }
+        require(item.isWandMaterial()) { "Item ${item.type} cannot be a wand" }
         val meta = item.itemMeta ?: throw IllegalArgumentException("Could not get itemMeta from ${item.type}")
 
         meta.apply {

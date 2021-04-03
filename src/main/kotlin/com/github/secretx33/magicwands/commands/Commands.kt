@@ -20,8 +20,8 @@ class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
         ForgetCommand(),
         ReloadCommand(),
         SetOwnerCommand(),
-        SpellBindCommand(),
-        SpellRemoveCommand())
+        BindSpellCommand(),
+        RemoveSpellCommand())
 
     init {
         plugin.getCommand(PLUGIN_COMMAND_PREFIX)?.let { cmd ->

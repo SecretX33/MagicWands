@@ -137,7 +137,7 @@ spells:
     fuel-usage: 10
     cooldown: 12
     duration: 5
-    full-invisible: false         # if false, player's item in hand still visible, if true then it renders the player COMPLETELY invisible while under vanish, but as a side effect nobody can damage the player with melee in the meantime
+    full-invisible: false         # if false, player's item in hand will still be visible, if true then it renders the player COMPLETELY invisible while under vanish, even while holding items in the hand, but as a side effect nobody can damage the player with melee in the meantime
     effect:
       enabled: true
       type: BALL_LARGE

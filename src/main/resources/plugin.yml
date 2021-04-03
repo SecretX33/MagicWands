@@ -23,8 +23,8 @@ permissions:
       magicwands.toggleeffect: true
       magicwands.forcelearn: true
       magicwands.forget: true
-      magicwands.spellbind: true
-      magicwands.spellremove: true
+      magicwands.bindspell: true
+      magicwands.removespell: true
       magicwands.skins: true
       magicwands.skins.stick: true
       magicwands.skins.bone: true
@@ -46,12 +46,12 @@ permissions:
     description: Grant access to the command 'forget'.
     default: false
 
-  magicwands.spellbind:
-    description: Grant access to the command 'spellbind'.
+  magicwands.bindspell:
+    description: Grant access to the command 'bindspell'.
     default: false
 
-  magicwands.spellremove:
-    description: Grant access to the command 'spellremove'.
+  magicwands.removespell:
+    description: Grant access to the command 'removespell'.
     default: false
 
   magicwands.changeskin:

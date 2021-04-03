@@ -47,6 +47,7 @@ enum class MessageKeys(val default: String) {
     WAND_SKIN_NOT_BOUGHT("${ChatColor.RED}Seems like you haven't bought out amazing skin <skin> yet :("),
     CONFIGS_RELOADED("Configs were reloaded."),
     WAND_SKIN_IS_ALREADY_THAT("${ChatColor.RED}Your wand is already using skin <skin>."),
+    CANNOT_BIND_SPELLS_TO_MULTIPLE_ITEMS("${ChatColor.RED}You may only bind spells to one item at a time."),
     CONSOLE_CANNOT_USE("${ChatColor.RED}Sorry, the console cannot use this command."),
     INVALID_WAND_MATERIAL("${ChatColor.RED}<item> cannot be an wand, please use a <allowed_material>."),
     ITEM_NOT_A_WAND("${ChatColor.RED}This item is not a wand!"),

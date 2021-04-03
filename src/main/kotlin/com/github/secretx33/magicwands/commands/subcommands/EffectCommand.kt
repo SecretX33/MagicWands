@@ -50,7 +50,7 @@ class EffectCommand : SubCommand(), CustomKoinComponent {
 
     private fun toggleEffects(newState: Boolean) {
         config.set(ConfigKeys.ENABLE_EFFECTS, newState)
-        config.saveAll()
+        config.save()
     }
 
     override fun getCompletor(sender: CommandSender, length: Int, hint: String, strings: Array<String>): List<String> {
