@@ -4,6 +4,7 @@ import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.events.PacketContainer
 import com.comphenix.protocol.events.PacketEvent
 import com.comphenix.protocol.reflect.IntEnum
+import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
@@ -142,6 +143,8 @@ class WrapperPlayServerSpawnEntity : AbstractPacket {
         set(value) {
             handle.doubles.write(2, value)
         }
+
+    fun getLocation(world: World): Location = Location(world, x, y, z)
 
     var optionalSpeedX: Double
         /**

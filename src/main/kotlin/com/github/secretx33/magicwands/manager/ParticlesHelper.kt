@@ -8,11 +8,13 @@ import org.bukkit.*
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Firework
 import org.bukkit.persistence.PersistentDataType
-import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class ParticlesHelper(plugin: Plugin, private val config: Config, private val fireworkId: NamespacedKey) {
+class ParticlesHelper (
+    private val config: Config,
+    private val fireworkId: NamespacedKey
+) {
 
     fun sendFireworkParticle(loc: Location, spellType: SpellType) {
         if(!config.get<Boolean>(ConfigKeys.ENABLE_EFFECTS) || !config.get(spellType.configEffectEnabled, true)) return

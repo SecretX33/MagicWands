@@ -20,8 +20,6 @@ class LearnedSpellsManager(plugin: Plugin) {
     private val writeLock = Semaphore(1)
     private val manager = YamlManager(plugin, "spells_learned/spells_learned")
     private val cache = ConcurrentHashMap<UUID, Set<SpellType>>()
-//    private val gson = Gson()
-//    private val spellTypeSetToken = object : TypeToken<Set<SpellType>>() {}.type
 
     fun knows(player: Player, spell: SpellType): Boolean {
         val uuid = player.uniqueId

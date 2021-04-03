@@ -1,6 +1,7 @@
 package com.github.secretx33.magicwands.manager
 
 import com.github.secretx33.magicwands.config.Config
+import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.events.BlockSpellCastEvent
@@ -10,8 +11,8 @@ import com.github.secretx33.magicwands.model.Cuboid
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.model.TempModification
 import com.github.secretx33.magicwands.utils.YamlManager
+import com.github.secretx33.magicwands.utils.runSync
 import kotlinx.coroutines.*
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -23,7 +24,6 @@ import org.bukkit.plugin.Plugin
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.koin.core.component.KoinApiExtension
-import java.lang.Runnable
 import java.lang.StrictMath.pow
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -36,6 +36,7 @@ class SpellManager(
     private val config: Config,
     private val messages: Messages,
     private val particlesHelper: ParticlesHelper,
+    private val hiddenPlayersHelper: HiddenPlayersHelper,
 ) {
 
     private val manager = YamlManager(plugin, "spells_learned/spells_learned")
@@ -162,7 +163,7 @@ class SpellManager(
         delay(delay)
         if(!isActive) return@launch
         tempModification.remove(coroutineContext.job)
-        runSync { task.unmake() }
+        runSync(plugin) { task.unmake() }
     }
 
     fun castLeap(event: SpellCastEvent) {
@@ -200,7 +201,7 @@ class SpellManager(
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
         val duration = config.get(spellType.configDuration, 2)
-        val slowPotency = config.get("${spellType.configRoot}.slow-potency", 1)
+        val slowPotency = config.get("${spellType.configRoot}.potency", 1)
 
         target.addPotionEffect(PotionEffect(PotionEffectType.SLOW, duration * 20, max(slowPotency - 1, 0)))
         player.sendMessage(messages.get(MessageKeys.SLOWED_TARGET).replace("<target>", target.customName ?: target.name))
@@ -245,16 +246,15 @@ class SpellManager(
         val player = event.player
         val spellType = event.spellType
         val duration = config.get(spellType.configDuration, 0)
+        val fullInvisible = config.get<Boolean>(ConfigKeys.VANISH_FULL_INVISIBLE)
 
-        player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, duration * 20, 1, false, false))
+        println("Vanish mode: $fullInvisible")
+
         player.sendMessage(messages.get(MessageKeys.CASTED_VANISH))
-        particlesHelper.sendFireworkParticle(player.location.apply { y += player.height * 0.7 }, spellType)
-    }
 
-    private fun runSync(delay: Long = 0L, block: () -> Unit) {
-        if(delay < 0) return
-        if(delay == 0L) Bukkit.getScheduler().runTask(plugin, Runnable { block() })
-        else Bukkit.getScheduler().runTaskLater(plugin, Runnable { block() }, delay)
+        if(fullInvisible) hiddenPlayersHelper.hidePlayer(player, duration)
+        else player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, duration * 20, 1, false, false))
+        particlesHelper.sendFireworkParticle(player.location.apply { y += player.height * 0.7 }, spellType)
     }
 
     fun close() {

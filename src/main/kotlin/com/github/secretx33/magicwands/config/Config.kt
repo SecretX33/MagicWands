@@ -41,6 +41,7 @@ enum class ConfigKeys(val configEntry: String, val defaultValue: Any) {
     ENABLE_EFFECTS("enable-spell-effects", true),
     DELETE_WAND_ON_DEATH("delete-wand-on-death", false),
     DISABLE_ALL_COOLDOWNS("disable-all-cooldowns", false),
+    VANISH_FULL_INVISIBLE("spells.vanish.full-invisible", false),
     DISABLE_FUEL_USAGE("disable-fuel-usage", false),
     ENABLE_MESSAGE_ON_SPELL_SWITCH("enable-message-on-spell-switch", true),
     SPELL_FUEL("spell-fuel", listOf("COAL", "CHARCOAL")),

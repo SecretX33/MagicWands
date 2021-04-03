@@ -4,23 +4,16 @@ import com.github.secretx33.magicwands.commands.Commands
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.eventlisteners.*
-import com.github.secretx33.magicwands.manager.LearnedSpellsManager
-import com.github.secretx33.magicwands.manager.ParticlesHelper
-import com.github.secretx33.magicwands.manager.SpellFuelManager
-import com.github.secretx33.magicwands.manager.SpellManager
-import com.github.secretx33.magicwands.packetlisteners.FireworkSpawnPacketListener
+import com.github.secretx33.magicwands.manager.*
 import com.github.secretx33.magicwands.packetlisteners.WandDropPacketListener
 import com.github.secretx33.magicwands.utils.*
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
-import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.logger.Level
-import org.koin.core.qualifier.QualifierValue
-import org.koin.core.qualifier.StringQualifier
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -36,12 +29,13 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { Config(get()) }
         single { SpellFuelManager(get()) }
         single { LearnedSpellsManager(get()) }
-        single { ParticlesHelper(get(), get(), get(named("firework"))) }
-        single { SpellManager(get(), get(), get(), get()) }
+        single { HiddenPlayersHelper(get()) }
+        single { ParticlesHelper(get(), get(named("firework"))) }
+        single { SpellManager(get(), get(), get(), get(), get()) }
         single { BlockSpellCastListener(get(), get(), get()) }
         single { EntitySpellCastListener(get(), get()) }
         single { FireworkDamageWorkaroundListener(get(), get(named("firework"))) }
-        single { PlayerDeathListener(get(), get()) }
+        single { PlayerDeathListener(get(), get(), get()) }
         single { PlayerLeaveListener(get(), get()) }
         single { PreventCraftListener(get(), get()) }
         single { PreventWandPickupListener(get()) }
@@ -49,7 +43,6 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { WandSpellSwitchListener(get(), get(), get()) }
         single { WandUseListener(get(), get(), get(), get()) }
         single { Commands(get()) }
-        single { FireworkSpawnPacketListener(get(), get(named("firework"))) }
         single { WandDropPacketListener(get()) }
     }
 
@@ -73,7 +66,6 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         get<WandUseListener>()
         get<Commands>()
         if(isProtocolLibEnabled) {
-            get<FireworkSpawnPacketListener>()
             get<WandDropPacketListener>()
         }
     }
