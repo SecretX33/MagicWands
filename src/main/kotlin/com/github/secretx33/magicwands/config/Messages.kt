@@ -26,6 +26,7 @@ class Messages(plugin: Plugin) {
 
     fun reload() {
         stringCache.clear()
+        listCache.clear()
         manager.reload()
     }
 

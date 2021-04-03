@@ -67,7 +67,8 @@ object ItemUtils: CustomKoinComponent {
 
         println("wand lore read from messages is $lore")
 
-        val maxLength = lore.map { it.length }.maxOrNull() ?: return emptyList()
+        val maxLength = lore.map { it.length }.maxOrNull()?.times(0.9) ?: return emptyList()
+        println("maxLength is $maxLength")
         val tagIndex = lore.indexOfFirst { it.contains("<available_spells>") }
         // there is no <available_spells> tag in the wand lore
         if(tagIndex < 0) return lore
@@ -78,29 +79,28 @@ object ItemUtils: CustomKoinComponent {
         }
 
         var currentLine = tagIndex
+        val colorMatcher = """((?:§\w)+)<available_spells>""".toPattern().matcher(lore[tagIndex])
+        val color = if(!colorMatcher.find()) "" else colorMatcher.group(1)
         // remove tag
         lore[tagIndex] = lore[tagIndex].replace("<available_spells>", "")
 
+        // adjust available spells in the lore in a manner that doesn't allow that
+        // the spells added to the lore make it wider than the widest line
         availableSpells.forEachIndexed { i, spell ->
             if(lore[currentLine].length > maxLength) currentLine++
-            if(i > 0 && lore[currentLine].length + spell.length + 2 > maxLength) {
+            if(currentLine > lore.lastIndex) lore.add(color)
+            if(i > 0 && lore[currentLine].length + spell.length + 1 > maxLength) {
                 lore[currentLine] += ","
-//                lore.add("")
                 currentLine++
+                if(currentLine > lore.lastIndex) lore.add(color)
+                else lore.add(currentLine, color)
             }
             if(currentLine == tagIndex) {
-                println("1. for $spell")
                 if (i > 0) lore[currentLine] += ", "
                 lore[currentLine] += spell
             } else {
-                if(currentLine > lore.lastIndex || lore[currentLine].length + spell.length + 2 > maxLength) {
-                    println("2. for $spell")
-                    if(currentLine > lore.lastIndex) lore.add(spell)
-                } else {
-                    println("3. for $spell")
-                    lore[currentLine] += ", "
-                    lore[currentLine] += spell
-                }
+                if(i > 0 && lore[currentLine].length > color.length) lore[currentLine] += ", "
+                lore[currentLine] += spell
             }
         }
         return lore
@@ -223,6 +223,7 @@ object ItemUtils: CustomKoinComponent {
             persistentDataContainer.set(ownerUuidKey, PersistentDataType.STRING, player.uniqueId.toString())
             updateLore(wand)
         }
+        ChatColor.GREEN
         wand.itemMeta = meta
     }
 
