@@ -14,14 +14,15 @@ import java.util.*
 @KoinApiExtension
 class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
 
-    private val subcommands: List<SubCommand> = listOf(ChangeSkinCommand(),
+    private val subcommands: List<SubCommand> = listOf(BindSpellCommand(),
+        ChangeSkinCommand(),
         EffectCommand(),
         ForceLearnCommand(),
         ForgetCommand(),
         ReloadCommand(),
+        RemoveSpellCommand(),
         SetOwnerCommand(),
-        BindSpellCommand(),
-        RemoveSpellCommand())
+        SpellTeacherCommand())
 
     init {
         plugin.getCommand(PLUGIN_COMMAND_PREFIX)?.let { cmd ->

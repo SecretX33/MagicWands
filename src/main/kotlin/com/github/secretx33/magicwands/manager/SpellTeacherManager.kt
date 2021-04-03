@@ -34,6 +34,7 @@ class SpellTeacherManager(private val plugin: Plugin, private val config: Config
         writeLock.withPermit {
             list = manager.getStringList(configKey).deserialize()
         }
+        println("1. list size is ${list.size}")
 
         val nullWorlds = list.filterTo(HashSet()) { it.first.world == null }
         list.removeAll(nullWorlds)
@@ -43,29 +44,33 @@ class SpellTeacherManager(private val plugin: Plugin, private val config: Config
         if(nullWorlds.isNotEmpty() && config.get(ConfigKeys.REMOVE_SPELLTEACHER_WORLD_NOT_FOUND)) {
             nullWorlds.forEach {
                 plugin.logger.warning("${ChatColor.RED}World with UUID was not found, removing ALL spellteachers in it")
-                removeSpellTeacherFromWorld(it.second.worldUuid)
+                removeSpellTeachersFromWorld(it.second.worldUuid)
             }
         }
         if(blockNotFound.isNotEmpty()) {
-            nullWorlds.forEach {
+            blockNotFound.forEach {
                 plugin.logger.warning("${ChatColor.RED}Block at ${it.first} was not found, removing it from the spellteachers list")
-                removeSpellTeacherFromWorld(it.second.worldUuid)
+                removeSpellTeachers(blockNotFound.map { m -> m.second })
             }
         }
+        println("2. list size is ${list.size}")
         cache.putAll(list)
     }
 
-    fun isSpellTeacher(location: Location): Boolean = cache.contains(location)
+    fun isSpellTeacher(location: Location): Boolean = cache.containsKey(location.block.location).also { println("block is at $location and cache is $cache") }
 
-    fun getTeacherType(location: Location): SpellType = cache[location]?.spellType ?: throw NoSuchElementException("${ChatColor.RED}SpellType at $loc was not found!")
+    fun getTeacherType(location: Location): SpellType = cache[location]?.spellType ?: throw NoSuchElementException("${ChatColor.RED}SpellType at $location was not found!")
 
-    fun addSpellTeacher(block: Block, spell: SpellType) = CoroutineScope(Dispatchers.IO).launch {
+    fun makeSpellTeacher(block: Block, spell: SpellType) = CoroutineScope(Dispatchers.IO).launch {
         if(block.location.world == null) return@launch
-
         val info = block.asSpellTeacher(spell)
+
         writeLock.withPermit {
             cache[block.location] = info
-            val newList = manager.getStringList(configKey).deserialize().apply { add(Pair(block.location, info)) }.serialize()
+            val newList = manager.getStringList(configKey).deserialize().apply {
+                removeIf { it.first == block.location }
+                add(Pair(block.location, info))
+            }.serialize()
             manager.set(configKey, newList)
             manager.save().join()
         }
@@ -95,14 +100,14 @@ class SpellTeacherManager(private val plugin: Plugin, private val config: Config
         }
     }
 
-    private fun removeSpellTeacherFromWorld(worldUuid: UUID) = CoroutineScope(Dispatchers.IO).launch {
+    private fun removeSpellTeachersFromWorld(worldUuid: UUID) = CoroutineScope(Dispatchers.IO).launch {
         writeLock.withPermit {
-            cache.remove(block.location)
-            val newList = manager.getStringList(configKey).asSequence()
-                .map { gson.fromJson(it, SpellTeacherInfo::class.java) }
-                .filter { it.location != block.location }
-                .map { gson.toJson(it, SpellTeacherInfo::class.java) }
-                .toList()
+            cache.filterKeys { it.world?.uid == worldUuid }.keys.asIterable().forEach { cache.remove(it) }
+
+            val newList = manager.getStringList(configKey).deserialize()
+                .filter { it.second.worldUuid == worldUuid }
+                .serialize()
+
             manager.set(configKey, newList)
             manager.save().join()
         }
@@ -118,11 +123,11 @@ class SpellTeacherManager(private val plugin: Plugin, private val config: Config
 
     private fun String.deserialize(): Pair<Location, SpellTeacherInfo> = gson.fromJson(this, pairTypeAdapter)
 
-    private fun List<String>.deserialize(): MutableSet<Pair<Location, SpellTeacherInfo>> = mapTo(HashSet()) { it.deserialize() }
+    private fun Collection<String>.deserialize(): MutableSet<Pair<Location, SpellTeacherInfo>> = mapTo(HashSet()) { it.deserialize() }
 
     private fun Pair<Location, SpellTeacherInfo>.serialize(): String = gson.toJson(this, pairTypeAdapter)
 
-    private fun Set<Pair<Location, SpellTeacherInfo>>.serialize(): List<String> = map { it.serialize() }
+    private fun Collection<Pair<Location, SpellTeacherInfo>>.serialize(): List<String> = map { it.serialize() }
 
     private fun Block.asSpellTeacher(spellType: SpellType) = SpellTeacherInfo(spellType, location.world!!.uid, type)
 

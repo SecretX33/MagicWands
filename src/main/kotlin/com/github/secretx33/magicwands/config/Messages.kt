@@ -34,7 +34,11 @@ class Messages(plugin: Plugin) {
 }
 
 enum class MessageKeys(val default: String) {
-    CANNOT_TRANSFORM_AIR_IN_SPELLTEACHER("${ChatColor.RED}Cannot transform air into spellteacher."),
+    BROKE_SPELLTEACHER("${ChatColor.RED}You just broke a Spellteacher!"),
+    BLOCK_IS_NOW_SPELLTEACHER("${ChatColor.GREEN}Block at <world> <x> <y> <z> is now a spellteacher for spell <type>."),
+    REPLACED_SPELLTEACHER_SPELL("${ChatColor.GREEN}Block at <world> <x> <y> <z> is now a spellteacher for spell <type> (previously it was spellteacher of <previous_spell>)."),
+    SPELLTEACHER_IS_ALREADY_THIS_TYPE("${ChatColor.RED}Spellteacher is already type <type>."),
+    CANNOT_TRANSFORM_AIR_IN_SPELLTEACHER("${ChatColor.RED}Cannot transform Air into Spellteacher."),
     WAND_LORE(""),
     CANNOT_BIND_UNKNOWN_SPELL("${ChatColor.RED}You cannot bind spells you don't know."),
     CANNOT_CAST_UNKNOWN_SPELL("${ChatColor.RED}You cannot use spell <spell> because you don't know it yet."),

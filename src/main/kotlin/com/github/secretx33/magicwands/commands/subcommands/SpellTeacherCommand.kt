@@ -8,10 +8,8 @@ import com.github.secretx33.magicwands.utils.CustomKoinComponent
 import com.github.secretx33.magicwands.utils.inject
 import org.bukkit.ChatColor
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
@@ -40,10 +38,31 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
             player.sendMessage(messages.get(MessageKeys.CANNOT_TRANSFORM_AIR_IN_SPELLTEACHER))
             return
         }
-        if(!spellTeacher.isSpellTeacher(block.location))
-
-
-
+        val isSpellTeacher = spellTeacher.isSpellTeacher(block.location)
+        if(isSpellTeacher && spellTeacher.getTeacherType(block.location) == spellType) {
+            player.sendMessage(messages.get(MessageKeys.SPELLTEACHER_IS_ALREADY_THIS_TYPE).replace("<type>", spellType.displayName))
+            return
+        }
+        if(isSpellTeacher) {
+            player.sendMessage(messages.get(MessageKeys.REPLACED_SPELLTEACHER_SPELL)
+                .replace("<world>", block.location.world?.name ?: "Unknown")
+                .replace("<x>", block.location.blockX.toString())
+                .replace("<y>", block.location.blockY.toString())
+                .replace("<z>", block.location.blockZ.toString())
+                .replace("<type>", spellType.displayName)
+                .replace("<previous_spell>", spellTeacher.getTeacherType(block.location).displayName)
+            )
+            spellTeacher.makeSpellTeacher(block, spellType)
+            return
+        }
+        spellTeacher.makeSpellTeacher(block, spellType)
+        player.sendMessage(messages.get(MessageKeys.BLOCK_IS_NOW_SPELLTEACHER)
+            .replace("<world>", block.location.world?.name ?: "Unknown")
+            .replace("<x>", block.location.blockX.toString())
+            .replace("<y>", block.location.blockY.toString())
+            .replace("<z>", block.location.blockZ.toString())
+            .replace("<type>", spellType.displayName)
+        )
     }
 
     override fun onCommandByConsole(sender: CommandSender, alias: String, strings: Array<String>) {
