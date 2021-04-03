@@ -34,6 +34,7 @@ class Messages(plugin: Plugin) {
 }
 
 enum class MessageKeys(val default: String) {
+    CANNOT_TRANSFORM_AIR_IN_SPELLTEACHER("${ChatColor.RED}Cannot transform air into spellteacher."),
     WAND_LORE(""),
     CANNOT_BIND_UNKNOWN_SPELL("${ChatColor.RED}You cannot bind spells you don't know."),
     CANNOT_CAST_UNKNOWN_SPELL("${ChatColor.RED}You cannot use spell <spell> because you don't know it yet."),
@@ -52,10 +53,11 @@ enum class MessageKeys(val default: String) {
     CANNOT_USE_ANOTHERS_WAND("${ChatColor.RED}The wand is your hand is not yours! It's owned by <owner>, you cannot use it!"),
     TAB_COMPLETION_WAND_HAS_ALL_SPELLS("<wand_already_has_all_spells>"),
     TAB_COMPLETION_WAND_HAS_NO_SPELLS("<wand_has_no_spells>"),
+    TAB_COMPLETION_NOT_HOLDING_WAND("<not_holding_wand>"),
     NOT_HOLDING_A_WAND("${ChatColor.RED}The item in your hand is not a wand."),
     INVALID_SKIN_NAME("${ChatColor.RED}There is no skin named <skin>, please try again."),
     WAND_SKIN_NOT_BOUGHT("${ChatColor.RED}Seems like you haven't bought out amazing skin <skin> yet :("),
-    CONFIGS_RELOADED("Configs were reloaded."),
+    CONFIGS_RELOADED("Reloaded configs."),
     WAND_SKIN_IS_ALREADY_THAT("${ChatColor.RED}Your wand is already using skin <skin>."),
     CANNOT_BIND_SPELLS_TO_MULTIPLE_ITEMS("${ChatColor.RED}You may only bind spells to one item at a time."),
     CONSOLE_CANNOT_USE("${ChatColor.RED}Sorry, the console cannot use this command."),
@@ -74,5 +76,5 @@ enum class MessageKeys(val default: String) {
     SPELL_IN_COOLDOWN("${ChatColor.GOLD}<spell> is in cooldown right now, <cooldown> seconds remaining."),
     SPELL_NOT_PRESENT("${ChatColor.RED}This wand doesn't have <spell> bound to it.");
 
-    val configEntry = this.name.toLowerCase(Locale.US).replace('_','-')
+    val configEntry = name.toLowerCase(Locale.US).replace('_','-')
 }

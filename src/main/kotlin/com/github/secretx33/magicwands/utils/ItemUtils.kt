@@ -65,8 +65,6 @@ object ItemUtils: CustomKoinComponent {
                 .replace("<owner>", owner)
         } as MutableList
 
-        println("wand lore read from messages is $lore")
-
         val maxLength = lore.map { it.length }.maxOrNull()?.times(0.9) ?: return emptyList()
         println("maxLength is $maxLength")
         val tagIndex = lore.indexOfFirst { it.contains("<available_spells>") }

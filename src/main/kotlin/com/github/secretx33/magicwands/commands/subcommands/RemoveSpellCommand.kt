@@ -3,10 +3,7 @@ package com.github.secretx33.magicwands.commands.subcommands
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.model.SpellType
-import com.github.secretx33.magicwands.utils.CustomKoinComponent
-import com.github.secretx33.magicwands.utils.ItemUtils
-import com.github.secretx33.magicwands.utils.inject
-import com.github.secretx33.magicwands.utils.isWand
+import com.github.secretx33.magicwands.utils.*
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -59,11 +56,9 @@ class RemoveSpellCommand  : SubCommand(), CustomKoinComponent {
         if(sender !is Player || length != 2) return emptyList()
 
         val item = sender.inventory.itemInMainHand
-        val enchants = if(item.isWand())
-            ItemUtils.getAvailableSpells(item).takeIf { it.isNotEmpty() }?.map { it.displayName } ?: listOf(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_NO_SPELLS))
-        else
-            emptyList()
+        if(!item.isWand()) return listOf(messages.get(MessageKeys.TAB_COMPLETION_NOT_HOLDING_WAND))
 
+        val enchants = ItemUtils.getAvailableSpells(item).takeIf { it.isNotEmpty() }?.map { it.displayName } ?: listOf(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_NO_SPELLS))
         return enchants.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
     }
 }

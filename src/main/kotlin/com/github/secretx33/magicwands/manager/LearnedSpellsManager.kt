@@ -2,8 +2,6 @@ package com.github.secretx33.magicwands.manager
 
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.utils.YamlManager
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,12 +11,11 @@ import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.HashMap
 
 class LearnedSpellsManager(plugin: Plugin) {
 
     private val writeLock = Semaphore(1)
-    private val manager = YamlManager(plugin, "spells_learned/spells_learned")
+    private val manager = YamlManager(plugin, "data/spells_learned")
     private val cache = ConcurrentHashMap<UUID, Set<SpellType>>()
 
     fun knows(player: Player, spell: SpellType): Boolean {

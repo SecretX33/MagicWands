@@ -31,7 +31,7 @@ import kotlin.collections.HashSet
 import kotlin.math.*
 
 @KoinApiExtension
-class SpellManager(
+class SpellManager (
     private val plugin: Plugin,
     private val config: Config,
     private val messages: Messages,
@@ -39,7 +39,7 @@ class SpellManager(
     private val hiddenPlayersHelper: HiddenPlayersHelper,
 ) {
 
-    private val manager = YamlManager(plugin, "spells_learned/spells_learned")
+    private val manager = YamlManager(plugin, "data/spells_learned")
     private val cooldown = HashMap<Pair<UUID, SpellType>, Long>()
     private val tempModification = ConcurrentHashMap<Job, TempModification>()
     private val blocksBlackList = HashSet<Location>()

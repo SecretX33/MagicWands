@@ -76,14 +76,17 @@ class BindSpellCommand : SubCommand(), CustomKoinComponent {
     override fun getCompletor(sender: CommandSender, length: Int, hint: String, strings: Array<String>): List<String> {
         if(sender !is Player || length != 2) return emptyList()
 
-        val spells = SpellType.values().map { it.displayName } as MutableList
         val item = sender.inventory.itemInMainHand
-        val knownSpells = learnedSpells.getKnownSpells(sender).map { it.displayName }
+        if(!item.isWandMaterial()) return listOf(messages.get(MessageKeys.TAB_COMPLETION_NOT_HOLDING_WAND))
+
+        val knownSpells = learnedSpells.getKnownSpells(sender)
+        // filter only known spells
+        val spells = SpellType.values().filter { knownSpells.contains(it) }.map { it.displayName } as MutableList
         if(item.isWand()) {
             spells.removeAll(ItemUtils.getAvailableSpells(item).map { it.displayName })
             if(spells.isEmpty() && hint.isBlank())
                 spells.add(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_ALL_SPELLS))
         }
-        return spells.filter { knownSpells.contains(it) && it.startsWith(hint, ignoreCase = true) }.sorted()
+        return spells.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
     }
 }
