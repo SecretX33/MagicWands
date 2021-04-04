@@ -27,8 +27,8 @@ disable-all-cooldowns: false
 disable-fuel-usage: false
 # Delete wand on player death (dying is scarier now, huh?)
 delete-wand-on-death: false
-# Remove spellteachers if its World is not found (if the plugin cannot find the world, it'll remove the SpellTeacher automatically and warn in the console
-remove-spellteacher-entry-if-world-not-found: true
+# Remove spellteachers if its World is not found (if the plugin cannot find the world, it'll remove the SpellTeacher automatically and warn in the console)
+remove-spellteacher-from-db-if-world-not-found: true
 
 # list of all spell properties
 spells:

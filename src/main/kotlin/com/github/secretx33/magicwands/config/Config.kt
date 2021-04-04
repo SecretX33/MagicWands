@@ -39,7 +39,7 @@ class Config(plugin: Plugin) {
 
 enum class ConfigKeys(val configEntry: String, val defaultValue: Any) {
     ENABLE_EFFECTS("enable-spell-effects", true),
-    REMOVE_SPELLTEACHER_WORLD_NOT_FOUND("remove-spellteacher-entry-if-world-not-found", true),
+    REMOVE_SPELLTEACHER_WORLD_NOT_FOUND("remove-spellteacher-from-db-if-world-not-found", true),
     DELETE_WAND_ON_DEATH("delete-wand-on-death", false),
     DISABLE_ALL_COOLDOWNS("disable-all-cooldowns", false),
     VANISH_FULL_INVISIBLE("spells.vanish.full-invisible", false),
