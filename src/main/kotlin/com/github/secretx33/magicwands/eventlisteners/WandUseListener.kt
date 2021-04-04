@@ -10,7 +10,6 @@ import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
 import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.model.SpellType.*
 import com.github.secretx33.magicwands.utils.*
-import com.github.secretx33.magicwands.utils.Utils.consoleMessage
 import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
@@ -21,6 +20,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
@@ -37,6 +37,7 @@ class WandUseListener (
 
     @EventHandler(priority = EventPriority.NORMAL)
     private fun PlayerInteractEvent.onWandInteract() {
+        if(hand != EquipmentSlot.HAND) return
         val item = item ?: return
         if(!item.isWand()) return
 

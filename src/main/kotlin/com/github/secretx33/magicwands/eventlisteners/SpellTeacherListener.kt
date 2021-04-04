@@ -1,21 +1,25 @@
 package com.github.secretx33.magicwands.eventlisteners
 
 import com.github.secretx33.magicwands.config.Config
+import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.manager.SpellTeacherManager
 import com.github.secretx33.magicwands.utils.isAir
 import com.github.secretx33.magicwands.utils.isRightClick
+import com.google.common.cache.CacheBuilder
 import net.md_5.bungee.api.ChatColor
 import net.milkbowl.vault.economy.Economy
-import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
+import java.util.concurrent.TimeUnit
 
 @KoinApiExtension
 class SpellTeacherListener (
@@ -31,32 +35,33 @@ class SpellTeacherListener (
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private fun PlayerInteractEvent.onSpellteacherInteract() {
-        println("1")
+        if(hand != EquipmentSlot.HAND) return
         val block = clickedBlock ?: return
-        println("2")
         if(!isRightClick() || block.isAir()) return
-        println("3")
         if(!spellTeacher.isSpellTeacher(block)) return
-        println("4")
 
         val spellType = spellTeacher.getSpellType(block)
         if(learnedSpells.knows(player, spellType)) {
-            player.sendMessage("${ChatColor.RED}You already know this ma man!")
+            player.sendMessage(messages.get(MessageKeys.CANNOT_PURCHASE_ALREADY_KNOW).replace("<spell>", spellType.displayName))
             return
         }
 
         val price = config.get(spellType.configLearnPrice, -1.0).takeIf { it > -1 } ?: return
         if(!economy.has(player, price)) {
-            player.sendMessage("${ChatColor.RED}No munny baby!")
+            val balance = economy.getBalance(player, player.world.name)
+            player.sendMessage(messages.get(MessageKeys.NOT_ENOUGH_MONEY)
+                .replace("<spell>", spellType.displayName)
+                .replace("<price>", price.toString())
+                .replace("<balance>", balance.toString()))
             return
         }
 
         val response = economy.withdrawPlayer(player, price)
         if(!response.transactionSuccess()) {
-            player.sendMessage("${ChatColor.RED}We could not validate your purchase: ${response.errorMessage}")
+            player.sendMessage(messages.get(MessageKeys.TRANSACTION_FAILED).replace("<error>", response.errorMessage))
             return
         }
-        player.sendMessage("${ChatColor.GREEN}You have purchased spell: ${ChatColor.GOLD}" + spellType.displayName)
+        player.sendMessage(messages.get(MessageKeys.SUCCESSFULLY_PURCHASED_SPELL).replace("<spell>", spellType.displayName))
         learnedSpells.addSpell(player, spellType)
     }
 }

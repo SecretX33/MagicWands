@@ -2,7 +2,6 @@ package com.github.secretx33.magicwands.eventlisteners
 
 import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import org.bukkit.Bukkit
-import org.bukkit.NamespacedKey
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener

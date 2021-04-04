@@ -26,7 +26,7 @@ class LearnedSpellsManager(plugin: Plugin) {
             return cache[uuid]?.contains(spell) == true
 
         if(manager.contains(uuidString)) {
-            val list = manager.getList(uuidString)?.mapNotNullTo(HashSet()) { SpellType.ofOrNull(it as? String) } ?: HashSet()
+            val list = manager.getStringList(uuidString).mapNotNullTo(HashSet()) { SpellType.ofOrNull(it) }
             cache[uuid] = list
             return list.contains(spell)
         }
@@ -37,16 +37,14 @@ class LearnedSpellsManager(plugin: Plugin) {
     fun getKnownSpells(player: Player): Set<SpellType> {
         val uuid = player.uniqueId
         return cache.getOrPut(uuid) {
-            manager.getList(uuid.toString())?.mapNotNullTo(HashSet()) { SpellType.ofOrNull(it as? String) } ?: HashSet()
+            manager.getStringList(uuid.toString()).mapNotNullTo(HashSet()) { SpellType.ofOrNull(it) }
         }
     }
 
     fun addSpell(player: Player, spell: SpellType) = CoroutineScope(Dispatchers.IO).launch {
         val uuid = player.uniqueId
         writeLock.withPermit {
-            val spellSet = cache.getOrPut(uuid) {
-                manager.getList(uuid.toString())?.mapNotNullTo(HashSet()) { SpellType.ofOrNull(it as? String) } ?: HashSet()
-            } as MutableSet<SpellType>
+            val spellSet = getKnownSpells(player) as MutableSet
             spellSet.add(spell)
             cache[uuid] = spellSet
             manager.set(uuid.toString(), spellSet.mapTo(ArrayList())  { it.name })
@@ -57,9 +55,7 @@ class LearnedSpellsManager(plugin: Plugin) {
     fun removeSpell(player: Player, spell: SpellType) = CoroutineScope(Dispatchers.IO).launch {
         val uuid = player.uniqueId
         writeLock.withPermit {
-            val spellSet = cache.getOrPut(uuid) {
-                manager.getList(player.uniqueId.toString())?.mapNotNullTo(HashSet()) { SpellType.ofOrNull(it as? String) } ?: HashSet()
-            } as MutableSet<SpellType>
+            val spellSet = getKnownSpells(player) as MutableSet
             spellSet.remove(spell)
             cache[uuid] = spellSet
             manager.set(uuid.toString(), spellSet.mapTo(ArrayList()) { it.name })

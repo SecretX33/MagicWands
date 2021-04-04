@@ -1,12 +1,8 @@
 package com.github.secretx33.magicwands.eventlisteners
 
-import com.github.secretx33.magicwands.config.MessageKeys
-import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.utils.ItemUtils
 import com.github.secretx33.magicwands.utils.isWand
 import org.bukkit.Bukkit
-import org.bukkit.entity.Player
-import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener

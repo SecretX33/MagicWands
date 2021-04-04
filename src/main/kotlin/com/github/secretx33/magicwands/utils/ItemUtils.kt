@@ -9,7 +9,10 @@ import com.github.secretx33.magicwands.utils.ItemUtils.ownerUuidKey
 import com.github.secretx33.magicwands.utils.Utils.consoleMessage
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import org.bukkit.*
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
+import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
@@ -66,7 +69,6 @@ object ItemUtils: CustomKoinComponent {
         } as MutableList
 
         val maxLength = lore.map { it.length }.maxOrNull()?.times(0.9) ?: return emptyList()
-        println("maxLength is $maxLength")
         val tagIndex = lore.indexOfFirst { it.contains("<available_spells>") }
         // there is no <available_spells> tag in the wand lore
         if(tagIndex < 0) return lore

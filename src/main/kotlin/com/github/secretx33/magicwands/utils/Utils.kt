@@ -2,7 +2,6 @@ package com.github.secretx33.magicwands.utils
 
 import com.github.secretx33.magicwands.config.Const.PLUGIN_CHAT_PREFIX
 import org.bukkit.Bukkit
-import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.text.WordUtils
@@ -13,7 +12,6 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 import java.util.*
-import kotlin.math.abs
 
 @KoinApiExtension
 object Utils: CustomKoinComponent {

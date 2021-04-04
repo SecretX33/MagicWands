@@ -39,7 +39,6 @@ class SpellManager (
     private val hiddenPlayersHelper: HiddenPlayersHelper,
 ) {
 
-    private val manager = YamlManager(plugin, "data/spells_learned")
     private val cooldown = HashMap<Pair<UUID, SpellType>, Long>()
     private val tempModification = ConcurrentHashMap<Job, TempModification>()
     private val blocksBlackList = HashSet<Location>()
@@ -48,32 +47,15 @@ class SpellManager (
         = max(0L, (cooldown.getOrDefault(Pair(player.uniqueId, spellType), 0L) - System.currentTimeMillis()))
 
     fun addSpellCD(player: Player, spellType: SpellType) {
-        cooldown[Pair(player.uniqueId, spellType)] = System.currentTimeMillis() + config.get(spellType.configCooldown, 7) * 1000
+        cooldown[Pair(player.uniqueId, spellType)] = System.currentTimeMillis() + config.get(spellType.configCooldown, 7.0).toLong() * 1000
     }
-
-    fun knows(player: Player, spellType: SpellType): Boolean {
-        return manager.contains("${player.uniqueId}.${spellType.name}")
-//        manager.getStringList(player.uniqueId.toString()).contains(spell.name)
-    }
-
-    fun teach(player: Player, spellType: SpellType) {
-        val path = player.uniqueId.toString()
-        val spellList = manager.getStringList(path)
-        if(!spellList.contains(spellType.name)) {
-            spellList.add(spellType.name)
-            manager.set(path, spellList)
-            manager.save()
-        }
-    }
-
-    fun reload() = manager.reload()
 
     fun castBlind(event: EntitySpellCastEvent) {
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
-        val duration = config.get(spellType.configDuration, 1)
+        val duration = config.get(spellType.configDuration, 1.0)
 
-        target.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, duration * 20, 1))
+        target.addPotionEffect(PotionEffect(PotionEffectType.BLINDNESS, (duration * 20).toInt(), 1))
         particlesHelper.sendFireworkParticle(target.location.apply { y += target.height * 0.7 }, spellType)
     }
 
@@ -98,7 +80,7 @@ class SpellManager (
         val spellType = event.spellType
         val duration = config.get(spellType.configDuration, 5) * 1000
         val fatiguePotency = config.get("${spellType.configRoot}.mining-fatigue-potency", 0)
-        val fatigueDuration = config.get("${spellType.configRoot}.mining-fatigue-duration", 5)
+        val fatigueDuration = config.get("${spellType.configRoot}.mining-fatigue-duration", 5.0)
         val cuboid = target.makeCuboidAround()
 
         val floorCeil = cuboid.getFloorAndCeil().filter { it.playerCanBreak(player) }
@@ -140,7 +122,7 @@ class SpellManager (
         tempModification[job] = task
         particlesHelper.sendFireworkParticle(cuboid.center, spellType)
         if(fatiguePotency > 0)
-            target.addPotionEffect(PotionEffect(PotionEffectType.SLOW_DIGGING, fatigueDuration * 20, max(fatiguePotency - 1, 0)))
+            target.addPotionEffect(PotionEffect(PotionEffectType.SLOW_DIGGING, (fatigueDuration * 20).toInt(), max(fatiguePotency - 1, 0)))
     }
 
     private fun Block.playerCanBreak(player: Player): Boolean = type != Material.BEDROCK && !blocksBlackList.contains(location) && WorldGuardHelper.canBreakBlock(this, player)
@@ -186,10 +168,10 @@ class SpellManager (
         val player = event.player
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
-        val duration = config.get(spellType.configDuration, 0)
+        val duration = config.get(spellType.configDuration, 0.0)
         val poisonPotency = config.get("${spellType.configRoot}.poison-potency", 4)
 
-        target.addPotionEffect(PotionEffect(PotionEffectType.POISON, duration * 20, max(poisonPotency - 1, 0)))
+        target.addPotionEffect(PotionEffect(PotionEffectType.POISON, (duration * 20).toInt(), max(poisonPotency - 1, 0)))
         player.sendMessage(messages.get(MessageKeys.POISONED_TARGET).replace("<target>", target.customName ?: target.name))
         if(target is Player)
             target.sendMessage(messages.get(MessageKeys.GOT_POISONED).replace("<caster>", player.name))
@@ -200,10 +182,10 @@ class SpellManager (
         val player = event.player
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
-        val duration = config.get(spellType.configDuration, 2)
+        val duration = config.get(spellType.configDuration, 2.0)
         val slowPotency = config.get("${spellType.configRoot}.potency", 1)
 
-        target.addPotionEffect(PotionEffect(PotionEffectType.SLOW, duration * 20, max(slowPotency - 1, 0)))
+        target.addPotionEffect(PotionEffect(PotionEffectType.SLOW, (duration * 20).toInt(), max(slowPotency - 1, 0)))
         player.sendMessage(messages.get(MessageKeys.SLOWED_TARGET).replace("<target>", target.customName ?: target.name))
         if(target is Player)
             target.sendMessage(messages.get(MessageKeys.GOT_SLOWED).replace("<caster>", player.name))
@@ -245,7 +227,7 @@ class SpellManager (
     fun castVanish(event: SpellCastEvent) {
         val player = event.player
         val spellType = event.spellType
-        val duration = config.get(spellType.configDuration, 0)
+        val duration = config.get(spellType.configDuration, 0.0)
         val fullInvisible = config.get<Boolean>(ConfigKeys.VANISH_FULL_INVISIBLE)
 
         println("Vanish mode: $fullInvisible")
@@ -253,7 +235,7 @@ class SpellManager (
         player.sendMessage(messages.get(MessageKeys.CASTED_VANISH))
 
         if(fullInvisible) hiddenPlayersHelper.hidePlayer(player, duration)
-        else player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, duration * 20, 1, false, false))
+        else player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, (duration * 20).toInt(), 1, false, false))
         particlesHelper.sendFireworkParticle(player.location.apply { y += player.height * 0.7 }, spellType)
     }
 

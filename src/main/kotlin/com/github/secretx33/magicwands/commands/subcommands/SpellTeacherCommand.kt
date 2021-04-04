@@ -24,7 +24,7 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
 
     override fun onCommandByPlayer(player: Player, alias: String, strings: Array<String>) {
         if(strings.size < 2) {
-            player.sendMessage("${ChatColor.RED}Usage: /$alias $name <playername>")
+            player.sendMessage("${ChatColor.RED}Usage: /$alias $name <spell>")
             return
         }
         val spellType = SpellType.ofOrNull(strings[1]) ?: run {

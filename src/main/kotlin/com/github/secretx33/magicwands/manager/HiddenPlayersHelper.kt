@@ -12,8 +12,8 @@ class HiddenPlayersHelper(private val plugin: Plugin) {
 
     private val hiddenPlayers = ConcurrentHashMap<UUID, Job>()
 
-    fun hidePlayer(player: Player, showAgainIn: Int) {
-        if(showAgainIn == 0) return
+    fun hidePlayer(player: Player, showAgainIn: Double) {
+        if(showAgainIn == 0.0) return
         val uuid = player.uniqueId
         hiddenPlayers[uuid]?.cancel()
         Bukkit.getOnlinePlayers().asSequence().filter { it.uniqueId != uuid }
@@ -21,8 +21,8 @@ class HiddenPlayersHelper(private val plugin: Plugin) {
         hiddenPlayers[uuid] = showPlayerLater(player, showAgainIn)
     }
 
-    private fun showPlayerLater(player: Player, showAgainIn: Int) = CoroutineScope(Dispatchers.Default).launch {
-        delay(showAgainIn * 1000L)
+    private fun showPlayerLater(player: Player, secondsDelay: Double) = CoroutineScope(Dispatchers.Default).launch {
+        delay((secondsDelay * 1000).toLong())
         if(!isActive) return@launch
         showPlayer(player)
     }
