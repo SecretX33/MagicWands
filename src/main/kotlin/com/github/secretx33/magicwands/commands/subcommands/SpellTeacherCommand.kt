@@ -38,8 +38,8 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
             player.sendMessage(messages.get(MessageKeys.CANNOT_TRANSFORM_AIR_IN_SPELLTEACHER))
             return
         }
-        val isSpellTeacher = spellTeacher.isSpellTeacher(block.location)
-        if(isSpellTeacher && spellTeacher.getTeacherType(block.location) == spellType) {
+        val isSpellTeacher = spellTeacher.isSpellTeacher(block)
+        if(isSpellTeacher && spellTeacher.getSpellType(block) == spellType) {
             player.sendMessage(messages.get(MessageKeys.SPELLTEACHER_IS_ALREADY_THIS_TYPE).replace("<type>", spellType.displayName))
             return
         }
@@ -50,7 +50,7 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
                 .replace("<y>", block.location.blockY.toString())
                 .replace("<z>", block.location.blockZ.toString())
                 .replace("<type>", spellType.displayName)
-                .replace("<previous_spell>", spellTeacher.getTeacherType(block.location).displayName)
+                .replace("<previous_spell>", spellTeacher.getSpellType(block).displayName)
             )
             spellTeacher.makeSpellTeacher(block, spellType)
             return

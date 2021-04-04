@@ -42,6 +42,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { PreventCraftListener(get(), get()) }
         single { PreventWandPickupListener(get()) }
         single { SpellCastListener(get(), get(), get(), get(), get()) }
+        single { SpellTeacherListener(get(), get(), get(), get(), get(), get()) }
         single { WandSpellSwitchListener(get(), get(), get()) }
         single { WandUseListener(get(), get(), get(), get()) }
         single { Commands(get()) }
@@ -65,6 +66,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         get<PreventCraftListener>()
         get<PreventWandPickupListener>()
         get<SpellCastListener>()
+        get<SpellTeacherListener>()
         get<WandSpellSwitchListener>()
         get<WandUseListener>()
         get<Commands>()

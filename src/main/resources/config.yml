@@ -34,28 +34,28 @@ remove-spellteacher-entry-if-world-not-found: true
 spells:
   # spell name
   leap:
-    learn-price: 100          # price to learn it
-    fuel-usage: 5             # how much fuel the spell is going to use
-    cooldown: 7               # spell cooldown, in seconds
-    height-multiplier: 0.8    # how high will the player leap
-    distance-multiplier: 1.3  # how far the player will leap
+    learn-price: 100.0         # price to learn it
+    fuel-usage: 5              # how much fuel the spell is going to use
+    cooldown: 7.0              # spell cooldown, in seconds
+    height-multiplier: 0.8     # how high will the player leap
+    distance-multiplier: 1.3   # how far the player will leap
     effect:
       enabled: true
-      type: BALL_LARGE        # valid values: BALL, BALL_LARGE, BURST, CREEPER, STAR
+      type: BALL_LARGE         # valid values: BALL, BALL_LARGE, BURST, CREEPER, STAR
       main-color:
-        - 151, 58, 208        # RGB, do like this "r, g, b" format to use a single color, is mandatory to have at least one value
+        - 151, 58, 208         # RGB, do like this "r, g, b" format to use a single color, is mandatory to have at least one value
       fade-color:
-        - 112, 212, 99        # RGB, leave it empty to disable fade color completely
-      flicker: true           # true if this explosion has the Twinkle effect (glowstone dust)
-      trail: true             # true if this explosion has the Trail effect (more particles & they stay longer)
+        - 112, 212, 99         # RGB, leave it empty to disable fade color completely
+      flicker: true            # true if this explosion has the Twinkle effect (glowstone dust)
+      trail: true              # true if this explosion has the Trail effect (more particles & they stay longer)
 
   thrust:
-    learn-price: 100
+    learn-price: 100.0
     fuel-usage: 10
-    cooldown: 12
-    range: 15                 # up until what range the player can thrust others, in blocks
-    height-multiplier: 0.7    # how high the player's target will be thrust
-    distance-multiplier: 1.4  # how far the player's target will be thrust
+    cooldown: 12.0
+    range: 15                  # up until what range the player can thrust others, in blocks
+    height-multiplier: 0.7     # how high the player's target will be thrust
+    distance-multiplier: 1.4   # how far the player's target will be thrust
     effect:
       enabled: true
       type: BURST
@@ -70,25 +70,25 @@ spells:
       trail: false
 
   blink:
-    learn-price: 100
+    learn-price: 100.0
     fuel-usage: 10
-    cooldown: 12
-    range: 15                 # up until what range the player can blink, in blocks
+    cooldown: 12.0
+    range: 15                  # up until what range the player can blink, in blocks
     effect:
       enabled: true
       type: BALL
       main-color:
         - 229, 84, 84
-      fade-color: []          # this one doesn't have any fade color effects
+      fade-color: []           # this one doesn't have any fade color effects
       flicker: true
       trail: true
 
   blind:
-    learn-price: 100
+    learn-price: 100.0
     fuel-usage: 10
-    cooldown: 12
-    duration: 5
-    range: 8                 # up until what range the player can blind others, in blocks
+    cooldown: 12.0
+    duration: 5.0
+    range: 8                  # up until what range the player can blind others, in blocks
     effect:
       enabled: true
       type: BALL_LARGE
@@ -100,13 +100,13 @@ spells:
       trail: false
 
   ensnare:
-    learn-price: 100
+    learn-price: 100.0
     fuel-usage: 10
-    cooldown: 12
-    duration: 5
-    range: 6                      # up until what range the player can trap others, in blocks
-    mining-fatigue-potency: 1     # add mining fatigue to make escape the trap more challenging, read about it here https://minecraft.fandom.com/wiki/Mining_Fatigue for more information about what changes in each potency, optionally use 0 to disable the effect
-    mining-fatigue-duration: 3    # how many seconds the mining fatigue will last
+    cooldown: 12.0
+    duration: 5.0
+    range: 6                       # up until what range the player can trap others, in blocks
+    mining-fatigue-potency: 1      # add mining fatigue to make escape the trap more challenging, read about it here https://minecraft.fandom.com/wiki/Mining_Fatigue for more information about what changes in each potency, optionally use 0 to disable the effect
+    mining-fatigue-duration: 3.0   # how many seconds the mining fatigue will last
     effect:
       enabled: true
       type: BALL_LARGE
@@ -118,10 +118,10 @@ spells:
       trail: true
 
   poison:
-    learn-price: 100
+    learn-price: 100.0
     fuel-usage: 10
-    cooldown: 15
-    duration: 7
+    cooldown: 15.0
+    duration: 7.0
     range: 7                    # up until what range the player can poison others, in blocks
     poison-potency: 7           # what potency of poison will be applied, valid values: 1-31, by my tests around 7 to 10 is where the poison is stronger, because after 10 there's a grace period in which the player cannot take damage
     effect:
@@ -135,10 +135,10 @@ spells:
       trail: false
 
   vanish:
-    learn-price: 100
+    learn-price: 100.0
     fuel-usage: 10
-    cooldown: 12
-    duration: 5
+    cooldown: 12.0
+    duration: 5.0
     full-invisible: false         # if false, player's item in hand will still be visible, if true then it renders the player COMPLETELY invisible while under vanish, even while holding items in the hand, but as a side effect nobody can damage the player with melee in the meantime
     effect:
       enabled: true
@@ -151,10 +151,10 @@ spells:
       trail: true
 
   slow:
-    learn-price: 100
+    learn-price: 100.0
     fuel-usage: 8
-    cooldown: 15
-    duration: 3
+    cooldown: 15.0
+    duration: 3.0
     range: 8
     potency: 2
     effect:

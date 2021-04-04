@@ -55,9 +55,9 @@ class SpellTeacherManager(private val plugin: Plugin, private val config: Config
         cache.putAll(list)
     }
 
-    fun isSpellTeacher(location: Location): Boolean = cache.containsKey(location.block.location)
+    fun isSpellTeacher(block: Block): Boolean = cache.containsKey(block.location)
 
-    fun getTeacherType(location: Location): SpellType = cache[location]?.spellType ?: throw NoSuchElementException("${ChatColor.RED}SpellType at $location was not found!")
+    fun getSpellType(block: Block): SpellType = cache[block.location]?.spellType ?: throw NoSuchElementException("${ChatColor.RED}SpellType at ${block.location} was not found!")
 
     fun makeSpellTeacher(block: Block, spell: SpellType) = CoroutineScope(Dispatchers.IO).launch {
         if(block.location.world == null) return@launch

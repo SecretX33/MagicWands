@@ -20,7 +20,7 @@ class BlockBreakListener (
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     private fun BlockBreakEvent.onSpellTeacherBreak() {
-        if(!spellTeacher.isSpellTeacher(block.location)) return
+        if(!spellTeacher.isSpellTeacher(block)) return
         player.sendMessage(messages.get(MessageKeys.BROKE_SPELLTEACHER))
         spellTeacher.removeSpellTeacher(block)
     }
