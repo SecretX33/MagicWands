@@ -40,7 +40,7 @@ class SpellCastListener (
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     private fun SpellCastEvent.trySpellCast() {
-        require(learnedSpells.knows(player, spellType)) { "Player is trying to use a spell he doesn't know... HOW?" }
+        require(learnedSpells.knows(player.uniqueId, spellType)) { "Player is trying to use a spell he doesn't know... HOW?" }
 
         // not enough fuel
         if(isFuelEnabled && !fuelManager.hasEnoughFuel(player, spellType)) {
@@ -72,7 +72,7 @@ class SpellCastListener (
         if(isCooldownsEnabled) spellManager.addSpellCD(player, spellType)
     }
 
-    private fun Player.canSendCDMessage() = !config.get<Boolean>(ConfigKeys.DISABLE_ALL_COOLDOWNS) && sentMessages.getIfPresent(player)?.plus(100)?.compareTo(System.currentTimeMillis())?.let { it > 0 } == true
+    private fun Player.canSendCDMessage() = !config.get<Boolean>(ConfigKeys.DISABLE_ALL_COOLDOWNS) && sentMessages.getIfPresent(this)?.plus(100)?.compareTo(System.currentTimeMillis())?.let { it > 0 } == true
 
     private val isFuelEnabled
         get() = !config.get<Boolean>(ConfigKeys.DISABLE_FUEL_USAGE)

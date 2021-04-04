@@ -54,7 +54,7 @@ class WandUseListener (
                 isCancelled = true
                 return
             }
-            if(!learnedSpells.knows(player, selected)) {
+            if(!learnedSpells.knows(player.uniqueId, selected)) {
                 isCancelled = true
                 player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_UNKNOWN_SPELL).replace("<spell>", selected.displayName))
                 return
@@ -84,7 +84,7 @@ class WandUseListener (
             isCancelled = true
             return
         }
-        if(!learnedSpells.knows(player, selected)) {
+        if(!learnedSpells.knows(player.uniqueId, selected)) {
             isCancelled = true
             player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_UNKNOWN_SPELL).replace("<spell>", selected.displayName))
             return
