@@ -129,31 +129,7 @@ class SpellTeacherManager(private val plugin: Plugin, private val config: Config
 
     private fun Block.asSpellTeacher(spellType: SpellType) = SpellTeacherInfo(spellType, location.world!!.uid, type)
 
-    private class LocationAdapter : JsonSerializer<Location>, JsonDeserializer<Location> {
 
-        override fun serialize(location: Location, type: Type, context: JsonSerializationContext): JsonElement {
-            val root = JsonObject()
-            root.apply {
-                addProperty("world", location.world?.uid.toString())
-                addProperty("x", location.blockX)
-                addProperty("y", location.blockY)
-                addProperty("z", location.blockZ)
-            }
-            return root
-        }
-
-        override fun deserialize(json: JsonElement, type: Type, context: JsonDeserializationContext): Location {
-            val root = json.asJsonObject
-
-            root.apply {
-                val world = get("world")?.asString?.toUuid()?.let { Bukkit.getWorld(it) }
-                val x = get("x").asDouble
-                val y = get("y").asDouble
-                val z = get("z").asDouble
-                return Location(world, x, y, z)
-            }
-        }
-    }
 
     private data class SpellTeacherInfo (
         val spellType: SpellType,

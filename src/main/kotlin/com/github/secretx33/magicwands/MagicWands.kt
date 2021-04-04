@@ -3,6 +3,7 @@ package com.github.secretx33.magicwands
 import com.github.secretx33.magicwands.commands.Commands
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.Messages
+import com.github.secretx33.magicwands.database.SQLite
 import com.github.secretx33.magicwands.eventlisteners.*
 import com.github.secretx33.magicwands.manager.*
 import com.github.secretx33.magicwands.packetlisteners.WandDropPacketListener
@@ -76,7 +77,8 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
     }
 
     override fun onDisable() {
-        get<SpellManager>().close()
+        get<SpellManager>().finalizeTasks()
+        get<SQLite>().close()
         unloadKoinModules(mod)
         stopKoin()
     }

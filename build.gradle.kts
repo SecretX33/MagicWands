@@ -42,6 +42,7 @@ dependencies {
     val koin_version = "2.2.2"
     implementation("org.koin:koin-core:$koin_version")
     testCompileOnly("org.koin:koin-test:$koin_version")
+    implementation("com.zaxxer:HikariCP:4.0.2")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.6.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.4")
@@ -55,9 +56,9 @@ artifacts.archives(tasks.shadowJar)
 
 tasks.shadowJar {
     archiveFileName.set(rootProject.name + ".jar")
+    relocate("com.zaxxer.hikari", "com.github.secretx33.dependencies.hikari")
     relocate("okio", "com.github.secretx33.dependencies.moshi.okio")
     relocate("org.koin", "com.github.secretx33.dependencies.koin")
-    relocate("org.sqlite", "com.github.secretx33.dependencies.sqlite")
     relocate("org.slf4j", "com.github.secretx33.dependencies.slf4j")
     relocate("kotlin", "com.github.secretx33.dependencies.kotlin")
     relocate("kotlinx", "com.github.secretx33.dependencies.kotlinx")

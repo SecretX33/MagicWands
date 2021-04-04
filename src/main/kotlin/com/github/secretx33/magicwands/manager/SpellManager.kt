@@ -239,7 +239,7 @@ class SpellManager (
         particlesHelper.sendFireworkParticle(player.location.apply { y += player.height * 0.7 }, spellType)
     }
 
-    fun close() {
+    fun finalizeTasks() {
         tempModification.forEach { (job, mod) ->
             job.cancel()
             mod.unmake()

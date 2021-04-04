@@ -1,0 +1,31 @@
+package com.github.secretx33.magicwands.database
+
+import com.github.secretx33.magicwands.utils.toUuid
+import com.google.gson.*
+import org.bukkit.Bukkit
+import org.bukkit.Location
+import java.lang.reflect.Type
+
+class LocationAdapter : JsonSerializer<Location>, JsonDeserializer<Location> {
+
+    override fun serialize(location: Location, type: Type, context: JsonSerializationContext): JsonElement {
+        return JsonObject().apply {
+            addProperty("world", location.world?.uid?.toString())
+            addProperty("x", location.blockX)
+            addProperty("y", location.blockY)
+            addProperty("z", location.blockZ)
+        }
+    }
+
+    override fun deserialize(json: JsonElement, type: Type, context: JsonDeserializationContext): Location {
+        val root = json.asJsonObject
+
+        root.run {
+            val world = Bukkit.getWorld(get("world").asString.toUuid())
+            val x = get("x").asDouble
+            val y = get("y").asDouble
+            val z = get("z").asDouble
+            return Location(world, x, y, z)
+        }
+    }
+}

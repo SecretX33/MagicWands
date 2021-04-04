@@ -7,11 +7,8 @@ import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.manager.SpellTeacherManager
 import com.github.secretx33.magicwands.utils.isAir
 import com.github.secretx33.magicwands.utils.isRightClick
-import com.google.common.cache.CacheBuilder
-import net.md_5.bungee.api.ChatColor
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -19,7 +16,6 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
-import java.util.concurrent.TimeUnit
 
 @KoinApiExtension
 class SpellTeacherListener (
