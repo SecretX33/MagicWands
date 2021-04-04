@@ -3,21 +3,27 @@ package com.github.secretx33.magicwands.manager
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.model.SpellType
-import com.github.secretx33.magicwands.utils.Utils.consoleMessage
 import org.bukkit.*
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Firework
 import org.bukkit.persistence.PersistentDataType
 import org.koin.core.component.KoinApiExtension
+import java.util.logging.Logger
 
 @KoinApiExtension
 class ParticlesHelper (
     private val config: Config,
+    private val log: Logger,
     private val fireworkId: NamespacedKey
 ) {
 
+    private val globalEffectsEnabled
+        get() = config.get<Boolean>(ConfigKeys.ENABLE_EFFECTS)
+
+    private val spellEffectEnabled = { spellType: SpellType -> config.get(spellType.configEffectEnabled, true) }
+
     fun sendFireworkParticle(loc: Location, spellType: SpellType) {
-        if(!config.get<Boolean>(ConfigKeys.ENABLE_EFFECTS) || !config.get(spellType.configEffectEnabled, true)) return
+        if(!globalEffectsEnabled || !spellEffectEnabled(spellType)) return
         val world = loc.world ?: return
 
         val firework = world.spawnEntity(loc, EntityType.FIREWORK) as Firework
@@ -48,8 +54,7 @@ class ParticlesHelper (
     private fun String.toColor(): Color {
         val results = COLOR_PATTERN.find(this.trim())?.groupValues
         if(results?.size != 4) {
-            consoleMessage("Result size is ${results?.size ?: 0}")
-            consoleMessage("${ChatColor.RED}Seems like you have malformed color string in your config file, please fix spell effect color entry with value '$this' and reload MagicWands plugin configuration.")
+            log.warning("${ChatColor.RED}Seems like you have malformed color string in your config file, please fix spell effect color entry with value '$this' and reload MagicWands plugin configuration.")
             return Color.FUCHSIA
         }
         val r = results[1].toInt()
@@ -58,7 +63,7 @@ class ParticlesHelper (
         return try {
             Color.fromRGB(r, g, b)
         } catch(e: IllegalArgumentException) {
-            consoleMessage("Seems like you have typed a invalid number somewhere in '$this', please only use values between 0 and 255 to write the colors. Original error message: ${e.message}")
+            log.warning("Seems like you have typed a invalid number somewhere in '$this', please only use values between 0 and 255 to write the colors. Original error message: ${e.message}")
             Color.FUCHSIA
         }
     }

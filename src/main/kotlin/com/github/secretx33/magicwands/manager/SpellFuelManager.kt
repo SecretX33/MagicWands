@@ -10,7 +10,7 @@ class SpellFuelManager(private val config: Config) {
 
     fun hasEnoughFuel(player: Player, spell: SpellType): Boolean {
         val quantityNeeded = config.get(spell.configFuelAmount, 5)
-        val fuelList = config.get<List<String>>(ConfigKeys.SPELL_FUEL).mapTo(HashSet()) { Material.valueOf(it) }
+        val fuelList = configFuels
         val inv = player.inventory
 
         val quantity = inv.contents.asSequence()
@@ -22,13 +22,14 @@ class SpellFuelManager(private val config: Config) {
 
     fun consumeFuel(player: Player, spell: SpellType) {
         var quantityNeeded = config.get(spell.configFuelAmount, 5)
-        val fuelList = config.get<List<String>>(ConfigKeys.SPELL_FUEL).mapTo(HashSet()) { Material.valueOf(it) }
+        val fuelList = configFuels
 
         for(item in player.inventory.filterNotNull()) {
             if(!fuelList.contains(item.type)) continue
 
             if(item.amount >= quantityNeeded) {
                 item.amount -= quantityNeeded
+                if(item.amount == 0) item.type = Material.AIR
                 break
             }
             quantityNeeded -= item.amount
@@ -38,4 +39,7 @@ class SpellFuelManager(private val config: Config) {
         }
         player.updateInventory()
     }
+
+    private val configFuels: Set<Material>
+        get() = config.get<List<String>>(ConfigKeys.SPELL_FUEL).mapTo(HashSet()) { Material.valueOf(it) }
 }

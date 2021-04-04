@@ -26,7 +26,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
 
     private val mod = module {
         single<Plugin> { this@MagicWands } bind JavaPlugin::class
-        single { server.consoleSender }
+        single { get<Plugin>().logger }
         single(named("firework")) { NamespacedKey(get<Plugin>(), "custom_firework") }
         single { Messages(get()) }
         single { Config(get()) }
@@ -35,7 +35,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { SpellTeacherRepo(get()) }
         single { SpellFuelManager(get()) }
         single { HiddenPlayersHelper(get()) }
-        single { ParticlesHelper(get(), get(named("firework"))) }
+        single { ParticlesHelper(get(), get(), get(named("firework"))) }
         single { SpellManager(get(), get(), get(), get(), get()) }
         single { BlockBreakListener(get(), get(), get()) }
         single { BlockSpellCastListener(get(), get(), get()) }

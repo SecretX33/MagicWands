@@ -6,7 +6,6 @@ import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.model.WandSkin
 import com.github.secretx33.magicwands.utils.ItemUtils.castCountKey
 import com.github.secretx33.magicwands.utils.ItemUtils.ownerUuidKey
-import com.github.secretx33.magicwands.utils.Utils.consoleMessage
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.bukkit.Bukkit
@@ -23,14 +22,18 @@ import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 import java.text.DecimalFormat
 import java.util.*
+import java.util.logging.Logger
 
 @KoinApiExtension
 object ItemUtils: CustomKoinComponent {
     private val plugin: Plugin by inject()
     private val messages: Messages by inject()
+    private val log: Logger by inject()
+
+    private val COLOR_PATTERN = """((?:§\w)+)<available_spells>""".toPattern()
     private val formatter = DecimalFormat("#,###")
     private val gson = Gson()
-    private val typeToken = object : TypeToken<List<SpellType>>() {}.type
+    private val listSpellTypeToken = object : TypeToken<List<SpellType>>() {}.type
 
     val castCountKey = NamespacedKey(plugin, "spell_cast_count")
     private val selectedSpell = NamespacedKey(plugin, "selected_spell")
@@ -79,7 +82,7 @@ object ItemUtils: CustomKoinComponent {
         }
 
         var currentLine = tagIndex
-        val colorMatcher = """((?:§\w)+)<available_spells>""".toPattern().matcher(lore[tagIndex])
+        val colorMatcher = COLOR_PATTERN.matcher(lore[tagIndex])
         val color = if(!colorMatcher.find()) "" else colorMatcher.group(1)
         // remove tag
         lore[tagIndex] = lore[tagIndex].replace("<available_spells>", "")
@@ -108,7 +111,7 @@ object ItemUtils: CustomKoinComponent {
 
     fun increaseCastCount(item: ItemStack) {
         require(item.isWand()) { "Item ${item.type} is not a wand" }
-        val meta = item.itemMeta ?: throw IllegalArgumentException("Could not get itemMeta from ${item.type}")
+        val meta = item.itemMeta ?: throw IllegalStateException("Could not get itemMeta from ${item.type}")
         meta.persistentDataContainer.apply {
             val actualValue = get(castCountKey, PersistentDataType.LONG)!!
             set(castCountKey, PersistentDataType.LONG, actualValue + 1)
@@ -173,14 +176,14 @@ object ItemUtils: CustomKoinComponent {
     private fun getAvailableSpells(itemMeta: ItemMeta): MutableList<SpellType> {
         val spells = itemMeta.persistentDataContainer.get(availableSpells, PersistentDataType.STRING)
             ?: throw IllegalStateException("Wand doesn't have any saved spells in it")
-        return gson.fromJson(spells, typeToken)
+        return gson.fromJson(spells, listSpellTypeToken)
     }
 
     fun getAvailableSpells(wand: ItemStack): MutableList<SpellType> {
         require(wand.isWand()) { "Item ${wand.type} is not a wand" }
         val spells = wand.itemMeta?.persistentDataContainer?.get(availableSpells, PersistentDataType.STRING)
             ?: throw IllegalStateException("Wand doesn't have any saved spells in it")
-        return gson.fromJson(spells, typeToken)
+        return gson.fromJson(spells, listSpellTypeToken)
     }
 
     fun setAvailableSpells(wand: ItemStack, list: List<SpellType>) {
@@ -188,14 +191,14 @@ object ItemUtils: CustomKoinComponent {
         val meta = wand.itemMeta ?: throw IllegalStateException("This should not happen")
 
         meta.apply {
-            persistentDataContainer.set(availableSpells, PersistentDataType.STRING, gson.toJson(list, typeToken))
+            persistentDataContainer.set(availableSpells, PersistentDataType.STRING, gson.toJson(list, listSpellTypeToken))
             updateLore(null)
         }
         wand.itemMeta = meta
     }
 
     private fun getWandOwnerName(itemMeta: ItemMeta): String {
-        val uuid = itemMeta.persistentDataContainer.get(ownerUuidKey, PersistentDataType.STRING)?.toUuid() ?: return "Unknown".also { consoleMessage("${ChatColor.RED}Wand doesn't have a owner, something went wrong") }
+        val uuid = itemMeta.persistentDataContainer.get(ownerUuidKey, PersistentDataType.STRING)?.toUuid() ?: return "Unknown".also { log.severe("${ChatColor.RED}Wand doesn't have a owner, something went wrong") }
         return Bukkit.getOfflinePlayer(uuid).name ?: itemMeta.persistentDataContainer.get(ownerNameKey, PersistentDataType.STRING) ?: "Unknown"
     }
 
@@ -206,7 +209,7 @@ object ItemUtils: CustomKoinComponent {
 
     private fun getWandOwnerUuid(itemMeta: ItemMeta): UUID? {
         return itemMeta.persistentDataContainer.get(ownerUuidKey, PersistentDataType.STRING)?.toUuid()
-            ?: return null.also { consoleMessage("${ChatColor.RED}Wand doesn't have a owner, something went wrong") }
+            ?: return null.also { log.severe("${ChatColor.RED}Wand doesn't have a owner, something went wrong") }
     }
 
     fun getWandOwnerUuid(wand: ItemStack): UUID? {

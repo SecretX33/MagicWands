@@ -1,27 +1,15 @@
 package com.github.secretx33.magicwands.utils
 
-import com.github.secretx33.magicwands.config.Const.PLUGIN_CHAT_PREFIX
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.block.Block
-import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.text.WordUtils
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.plugin.Plugin
-import org.koin.core.component.KoinApiExtension
 import java.util.*
-
-@KoinApiExtension
-object Utils: CustomKoinComponent {
-    private val console: ConsoleCommandSender by inject()
-
-    fun consoleMessage(msg: String) = console.sendMessage("$PLUGIN_CHAT_PREFIX $msg")
-
-    fun debugMessage(msg: String) = console.sendMessage("$PLUGIN_CHAT_PREFIX $msg")
-}
 
 fun PlayerInteractEvent.isLeftClick() = action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK
 
