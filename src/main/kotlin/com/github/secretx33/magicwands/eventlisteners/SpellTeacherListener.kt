@@ -3,8 +3,8 @@ package com.github.secretx33.magicwands.eventlisteners
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
-import com.github.secretx33.magicwands.manager.LearnedSpellsManager
-import com.github.secretx33.magicwands.manager.SpellTeacherManager
+import com.github.secretx33.magicwands.repositories.LearnedSpellsRepo
+import com.github.secretx33.magicwands.repositories.SpellTeacherRepo
 import com.github.secretx33.magicwands.utils.isAir
 import com.github.secretx33.magicwands.utils.isRightClick
 import net.milkbowl.vault.economy.Economy
@@ -22,8 +22,8 @@ class SpellTeacherListener (
     plugin: Plugin,
     private val config: Config,
     private val messages: Messages,
-    private val learnedSpells: LearnedSpellsManager,
-    private val spellTeacher: SpellTeacherManager,
+    private val learnedSpells: LearnedSpellsRepo,
+    private val spellTeacher: SpellTeacherRepo,
     private val economy: Economy,
 ) : Listener {
 
@@ -36,8 +36,8 @@ class SpellTeacherListener (
         if(!isRightClick() || block.isAir()) return
         if(!spellTeacher.isSpellTeacher(block)) return
 
-        val spellType = spellTeacher.getSpellType(block)
-        if(learnedSpells.knows(player, spellType)) {
+        val spellType = spellTeacher.getTeacherType(block) ?: return
+        if(learnedSpells.knows(player.uniqueId, spellType)) {
             player.sendMessage(messages.get(MessageKeys.CANNOT_PURCHASE_ALREADY_KNOW).replace("<spell>", spellType.displayName))
             return
         }
@@ -57,7 +57,10 @@ class SpellTeacherListener (
             player.sendMessage(messages.get(MessageKeys.TRANSACTION_FAILED).replace("<error>", response.errorMessage))
             return
         }
-        player.sendMessage(messages.get(MessageKeys.SUCCESSFULLY_PURCHASED_SPELL).replace("<spell>", spellType.displayName))
-        learnedSpells.addSpell(player, spellType)
+        val balance = economy.getBalance(player)
+        player.sendMessage(messages.get(MessageKeys.SUCCESSFULLY_PURCHASED_SPELL)
+            .replace("<spell>", spellType.displayName)
+            .replace("<balance>", balance.toString()))
+        learnedSpells.teachSpell(player.uniqueId, spellType)
     }
 }

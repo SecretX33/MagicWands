@@ -2,8 +2,8 @@ package com.github.secretx33.magicwands.commands.subcommands
 
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
-import com.github.secretx33.magicwands.manager.SpellTeacherManager
 import com.github.secretx33.magicwands.model.SpellType
+import com.github.secretx33.magicwands.repositories.SpellTeacherRepo
 import com.github.secretx33.magicwands.utils.CustomKoinComponent
 import com.github.secretx33.magicwands.utils.inject
 import org.bukkit.ChatColor
@@ -20,7 +20,7 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
     override val aliases: List<String> = listOf(name, "teacher", "spellt", "st")
 
     private val messages by inject<Messages>()
-    private val spellTeacher by inject<SpellTeacherManager>()
+    private val spellTeacher by inject<SpellTeacherRepo>()
 
     override fun onCommandByPlayer(player: Player, alias: String, strings: Array<String>) {
         if(strings.size < 2) {
@@ -39,7 +39,7 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
             return
         }
         val isSpellTeacher = spellTeacher.isSpellTeacher(block)
-        if(isSpellTeacher && spellTeacher.getSpellType(block) == spellType) {
+        if(isSpellTeacher && spellTeacher.getTeacherType(block) == spellType) {
             player.sendMessage(messages.get(MessageKeys.SPELLTEACHER_IS_ALREADY_THIS_TYPE).replace("<type>", spellType.displayName))
             return
         }
@@ -50,7 +50,7 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
                 .replace("<y>", block.location.blockY.toString())
                 .replace("<z>", block.location.blockZ.toString())
                 .replace("<type>", spellType.displayName)
-                .replace("<previous_spell>", spellTeacher.getSpellType(block).displayName)
+                .replace("<previous_spell>", spellTeacher.getTeacherType(block)?.displayName ?: "None")
             )
             spellTeacher.makeSpellTeacher(block, spellType)
             return

@@ -7,8 +7,8 @@ import com.github.secretx33.magicwands.events.BlockSpellCastEvent
 import com.github.secretx33.magicwands.events.EntitySpellCastEvent
 import com.github.secretx33.magicwands.events.SpellCastEvent
 import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
-import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.model.SpellType.*
+import com.github.secretx33.magicwands.repositories.LearnedSpellsRepo
 import com.github.secretx33.magicwands.utils.*
 import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
@@ -30,7 +30,7 @@ class WandUseListener (
     plugin: Plugin,
     private val config: Config,
     private val messages: Messages,
-    private val learnedSpells: LearnedSpellsManager
+    private val learnedSpells: LearnedSpellsRepo
 ) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }

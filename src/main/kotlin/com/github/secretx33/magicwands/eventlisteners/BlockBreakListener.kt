@@ -2,7 +2,7 @@ package com.github.secretx33.magicwands.eventlisteners
 
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
-import com.github.secretx33.magicwands.manager.SpellTeacherManager
+import com.github.secretx33.magicwands.repositories.SpellTeacherRepo
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin
 
 class BlockBreakListener (
     plugin: Plugin,
-    private val spellTeacher: SpellTeacherManager,
+    private val spellTeacher: SpellTeacherRepo,
     private val messages: Messages,
 ) : Listener {
 

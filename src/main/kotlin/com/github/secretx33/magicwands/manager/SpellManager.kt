@@ -10,7 +10,6 @@ import com.github.secretx33.magicwands.events.SpellCastEvent
 import com.github.secretx33.magicwands.model.Cuboid
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.model.TempModification
-import com.github.secretx33.magicwands.utils.YamlManager
 import com.github.secretx33.magicwands.utils.runSync
 import kotlinx.coroutines.*
 import org.bukkit.Location

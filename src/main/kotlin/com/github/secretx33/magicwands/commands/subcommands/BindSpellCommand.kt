@@ -2,9 +2,9 @@ package com.github.secretx33.magicwands.commands.subcommands
 
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
-import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.model.WandSkin
+import com.github.secretx33.magicwands.repositories.LearnedSpellsRepo
 import com.github.secretx33.magicwands.utils.*
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
@@ -19,7 +19,7 @@ class BindSpellCommand : SubCommand(), CustomKoinComponent {
     override val permission: String = "bindspell"
     override val aliases: List<String> = listOf(name, "binds", "bs")
 
-    private val learnedSpells by inject<LearnedSpellsManager>()
+    private val learnedSpells by inject<LearnedSpellsRepo>()
     private val messages by inject<Messages>()
 
     override fun onCommandByPlayer(player: Player, alias: String, strings: Array<String>) {
@@ -33,7 +33,7 @@ class BindSpellCommand : SubCommand(), CustomKoinComponent {
             player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[1]))
             return
         }
-        if(!learnedSpells.knows(player, spellType)) {
+        if(!learnedSpells.knows(player.uniqueId, spellType)) {
             player.sendMessage(messages.get(MessageKeys.CANNOT_BIND_UNKNOWN_SPELL))
             return
         }
@@ -79,7 +79,7 @@ class BindSpellCommand : SubCommand(), CustomKoinComponent {
         val item = sender.inventory.itemInMainHand
         if(!item.isWandMaterial()) return listOf(messages.get(MessageKeys.TAB_COMPLETION_NOT_HOLDING_WAND))
 
-        val knownSpells = learnedSpells.getKnownSpells(sender)
+        val knownSpells = learnedSpells.getKnownSpells(sender.uniqueId)
         // filter only known spells
         val spells = SpellType.values().filter { knownSpells.contains(it) }.map { it.displayName } as MutableList
         if(item.isWand()) {

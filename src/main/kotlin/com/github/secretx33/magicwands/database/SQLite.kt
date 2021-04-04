@@ -2,6 +2,7 @@ package com.github.secretx33.magicwands.database
 
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.ConfigKeys
+import com.github.secretx33.magicwands.model.SpellTeacher
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.utils.prettyString
 import com.google.gson.Gson
@@ -13,7 +14,7 @@ import kotlinx.coroutines.*
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Location
-import org.bukkit.block.Block
+import org.bukkit.Material
 import org.bukkit.plugin.Plugin
 import java.lang.reflect.Type
 import java.nio.file.FileSystems
@@ -48,34 +49,34 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     // ADD
 
-    fun addSpellteacher(block: Block, spellType: SpellType) = CoroutineScope(Dispatchers.IO).launch {
+    fun addSpellteacher(teacher: SpellTeacher) = CoroutineScope(Dispatchers.IO).launch {
         try {
             ds.connection.use { conn: Connection ->
                 conn.prepareStatement(INSERT_SPELLTEACHER).use { prep ->
-                    prep.setString(1, block.location.toJson())
-                    prep.setString(2, spellType.toJson())
-                    prep.setString(3, block.type.toString())
+                    prep.setString(1, teacher.location.toJson())
+                    prep.setString(2, teacher.spellType.toJson())
+                    prep.setString(3, teacher.blockMaterial.toString())
                     prep.execute()
                 }
                 conn.commit()
             }
         } catch (e: SQLException) {
-            log.severe("${ChatColor.RED}ERROR: An exception occurred while adding a specific Spellteacher (${block.location.prettyString()})\n${e.stackTraceToString()}")
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while adding a specific Spellteacher (${teacher.location.prettyString()})\n${e.stackTraceToString()}")
         }
     }
 
-    fun addLearnedSpell(playerUuid: UUID, knowSpells: Set<SpellType>) = CoroutineScope(Dispatchers.IO).launch {
+    fun addNewEntryForPlayerLearnedSpell(playerUuid: UUID) = CoroutineScope(Dispatchers.IO).launch {
         try {
             ds.connection.use { conn: Connection ->
                 conn.prepareStatement(INSERT_LEARNED_SPELLS).use { prep ->
                     prep.setString(1, playerUuid.toString())
-                    prep.setString(2, knowSpells.toJson())
+                    prep.setString(2, emptySet<SpellType>().toJson())
                     prep.execute()
                 }
                 conn.commit()
             }
         } catch (e: SQLException) {
-            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to add player ${Bukkit.getPlayer(playerUuid)?.name ?: "Unknown"} ($playerUuid) knowSpells (${knowSpells.joinToString()}) to the database\n${e.stackTraceToString()}")
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to add new empty entry for player ${Bukkit.getPlayer(playerUuid)?.name ?: "Unknown"} ($playerUuid) to the database\n${e.stackTraceToString()}")
         }
     }
 
@@ -108,7 +109,7 @@ class SQLite(plugin: Plugin, private val config: Config) {
                 conn.commit()
             }
         } catch (e: SQLException) {
-            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to buck remove all quest chests from worlds\n${e.stackTraceToString()}")
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to buck remove all Spellteachers from worlds\n${e.stackTraceToString()}")
         }
     }
 
@@ -125,7 +126,7 @@ class SQLite(plugin: Plugin, private val config: Config) {
                 conn.commit()
             }
         } catch (e: SQLException) {
-            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to remove a list of quest chests\n${e.stackTraceToString()}")
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to remove a list of Spellteachers\n${e.stackTraceToString()}")
         }
     }
 
@@ -139,49 +140,51 @@ class SQLite(plugin: Plugin, private val config: Config) {
                 conn.commit()
             }
         } catch (e: SQLException) {
-            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to remove a Quest Chest from the database\n${e.stackTraceToString()}")
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to remove learned spells of player ${Bukkit.getPlayer(playerUuid)?.name} ($playerUuid) from database\n${e.stackTraceToString()}")
         }
     }
 
     // GET
 
-    fun getAllSpellteachersAsync(): Deferred<Map<Location, Int>> = CoroutineScope(Dispatchers.IO).async {
+    fun getAllSpellteachersAsync(): Deferred<MutableMap<Location, SpellTeacher>> = CoroutineScope(Dispatchers.IO).async {
         var conn: Connection? = null
         var prep: PreparedStatement? = null
         var rs: ResultSet? = null
 
-        val spellteachers = HashMap<Location, Int>()
+        val spellteachers = HashMap<Location, SpellTeacher>()
         val worldRemoveSet = HashSet<String>()
-        val spellteacherRemoveSet = HashSet<Location>()
+        val teacherRemoveSet = HashSet<Location>()
 
         try {
             conn = ds.connection
             prep = conn.prepareStatement(SELECT_ALL_FROM_SPELLTEACHER)
             rs = prep.executeQuery()
             while(rs.next()){
-                val chestLoc = rs.getString("location").toLocation()
-                if(chestLoc.world == null && removeSpellteacherIfMissingWorld){
+                val teacherLoc = rs.getString("location").toLocation()
+                val world = teacherLoc.world
+                val spellType = rs.getString("spell_type").toSpellType()
+                val blockMaterial = rs.getString("block_material").toMaterial()
+                if(world == null && removeSpellteacherIfMissingWorld){
                     UUID_WORLD_PATTERN.matcher(rs.getString("location")).replaceFirst("$1")?.let {
                         worldRemoveSet.add(it)
                     }
-                } else if(chestLoc.world != null) {
-                    if (chestLoc.world.getBlockAt(chestLoc).state !is Container) {
-                        consoleMessage("${ChatColor.RED}WARNING: The chest located at '${chestLoc.prettyString()}' was not found, queuing its removal to preserve DB integrity.${ChatColor.WHITE} Usually this happens when a Quest Chest is broken with this plugin being disabled or missing.")
-                        spellteacherRemoveSet.add(chestLoc)
+                } else if(world != null) {
+                    if (world.getBlockAt(teacherLoc).type != blockMaterial) {
+                        log.warning("${ChatColor.RED}WARNING: The Spellteacher located at '${teacherLoc.prettyString()}' was not found, queuing its removal to preserve DB integrity.${ChatColor.WHITE} Usually this happens when a Spellteacher is broken with this plugin being disabled or missing.")
+                        teacherRemoveSet.add(teacherLoc)
                     } else {
-                        spellteachers[chestLoc] = rs.getInt("chest_order")
+                        spellteachers[teacherLoc] = SpellTeacher(teacherLoc, spellType, blockMaterial)
                     }
                 }
             }
             if(worldRemoveSet.isNotEmpty()){
-                worldRemoveSet.forEach { consoleMessage("${ChatColor.RED}WARNING: The world with UUID '$it' was not found, removing ALL chests and inventories linked to it") }
-                removeQuestChestsByWorldUuid(worldRemoveSet)
+                worldRemoveSet.forEach { log.warning("${ChatColor.RED}WARNING: The world with UUID '$it' was not found, removing ALL chests and inventories linked to it") }
+                removeSpellteachersByWorldUuid(worldRemoveSet)
             }
-            if(spellteacherRemoveSet.isNotEmpty())
-                removeQuestChestsByLocation(spellteacherRemoveSet)
+            if(teacherRemoveSet.isNotEmpty())
+                removeSpellteachersByLocation(teacherRemoveSet)
         } catch (e: SQLException) {
-            consoleMessage("${ChatColor.RED}ERROR: An exception occurred while trying to connect to the database")
-            e.printStackTrace()
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to get all Spellteachers async\n${e.stackTraceToString()}")
         } finally {
             rs?.safeClose()
             prep?.safeClose()
@@ -190,7 +193,7 @@ class SQLite(plugin: Plugin, private val config: Config) {
         spellteachers
     }
 
-    fun getPlayerLearnedSpells(playerUuid: UUID): MutableSet<SpellType> {
+    fun getPlayerLearnedSpells(playerUuid: UUID): MutableSet<SpellType>? {
         try {
             ds.connection.use { conn: Connection ->
                 conn.prepareStatement(SELECT_LEARNED_SPELLS).use { prep ->
@@ -204,12 +207,44 @@ class SQLite(plugin: Plugin, private val config: Config) {
                 }
             }
         } catch (e: SQLException) {
-            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to get progress of player ${Bukkit.getPlayer(playerUuid)?.name} ($playerUuid) from database\n${e.stackTraceToString()}")
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to get learned spells of player ${Bukkit.getPlayer(playerUuid)?.name} ($playerUuid) from database\n${e.stackTraceToString()}")
         }
-        return HashSet()
+        return null
     }
 
     // UPDATE
+
+    fun updateSpellteacher(location: Location, newSpellType: SpellType) = CoroutineScope(Dispatchers.IO).launch {
+        try {
+            ds.connection.use { conn: Connection ->
+                conn.prepareStatement(UPDATE_SPELLTEACHER).use { prep ->
+                    prep.setString(1, newSpellType.toJson())
+                    prep.setString(2, location.toJson())
+                    prep.execute()
+                }
+                conn.commit()
+            }
+        } catch (e: SQLException) {
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while updating Spellteacher at ${location.prettyString()} to type $newSpellType to the database\n${e.stackTraceToString()}")
+        }
+    }
+
+    fun updatePlayerLearnedSpells(playerUuid: UUID, knownSpells: Set<SpellType>) = CoroutineScope(Dispatchers.IO).launch {
+        try {
+            ds.connection.use { conn: Connection ->
+                conn.prepareStatement(UPDATE_LEARNED_SPELLS).use { prep ->
+                    prep.setString(1, knownSpells.toJson())
+                    prep.setString(2, playerUuid.toString())
+                    prep.execute()
+                }
+                conn.commit()
+            }
+        } catch (e: SQLException) {
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to add player ${Bukkit.getPlayer(playerUuid)?.name ?: "Unknown"} ($playerUuid) knownSpells (${knownSpells.joinToString()}) to the database\n${e.stackTraceToString()}")
+        }
+    }
+
+    private fun String.toMaterial() = Material.valueOf(this)
 
     private fun String.toLocation() = gson.fromJson(this, Location::class.java)
 

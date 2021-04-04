@@ -7,6 +7,8 @@ import com.github.secretx33.magicwands.database.SQLite
 import com.github.secretx33.magicwands.eventlisteners.*
 import com.github.secretx33.magicwands.manager.*
 import com.github.secretx33.magicwands.packetlisteners.WandDropPacketListener
+import com.github.secretx33.magicwands.repositories.LearnedSpellsRepo
+import com.github.secretx33.magicwands.repositories.SpellTeacherRepo
 import com.github.secretx33.magicwands.utils.*
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
@@ -28,9 +30,10 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single(named("firework")) { NamespacedKey(get<Plugin>(), "custom_firework") }
         single { Messages(get()) }
         single { Config(get()) }
+        single { SQLite(get(), get()) }
         single { SpellFuelManager(get()) }
-        single { LearnedSpellsManager(get()) }
-        single { SpellTeacherManager(get(), get()) }
+        single { LearnedSpellsRepo(get()) }
+        single { SpellTeacherRepo(get()) }
         single { HiddenPlayersHelper(get()) }
         single { ParticlesHelper(get(), get(named("firework"))) }
         single { SpellManager(get(), get(), get(), get(), get()) }

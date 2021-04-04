@@ -5,11 +5,11 @@ import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.events.SpellCastEvent
-import com.github.secretx33.magicwands.manager.LearnedSpellsManager
 import com.github.secretx33.magicwands.manager.SpellFuelManager
 import com.github.secretx33.magicwands.manager.SpellManager
 import com.github.secretx33.magicwands.model.SpellType.LEAP
 import com.github.secretx33.magicwands.model.SpellType.VANISH
+import com.github.secretx33.magicwands.repositories.LearnedSpellsRepo
 import com.github.secretx33.magicwands.utils.ItemUtils
 import com.google.common.cache.CacheBuilder
 import org.bukkit.Bukkit
@@ -27,7 +27,7 @@ class SpellCastListener (
     plugin: Plugin,
     private val fuelManager: SpellFuelManager,
     private val spellManager: SpellManager,
-    private val learnedSpells: LearnedSpellsManager,
+    private val learnedSpells: LearnedSpellsRepo,
     private val config: Config,
     private val messages: Messages,
 ) : Listener {
