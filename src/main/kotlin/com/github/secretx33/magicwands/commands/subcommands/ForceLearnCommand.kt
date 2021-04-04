@@ -30,6 +30,7 @@ class ForceLearnCommand : SubCommand(), CustomKoinComponent {
             player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[1]))
             return
         }
+        // player already know the spell he's trying to learn
         if(learnedSpells.knows(player.uniqueId, spellType)) {
             player.sendMessage(messages.get(MessageKeys.YOU_ALREADY_KNOW_THIS_SPELL).replace("<spell>", spellType.displayName))
             return

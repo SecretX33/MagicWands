@@ -1,5 +1,6 @@
 package com.github.secretx33.magicwands.database
 
+import com.github.secretx33.magicwands.utils.prettyString
 import com.github.secretx33.magicwands.utils.toUuid
 import com.google.gson.*
 import org.bukkit.Bukkit
@@ -9,8 +10,9 @@ import java.lang.reflect.Type
 class LocationAdapter : JsonSerializer<Location>, JsonDeserializer<Location> {
 
     override fun serialize(location: Location, type: Type, context: JsonSerializationContext): JsonElement {
+        val world = location.world ?: throw IllegalStateException("cannot serialize location with null world, ${location.prettyString()}")
         return JsonObject().apply {
-            addProperty("world", location.world?.uid?.toString())
+            addProperty("world", world.uid.toString())
             addProperty("x", location.blockX)
             addProperty("y", location.blockY)
             addProperty("z", location.blockZ)

@@ -9,7 +9,6 @@ import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import org.koin.core.component.KoinApiExtension
-import java.util.*
 
 @KoinApiExtension
 class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
@@ -33,9 +32,7 @@ class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
 
     override fun onCommand(sender: CommandSender, command: Command, alias: String, strings: Array<String>): Boolean {
         if (strings.isEmpty()) return true
-        for (i in strings.indices) {
-            strings[i] = strings[i].toLowerCase(Locale.US)
-        }
+
         val sub = strings[0]
         subcommands.firstOrNull { it.hasPermission(sender) && (it.name == sub || it.aliases.contains(sub)) }?.let { cmd ->
             if(sender is Player) {
@@ -56,7 +53,8 @@ class Commands(plugin: JavaPlugin) : CommandExecutor, TabCompleter {
                 .toList()
         }
         if(strings.size > 1) {
-            return subcommands.firstOrNull { it.aliases.contains(strings[0].toLowerCase()) }
+            return subcommands
+                .firstOrNull { it.hasPermission(sender) && it.aliases.contains(strings[0].toLowerCase()) }
                 ?.getCompletor(sender, strings.size, strings[strings.size - 1], strings)
                 ?: emptyList()
         }

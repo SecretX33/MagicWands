@@ -23,8 +23,6 @@ class BindSpellCommand : SubCommand(), CustomKoinComponent {
     private val messages by inject<Messages>()
 
     override fun onCommandByPlayer(player: Player, alias: String, strings: Array<String>) {
-        val item = player.inventory.itemInMainHand
-
         if(strings.size < 2) {
             player.sendMessage("${ChatColor.RED}Usage: /${alias} $name <spell>")
             return
@@ -33,10 +31,12 @@ class BindSpellCommand : SubCommand(), CustomKoinComponent {
             player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[1]))
             return
         }
+        // player don't know the spell he's trying to learn
         if(!learnedSpells.knows(player.uniqueId, spellType)) {
             player.sendMessage(messages.get(MessageKeys.CANNOT_BIND_UNKNOWN_SPELL))
             return
         }
+        val item = player.inventory.itemInMainHand
         bindSpell(player, item, spellType)
     }
 
@@ -79,9 +79,8 @@ class BindSpellCommand : SubCommand(), CustomKoinComponent {
         val item = sender.inventory.itemInMainHand
         if(!item.isWandMaterial()) return listOf(messages.get(MessageKeys.TAB_COMPLETION_NOT_HOLDING_WAND))
 
-        val knownSpells = learnedSpells.getKnownSpells(sender.uniqueId)
-        // filter only known spells
-        val spells = SpellType.values().filter { knownSpells.contains(it) }.map { it.displayName } as MutableList
+        // use only known spells
+        val spells = learnedSpells.getKnownSpells(sender.uniqueId).map { it.displayName } as MutableList
         if(item.isWand()) {
             spells.removeAll(ItemUtils.getAvailableSpells(item).map { it.displayName })
             if(spells.isEmpty() && hint.isBlank())

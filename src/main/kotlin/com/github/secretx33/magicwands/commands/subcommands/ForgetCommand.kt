@@ -30,6 +30,7 @@ class ForgetCommand : SubCommand(), CustomKoinComponent {
             player.sendMessage(messages.get(MessageKeys.SPELL_DOESNT_EXIST).replace("<spell>", strings[1]))
             return
         }
+        // player don't know the spell he's trying to forget
         if(!learnedSpells.knows(player.uniqueId, spellType)) {
             player.sendMessage(messages.get(MessageKeys.YOU_DONT_KNOW_THIS_SPELL))
             return

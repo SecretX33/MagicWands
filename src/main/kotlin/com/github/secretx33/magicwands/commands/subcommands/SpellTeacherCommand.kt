@@ -6,6 +6,7 @@ import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.repositories.SpellTeacherRepo
 import com.github.secretx33.magicwands.utils.CustomKoinComponent
 import com.github.secretx33.magicwands.utils.inject
+import com.github.secretx33.magicwands.utils.isAir
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
@@ -33,18 +34,20 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
         }
 
         val block = player.getTargetBlock(setOf(Material.AIR, Material.GRASS, Material.TALL_GRASS), 15)
-        if(block.type.isAir) {
+        if(block.isAir()) {
             player.sendMessage(messages.get(MessageKeys.CANNOT_TRANSFORM_AIR_IN_SPELLTEACHER))
             return
         }
-        val isSpellTeacher = spellTeacher.isSpellTeacher(block)
-        if(isSpellTeacher && spellTeacher.getTeacherType(block) == spellType) {
+        val teacherType: SpellType? = spellTeacher.getTeacherType(block)
+        // if block is spellteacher of the type specified
+        if(teacherType == spellType) {
             player.sendMessage(messages.get(MessageKeys.SPELLTEACHER_IS_ALREADY_THIS_TYPE).replace("<type>", spellType.displayName))
             return
         }
-        if(isSpellTeacher) {
+        // if block is spellteacher
+        if(teacherType != null) {
             player.sendMessage(messages.get(MessageKeys.REPLACED_SPELLTEACHER_SPELL)
-                .replace("<world>", block.location.world?.name ?: "Unknown")
+                .replace("<world>", block.world.name)
                 .replace("<x>", block.location.blockX.toString())
                 .replace("<y>", block.location.blockY.toString())
                 .replace("<z>", block.location.blockZ.toString())
@@ -54,6 +57,7 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
             spellTeacher.updateSpellTeacher(block, spellType)
             return
         }
+        // not a spellteacher yet
         spellTeacher.makeSpellTeacher(block, spellType)
         player.sendMessage(messages.get(MessageKeys.BLOCK_IS_NOW_SPELLTEACHER)
             .replace("<world>", block.location.world?.name ?: "Unknown")

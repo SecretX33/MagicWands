@@ -61,7 +61,7 @@ class RemoveSpellCommand  : SubCommand(), CustomKoinComponent {
         val item = sender.inventory.itemInMainHand
         if(!item.isWand()) return listOf(messages.get(MessageKeys.TAB_COMPLETION_NOT_HOLDING_WAND))
 
-        val enchants = ItemUtils.getAvailableSpells(item).takeIf { it.isNotEmpty() }?.map { it.displayName } ?: listOf(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_NO_SPELLS))
-        return enchants.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
+        val spells = ItemUtils.getAvailableSpells(item).takeIf { it.isNotEmpty() }?.map { it.displayName } ?: listOf(messages.get(MessageKeys.TAB_COMPLETION_WAND_HAS_NO_SPELLS))
+        return spells.filter { it.startsWith(hint, ignoreCase = true) }.sorted()
     }
 }
