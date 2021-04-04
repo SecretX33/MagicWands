@@ -33,6 +33,13 @@ class SpellTeacherRepo(private val db: SQLite) {
         db.addSpellteacher(teacher)
     }
 
+    fun updateSpellTeacher(block: Block, spell: SpellType) {
+        if(block.location.world == null) return
+        val newTeacher = block.asSpellTeacher(spell)
+        spellTeachers[block.location] = newTeacher
+        db.updateSpellteacher(newTeacher)
+    }
+
     fun removeSpellTeacher(block: Block) {
         if(block.location.world == null) return
 

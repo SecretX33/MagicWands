@@ -33,7 +33,6 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
         }
 
         val block = player.getTargetBlock(setOf(Material.AIR, Material.GRASS, Material.TALL_GRASS), 15)
-        println("Block is $block")
         if(block.type.isAir) {
             player.sendMessage(messages.get(MessageKeys.CANNOT_TRANSFORM_AIR_IN_SPELLTEACHER))
             return
@@ -52,7 +51,7 @@ class SpellTeacherCommand : SubCommand(), CustomKoinComponent {
                 .replace("<type>", spellType.displayName)
                 .replace("<previous_spell>", spellTeacher.getTeacherType(block)?.displayName ?: "None")
             )
-            spellTeacher.makeSpellTeacher(block, spellType)
+            spellTeacher.updateSpellTeacher(block, spellType)
             return
         }
         spellTeacher.makeSpellTeacher(block, spellType)

@@ -161,11 +161,12 @@ class SQLite(plugin: Plugin, private val config: Config) {
             rs = prep.executeQuery()
             while(rs.next()){
                 val teacherLoc = rs.getString("location").toLocation()
+                println("LOCATION IS ${rs.getString("location")}")
                 val world = teacherLoc.world
                 val spellType = rs.getString("spell_type").toSpellType()
                 val blockMaterial = rs.getString("block_material").toMaterial()
                 if(world == null && removeSpellteacherIfMissingWorld){
-                    UUID_WORLD_PATTERN.matcher(rs.getString("location")).replaceFirst("$1")?.let {
+                    UUID_WORLD_PATTERN.getOrNull(rs.getString("location"), 1)?.let {
                         worldRemoveSet.add(it)
                     }
                 } else if(world != null) {
@@ -214,18 +215,18 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     // UPDATE
 
-    fun updateSpellteacher(location: Location, newSpellType: SpellType) = CoroutineScope(Dispatchers.IO).launch {
+    fun updateSpellteacher(newTeacher: SpellTeacher) = CoroutineScope(Dispatchers.IO).launch {
         try {
             ds.connection.use { conn: Connection ->
                 conn.prepareStatement(UPDATE_SPELLTEACHER).use { prep ->
-                    prep.setString(1, newSpellType.toJson())
-                    prep.setString(2, location.toJson())
+                    prep.setString(1, newTeacher.spellType.toJson())
+                    prep.setString(2, newTeacher.location.toJson())
                     prep.execute()
                 }
                 conn.commit()
             }
         } catch (e: SQLException) {
-            log.severe("${ChatColor.RED}ERROR: An exception occurred while updating Spellteacher at ${location.prettyString()} to type $newSpellType to the database\n${e.stackTraceToString()}")
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while updating Spellteacher at ${newTeacher.location.prettyString()} to type ${newTeacher.spellType} to the database\n${e.stackTraceToString()}")
         }
     }
 
@@ -258,6 +259,8 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     private fun Set<SpellType>.toJson() = gson.toJson(this, setSpellTypeToken)
 
+    private fun Regex.getOrNull(string: String, group: Int) = this.find(string)?.groupValues?.get(group)
+
     private fun AutoCloseable?.safeClose() { runCatching { this?.close() } }
 
     private val removeSpellteacherIfMissingWorld: Boolean
@@ -288,6 +291,6 @@ class SQLite(plugin: Plugin, private val config: Config) {
         const val REMOVE_SPELLTEACHER = "DELETE FROM spellTeacher WHERE location = ?;"
         const val REMOVE_LEARNED_SPELLS = "DELETE FROM learnedSpells WHERE player_uuid = ?;"
 
-        val UUID_WORLD_PATTERN = """^"\{\\"world\\":\\"([0-9a-zA-Z-]+).*""".toPattern()
+        val UUID_WORLD_PATTERN = """^\{"world":"([0-9a-zA-Z-]+).*""".toRegex()
     }
 }

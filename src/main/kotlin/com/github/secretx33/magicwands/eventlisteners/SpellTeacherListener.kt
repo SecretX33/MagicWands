@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
+import java.text.DecimalFormat
 
 @KoinApiExtension
 class SpellTeacherListener (
@@ -42,13 +43,13 @@ class SpellTeacherListener (
             return
         }
 
-        val price = config.get(spellType.configLearnPrice, -1.0).takeIf { it > -1 } ?: return
+        val price = config.get(spellType.configLearnPrice, -1.0).takeIf { it >= 0 } ?: return
         if(!economy.has(player, price)) {
             val balance = economy.getBalance(player, player.world.name)
             player.sendMessage(messages.get(MessageKeys.NOT_ENOUGH_MONEY)
                 .replace("<spell>", spellType.displayName)
-                .replace("<price>", price.toString())
-                .replace("<balance>", balance.toString()))
+                .replace("<price>", formatter.format(price))
+                .replace("<balance>", formatter.format(balance)))
             return
         }
 
@@ -59,8 +60,13 @@ class SpellTeacherListener (
         }
         val balance = economy.getBalance(player)
         player.sendMessage(messages.get(MessageKeys.SUCCESSFULLY_PURCHASED_SPELL)
+            .replace("<price>", formatter.format(price))
             .replace("<spell>", spellType.displayName)
-            .replace("<balance>", balance.toString()))
+            .replace("<balance>", formatter.format(balance)))
         learnedSpells.teachSpell(player.uniqueId, spellType)
+    }
+
+    private companion object {
+        val formatter = DecimalFormat("###.##")
     }
 }

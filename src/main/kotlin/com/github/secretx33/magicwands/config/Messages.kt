@@ -34,7 +34,7 @@ class Messages(plugin: Plugin) {
 }
 
 enum class MessageKeys(val default: String) {
-    SUCCESSFULLY_PURCHASED_SPELL("${ChatColor.GREEN}You have purchased the spell <spell>, your new balance is <balance>."),
+    SUCCESSFULLY_PURCHASED_SPELL("${ChatColor.GREEN}You have used <price> to purchase the spell <spell>, your new balance is <balance>."),
     TRANSACTION_FAILED("${ChatColor.RED}We could not validate your purchase: <error>"),
     NOT_ENOUGH_MONEY("${ChatColor.RED}You don't have enough money to buy <spell>, it costs <price> but only got <balance>!"),
     CANNOT_PURCHASE_ALREADY_KNOW("${ChatColor.RED}You cannot purchase this because you already know <spell>!"),

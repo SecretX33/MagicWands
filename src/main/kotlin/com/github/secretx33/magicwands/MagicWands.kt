@@ -31,9 +31,9 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { Messages(get()) }
         single { Config(get()) }
         single { SQLite(get(), get()) }
-        single { SpellFuelManager(get()) }
         single { LearnedSpellsRepo(get()) }
         single { SpellTeacherRepo(get()) }
+        single { SpellFuelManager(get()) }
         single { HiddenPlayersHelper(get()) }
         single { ParticlesHelper(get(), get(named("firework"))) }
         single { SpellManager(get(), get(), get(), get(), get()) }
