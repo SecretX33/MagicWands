@@ -2,6 +2,7 @@ package com.github.secretx33.magicwands.utils
 
 import com.github.secretx33.magicwands.config.Const.PLUGIN_CHAT_PREFIX
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.text.WordUtils
@@ -39,3 +40,7 @@ fun runSync(plugin: Plugin, delay: Long = 0L, block: () -> Unit) {
 }
 
 fun Block.isAir() = type.isAir
+
+fun Block.coordinates(): String = "${location.x.toLong()} ${location.y.toLong()} ${location.z.toLong()}"
+
+fun Location.prettyString(): String = "World: ${world?.name ?: "Unknown"}, ${x.toLong()}, ${y.toLong()}, ${z.toLong()}"

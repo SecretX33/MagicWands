@@ -131,11 +131,7 @@ class SpellTeacherManager(private val plugin: Plugin, private val config: Config
 
 
 
-    private data class SpellTeacherInfo (
-        val spellType: SpellType,
-        val worldUuid: UUID,
-        val blockMaterial: Material
-    )
+
 
     private companion object {
         const val configKey = "spellteacher"
