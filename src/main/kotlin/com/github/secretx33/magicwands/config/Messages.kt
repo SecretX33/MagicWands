@@ -72,6 +72,7 @@ enum class MessageKeys(val default: String) {
     SPELL_NOT_PRESENT("${ChatColor.RED}This wand doesn't have <spell> bound to it."),
     SPELLTEACHER_IS_ALREADY_THIS_TYPE("${ChatColor.RED}Spellteacher is already type <type>."),
     SUCCESSFULLY_CHANGED_WAND_SKIN("${ChatColor.GREEN}Successfully set your wand's skin to <skin>"),
+    SUCCESSFULLY_PURCHASED_FREE_SPELL("${ChatColor.GREEN}You got <spell> for free!"),
     SUCCESSFULLY_PURCHASED_SPELL("${ChatColor.GREEN}You have used <price> to purchase the spell <spell>, your new balance is <balance>."),
     SWITCHED_SPELL("${ChatColor.BLUE}Changed active spell to <spell>."),
     TAB_COMPLETION_NOT_HOLDING_WAND("<not_holding_wand>"),

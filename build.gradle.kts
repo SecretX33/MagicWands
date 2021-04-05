@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.guardsquare:proguard-gradle:7.0.1") {
+        classpath("com.guardsquare:proguard-gradle:7.0.0") {
             exclude("com.android.tools.build")
         }
     }

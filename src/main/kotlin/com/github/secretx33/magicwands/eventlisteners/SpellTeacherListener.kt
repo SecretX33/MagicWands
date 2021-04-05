@@ -42,7 +42,14 @@ class SpellTeacherListener (
             return
         }
 
-        val price = config.get(spellType.configLearnPrice, -1.0).takeIf { it >= 0 } ?: return
+        val price = config.get(spellType.configLearnPrice, -1.0).takeIf { it >= 0.0 } ?: return
+        if(price == 0.0) {
+            val balance = economy.getBalance(player, player.world.name)
+            player.sendMessage(messages.get(MessageKeys.SUCCESSFULLY_PURCHASED_FREE_SPELL)
+                .replace("<spell>", spellType.displayName))
+            learnedSpells.teachSpell(player.uniqueId, spellType)
+            return
+        }
         if(!economy.has(player, price)) {
             val balance = economy.getBalance(player, player.world.name)
             player.sendMessage(messages.get(MessageKeys.NOT_ENOUGH_MONEY)

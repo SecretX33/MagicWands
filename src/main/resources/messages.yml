@@ -56,6 +56,7 @@ spell-in-cooldown: "&6<spell> is in cooldown right now, <cooldown> seconds remai
 spell-not-present: "&cThis wand doesn't have <spell> bound to it."
 spellteacher-is-already-this-type: "&cSpellteacher is already type <type>."
 successfully-changed-wand-skin: "&aSuccessfully set your wand's skin to <skin>"
+successfully-purchased-free-spell: "&aYou got <spell> for free!"
 successfully-purchased-spell: "&aYou have used <price> to purchase the spell <spell>, your new balance is <balance>."
 switched-spell: "&9Changed active spell to <spell>."
 tab-completion-not-holding-wand: "<not_holding_wand>"

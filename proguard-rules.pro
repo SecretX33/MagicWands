@@ -20,8 +20,8 @@
 -dontwarn io.micrometer.core.instrument.MeterRegistry
 -dontwarn org.codehaus.mojo.**
 
--dontobfuscate
--dontoptimize
+#-dontobfuscate
+#-dontoptimize
 
 # Keep your main class
 -keep,allowobfuscation,allowoptimization class * extends org.bukkit.plugin.java.JavaPlugin { *; }
@@ -54,9 +54,11 @@
 -keep,allowobfuscation @interface com.github.secretx33.dependencies.koin.core.component.KoinApiExtension
 
 # If your goal is obfuscating and making things harder to read, repackage your classes with this rule
-#-repackageclasses 'com.github.secretx33.magicwands'
+-repackageclasses "com.github.secretx33.magicwands"
 #-allowaccessmodification
--adaptresourcefilecontents "plugin.yml,config.yml,messages.yml"
+-adaptresourcefilecontents "plugin.yml"
+-adaptresourcefilecontents "config.yml"
+-adaptresourcefilecontents "messages.yml"
 
 # Some attributes that you'll need to keep (to be honest I'm not sure which ones really need to be kept here, but this is what works for me)
 -keepattributes Exceptions,Signature,SourceFile,LineNumberTable,EnclosingMethod,InnerClasses
