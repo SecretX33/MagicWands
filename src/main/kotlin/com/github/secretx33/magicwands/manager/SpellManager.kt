@@ -229,8 +229,6 @@ class SpellManager (
         val duration = config.get(spellType.configDuration, 0.0)
         val fullInvisible = config.get<Boolean>(ConfigKeys.VANISH_FULL_INVISIBLE)
 
-        println("Vanish mode: $fullInvisible")
-
         player.sendMessage(messages.get(MessageKeys.CASTED_VANISH))
 
         if(fullInvisible) hiddenPlayersHelper.hidePlayer(player, duration)

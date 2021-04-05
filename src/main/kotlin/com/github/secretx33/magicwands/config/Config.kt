@@ -38,12 +38,14 @@ class Config(plugin: Plugin) {
 }
 
 enum class ConfigKeys(val configEntry: String, val defaultValue: Any) {
-    ENABLE_EFFECTS("enable-spell-effects", true),
-    REMOVE_SPELLTEACHER_WORLD_NOT_FOUND("remove-spellteacher-from-db-if-world-not-found", true),
+    COOLDOWN_NOTIFICATION_DELAY("cooldown-for-notifying-spell-is-cd", 3.0),
     DELETE_WAND_ON_DEATH("delete-wand-on-death", false),
     DISABLE_ALL_COOLDOWNS("disable-all-cooldowns", false),
-    VANISH_FULL_INVISIBLE("spells.vanish.full-invisible", false),
     DISABLE_FUEL_USAGE("disable-fuel-usage", false),
+    ENABLE_EFFECTS("enable-spell-effects", true),
     ENABLE_MESSAGE_ON_SPELL_SWITCH("enable-message-on-spell-switch", true),
+    PLAYERS_ONLY_SEE_THEIR_OWN_WANDS("players-only-see-their-own-wands", true),
+    REMOVE_SPELLTEACHER_WORLD_NOT_FOUND("remove-spellteacher-from-db-if-world-not-found", true),
     SPELL_FUEL("spell-fuel", listOf("COAL", "CHARCOAL")),
+    VANISH_FULL_INVISIBLE("spells.vanish.full-invisible", false),
 }

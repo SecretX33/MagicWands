@@ -10,6 +10,7 @@ import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
 import com.github.secretx33.magicwands.model.SpellType.*
 import com.github.secretx33.magicwands.repositories.LearnedSpellsRepo
 import com.github.secretx33.magicwands.utils.*
+import com.google.common.cache.CacheBuilder
 import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
@@ -24,6 +25,8 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
+import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 @KoinApiExtension
 class WandUseListener (
@@ -35,11 +38,18 @@ class WandUseListener (
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
+    private var lastClickList = CacheBuilder.newBuilder()
+        .expireAfterWrite(clickDelay, TimeUnit.MILLISECONDS)
+        .build<Player, Long>()
+
     @EventHandler(priority = EventPriority.NORMAL)
     private fun PlayerInteractEvent.onWandInteract() {
         if(hand != EquipmentSlot.HAND) return
         val item = item ?: return
-        if(!item.isWand()) return
+        if(!player.canClick() || !item.isWand()) return
+
+        // adding player to the lastClick list to prevent double clicks
+        lastClickList.put(player, System.currentTimeMillis())
 
         // player is using another's wand
         if(!item.isWandOwner(player)) {
@@ -76,22 +86,8 @@ class WandUseListener (
     private fun EntityDamageByEntityEvent.onWandInteract() {
         if(!damager.isPlayer() || !damageIsMelee()) return
 
-        val player = damager as Player
-        val item = player.inventory.itemInMainHand
-        if(!item.isWand()) return
-
-        val selected = ItemUtils.getWandSpellOrNull(item) ?: run {
-            isCancelled = true
-            return
-        }
-        if(!learnedSpells.knows(player.uniqueId, selected)) {
-            isCancelled = true
-            player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_UNKNOWN_SPELL).replace("<spell>", selected.displayName))
-            return
-        }
-        val event = getSpellEvent(player, item)
-        isCancelled = true
-        Bukkit.getServer().pluginManager.callEvent(event)
+        val item = (damager as Player).inventory.itemInMainHand
+        if(item.isWand()) isCancelled = true
     }
 
     private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent {
@@ -105,4 +101,13 @@ class WandUseListener (
     private fun Entity.isPlayer() = type == EntityType.PLAYER
 
     private fun EntityDamageEvent.damageIsMelee() = this.cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK
+
+    private fun Player.canClick(): Boolean {
+        val lastClick = lastClickList.getIfPresent(this)
+        return lastClick == null || (lastClick + clickDelay) < System.currentTimeMillis()
+    }
+
+    private companion object {
+        const val clickDelay = 75L
+    }
 }

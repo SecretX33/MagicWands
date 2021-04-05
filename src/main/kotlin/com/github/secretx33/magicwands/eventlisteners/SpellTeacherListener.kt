@@ -30,12 +30,11 @@ class SpellTeacherListener (
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR)
     private fun PlayerInteractEvent.onSpellteacherInteract() {
         if(hand != EquipmentSlot.HAND) return
         val block = clickedBlock ?: return
-        if(!isRightClick() || block.isAir()) return
-        if(!spellTeacher.isSpellTeacher(block)) return
+        if(!isRightClick() || block.isAir() || !spellTeacher.isSpellTeacher(block)) return
 
         val spellType = spellTeacher.getTeacherType(block) ?: return
         if(learnedSpells.knows(player.uniqueId, spellType)) {

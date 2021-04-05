@@ -161,7 +161,6 @@ class SQLite(plugin: Plugin, private val config: Config) {
             rs = prep.executeQuery()
             while(rs.next()){
                 val teacherLoc = rs.getString("location").toLocation()
-                println("LOCATION IS ${rs.getString("location")}")
                 val world = teacherLoc.world
                 val spellType = rs.getString("spell_type").toSpellType()
                 val blockMaterial = rs.getString("block_material").toMaterial()

@@ -21,6 +21,7 @@ import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
+import kotlin.math.max
 
 @KoinApiExtension
 class SpellCastListener (
@@ -32,10 +33,12 @@ class SpellCastListener (
     private val messages: Messages,
 ) : Listener {
 
-    init { Bukkit.getPluginManager().registerEvents(this, plugin) }
+    private val cooldownMessageDelay: Long = (max(0.0, config.get<Double>(ConfigKeys.COOLDOWN_NOTIFICATION_DELAY) * 1000)).toLong()
 
-    private val sentMessages = CacheBuilder.newBuilder()
-        .expireAfterWrite(2, TimeUnit.SECONDS)
+    init { Bukkit.getPluginManager().registerEvents(this, plugin).also { println("cooldownMessageDelay is $cooldownMessageDelay") } }
+
+    private var sentMessages = CacheBuilder.newBuilder()
+        .expireAfterWrite(cooldownMessageDelay, TimeUnit.MILLISECONDS)
         .build<Player, Long>()
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -51,11 +54,13 @@ class SpellCastListener (
 
         // still in cooldown
         val cd = spellManager.getSpellCD(player, spellType)
-        if(cd > 0 && player.canSendCDMessage()) {
+        if(cd > 0) {
+            isCancelled = true
+            if(!player.canSendCDMessage()) return
+            sentMessages.put(player, System.currentTimeMillis())
             player.sendMessage(messages.get(MessageKeys.SPELL_IN_COOLDOWN)
                 .replace("<cooldown>", (ceil(cd / 1000.0).toLong()).toString())
                 .replace("<spell>", spellType.displayName))
-            isCancelled = true
         }
     }
 
@@ -72,11 +77,15 @@ class SpellCastListener (
         if(isCooldownsEnabled) spellManager.addSpellCD(player, spellType)
     }
 
-    private fun Player.canSendCDMessage() = !config.get<Boolean>(ConfigKeys.DISABLE_ALL_COOLDOWNS) && sentMessages.getIfPresent(this)?.plus(100)?.compareTo(System.currentTimeMillis())?.let { it > 0 } == true
+    private fun Player.canSendCDMessage(): Boolean {
+        if(!isCooldownsEnabled) return false
+        val lastSent = sentMessages.getIfPresent(this)
+        return lastSent == null || (lastSent + cooldownMessageDelay) < System.currentTimeMillis()
+    }
 
     private val isFuelEnabled
         get() = !config.get<Boolean>(ConfigKeys.DISABLE_FUEL_USAGE)
 
     private val isCooldownsEnabled
-        get() = !config.get<Boolean>(ConfigKeys.DISABLE_FUEL_USAGE)
+        get() = !config.get<Boolean>(ConfigKeys.DISABLE_ALL_COOLDOWNS)
 }

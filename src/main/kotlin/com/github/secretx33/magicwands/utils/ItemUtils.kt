@@ -49,7 +49,7 @@ object ItemUtils: CustomKoinComponent {
             persistentDataContainer.set(ownerNameKey, PersistentDataType.STRING, player.name)
             persistentDataContainer.set(ownerUuidKey, PersistentDataType.STRING, player.uniqueId.toString())
             persistentDataContainer.set(castCountKey, PersistentDataType.LONG, 0)
-            persistentDataContainer.set(selectedSpell, PersistentDataType.STRING, "")
+            persistentDataContainer.remove(selectedSpell)
             persistentDataContainer.set(availableSpells, PersistentDataType.STRING, "[]")
             setDisplayName("${ChatColor.BLUE}${ChatColor.BOLD}Magic Wand ${WandSkin.of(item.type).wandComplement}")
             addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_PLACED_ON)

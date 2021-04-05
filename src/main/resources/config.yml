@@ -29,6 +29,10 @@ disable-fuel-usage: false
 delete-wand-on-death: false
 # Remove spellteachers if its World is not found (if the plugin cannot find the world, it'll remove the SpellTeacher automatically and warn in the console)
 remove-spellteacher-from-db-if-world-not-found: true
+# Delay between notifications for "spell is in cd" message, in seconds. This config will ignore /wand reload because of limitations and will only be reapplied when you restart the server.
+cooldown-for-notifying-spell-is-cd: 2.0
+# If true and ProtocolLib is present, players will only be able to see their own dropped wands on the ground. This config will also ignore /wand reload because of limitations.
+players-only-see-their-own-wands: true
 
 # list of all spell properties
 spells:
@@ -88,7 +92,7 @@ spells:
     fuel-usage: 10
     cooldown: 12.0
     duration: 5.0
-    range: 8                  # up until what range the player can blind others, in blocks
+    range: 8                   # up until what range the player can blind others, in blocks
     effect:
       enabled: true
       type: BALL_LARGE
@@ -123,7 +127,7 @@ spells:
     cooldown: 15.0
     duration: 7.0
     range: 7                    # up until what range the player can poison others, in blocks
-    poison-potency: 7           # what potency of poison will be applied, valid values: 1-31, by my tests around 7 to 10 is where the poison is stronger, because after 10 there's a grace period in which the player cannot take damage
+    poison-potency: 7           # what potency of poison will be applied, valid values: 1-31, by my tests around 7 to 9 is where the poison is stronger, because after 9 there's a grace period in which the player cannot take damage
     effect:
       enabled: true
       type: BALL_LARGE

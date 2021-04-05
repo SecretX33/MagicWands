@@ -7,7 +7,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class Messages(plugin: Plugin) {
-    private val manager = YamlManager(plugin, "messages/messages")
+    private val manager = YamlManager(plugin, "messages")
     private val stringCache = ConcurrentHashMap<MessageKeys, String>()
     private val listCache = ConcurrentHashMap<MessageKeys, List<String>>()
 
@@ -77,6 +77,7 @@ enum class MessageKeys(val default: String) {
     TAB_COMPLETION_NOT_HOLDING_WAND("<not_holding_wand>"),
     TAB_COMPLETION_WAND_HAS_ALL_SPELLS("<wand_already_has_all_spells>"),
     TAB_COMPLETION_WAND_HAS_NO_SPELLS("<wand_has_no_spells>"),
+    TOGGLED_SPELL_EFFECT("${ChatColor.GREEN}Spell effects are now ${ChatColor.GOLD}<state>${ChatColor.GREEN}."),
     TRANSACTION_FAILED("${ChatColor.RED}We could not validate your purchase: <error>"),
     WAND_LORE(""),
     WAND_SKIN_IS_ALREADY_THAT("${ChatColor.RED}Your wand is already using skin <skin>."),

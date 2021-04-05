@@ -2,6 +2,7 @@ package com.github.secretx33.magicwands
 
 import com.github.secretx33.magicwands.commands.Commands
 import com.github.secretx33.magicwands.config.Config
+import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.database.SQLite
 import com.github.secretx33.magicwands.eventlisteners.*
@@ -74,7 +75,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         get<WandSpellSwitchListener>()
         get<WandUseListener>()
         get<Commands>()
-        if(isProtocolLibEnabled) {
+        if(playersOnlySeeTheirDroppedWands) {
             get<WandDropPacketListener>()
         }
     }
@@ -86,6 +87,6 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         stopKoin()
     }
 
-    private val isProtocolLibEnabled
-        get() = Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")
+    private val playersOnlySeeTheirDroppedWands
+        get() = Bukkit.getPluginManager().isPluginEnabled("ProtocolLib") && get<Config>().get(ConfigKeys.PLAYERS_ONLY_SEE_THEIR_OWN_WANDS)
 }

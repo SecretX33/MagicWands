@@ -36,10 +36,10 @@ class EffectCommand : SubCommand(), CustomKoinComponent {
         when(sub){
             "toggle" -> {
                 val current = config.get<Boolean>(ConfigKeys.ENABLE_EFFECTS)
-                toggleEffects(!current)
+                toggleEffects(!current, sender)
             }
-            "enable" -> toggleEffects(true)
-            "disable" -> toggleEffects(false)
+            "enable" -> toggleEffects(true, sender)
+            "disable" -> toggleEffects(false, sender)
             else -> {
                 sender.sendMessage(messages.get(MessageKeys.COMMAND_PARAMETER_IS_INVALID)
                     .replace("<parameter>", strings[1]))
@@ -48,10 +48,13 @@ class EffectCommand : SubCommand(), CustomKoinComponent {
         }
     }
 
-    private fun toggleEffects(newState: Boolean) {
+    private fun toggleEffects(newState: Boolean, sender: CommandSender) {
+        sender.sendMessage(messages.get(MessageKeys.TOGGLED_SPELL_EFFECT).replace("<state>", newState.asOnOff()))
         config.set(ConfigKeys.ENABLE_EFFECTS, newState)
         config.save()
     }
+
+    private fun Boolean.asOnOff() = if(this) "ON" else "OFF"
 
     override fun getCompletor(sender: CommandSender, length: Int, hint: String, strings: Array<String>): List<String> {
         if(length != 2) return emptyList()
