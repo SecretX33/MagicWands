@@ -84,7 +84,7 @@ class SpellManager (
         val player = event.player
         val target = event.target ?: throw IllegalStateException("Target cannot be null")
         val spellType = event.spellType
-        val duration = config.get(spellType.configDuration, 5) * 1000
+        val duration = config.get(spellType.configDuration, 5.0) * 1000
         val fatiguePotency = config.get("${spellType.configRoot}.mining-fatigue-potency", 0)
         val fatigueDuration = config.get("${spellType.configRoot}.mining-fatigue-duration", 5.0)
         val cuboid = target.makeCuboidAround()

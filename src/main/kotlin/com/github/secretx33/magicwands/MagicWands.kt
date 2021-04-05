@@ -75,7 +75,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         get<WandSpellSwitchListener>()
         get<WandUseListener>()
         get<Commands>()
-        if(playersOnlySeeTheirDroppedWands) {
+        if(wandsAreExclusive) {
             get<WandDropPacketListener>()
         }
     }
@@ -87,6 +87,6 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         stopKoin()
     }
 
-    private val playersOnlySeeTheirDroppedWands
+    private val wandsAreExclusive
         get() = Bukkit.getPluginManager().isPluginEnabled("ProtocolLib") && get<Config>().get(ConfigKeys.PLAYERS_ONLY_SEE_THEIR_OWN_WANDS)
 }

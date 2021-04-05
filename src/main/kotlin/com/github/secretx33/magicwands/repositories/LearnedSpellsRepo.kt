@@ -19,13 +19,13 @@ class LearnedSpellsRepo(private val db: SQLite) {
 
     private fun getKnownSpellsMutable(playerUuid: UUID): MutableSet<SpellType> = learnedSpells.getOrPut(playerUuid) { db.getPlayerLearnedSpells(playerUuid) ?: HashSet<SpellType>().also { db.addNewEntryForPlayerLearnedSpell(playerUuid) } }
 
-    fun teachSpell(playerUuid: UUID, spell: SpellType) = CoroutineScope(Dispatchers.IO).launch {
+    fun teachSpell(playerUuid: UUID, spell: SpellType) = CoroutineScope(Dispatchers.Default).launch {
         val knownSpells = getKnownSpellsMutable(playerUuid)
         knownSpells.add(spell)
         db.updatePlayerLearnedSpells(playerUuid, knownSpells)
     }
 
-    fun forgetSpell(playerUuid: UUID, spell: SpellType) = CoroutineScope(Dispatchers.IO).launch {
+    fun forgetSpell(playerUuid: UUID, spell: SpellType) = CoroutineScope(Dispatchers.Default).launch {
         val knownSpells = getKnownSpellsMutable(playerUuid)
         knownSpells.remove(spell)
         db.updatePlayerLearnedSpells(playerUuid, knownSpells)

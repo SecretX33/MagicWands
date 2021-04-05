@@ -4,7 +4,7 @@ import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.model.SpellTeacher
 import com.github.secretx33.magicwands.model.SpellType
-import com.github.secretx33.magicwands.utils.prettyString
+import com.github.secretx33.magicwands.utils.formattedString
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -51,28 +51,24 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun addSpellteacher(teacher: SpellTeacher) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            ds.connection.use { conn: Connection ->
-                conn.prepareStatement(INSERT_SPELLTEACHER).use { prep ->
-                    prep.setString(1, teacher.location.toJson())
-                    prep.setString(2, teacher.spellType.toJson())
-                    prep.setString(3, teacher.blockMaterial.toString())
-                    prep.execute()
-                }
+            withStatement(INSERT_SPELLTEACHER){ conn ->
+                setString(1, teacher.location.toJson())
+                setString(2, teacher.spellType.toJson())
+                setString(3, teacher.blockMaterial.toString())
+                execute()
                 conn.commit()
             }
         } catch (e: SQLException) {
-            log.severe("${ChatColor.RED}ERROR: An exception occurred while adding a specific Spellteacher (${teacher.location.prettyString()})\n${e.stackTraceToString()}")
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while adding a specific Spellteacher (${teacher.location.formattedString()})\n${e.stackTraceToString()}")
         }
     }
 
     fun addNewEntryForPlayerLearnedSpell(playerUuid: UUID) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            ds.connection.use { conn: Connection ->
-                conn.prepareStatement(INSERT_LEARNED_SPELLS).use { prep ->
-                    prep.setString(1, playerUuid.toString())
-                    prep.setString(2, emptySet<SpellType>().toJson())
-                    prep.execute()
-                }
+            withStatement(INSERT_LEARNED_SPELLS) { conn ->
+                setString(1, playerUuid.toString())
+                setString(2, emptySet<SpellType>().toJson())
+                execute()
                 conn.commit()
             }
         } catch (e: SQLException) {
@@ -84,11 +80,9 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun removeSpellteacher(blockLoc: Location) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            ds.connection.use { conn: Connection ->
-                conn.prepareStatement(REMOVE_SPELLTEACHER).use { prep ->
-                    prep.setString(1, blockLoc.toJson())
-                    prep.execute()
-                }
+            withStatement(REMOVE_SPELLTEACHER) { conn ->
+                setString(1, blockLoc.toJson())
+                execute()
                 conn.commit()
             }
         } catch (e: SQLException) {
@@ -98,14 +92,12 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     private fun removeSpellteachersByWorldUuid(worldUuids: Iterable<String>) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            ds.connection.use { conn: Connection ->
-                conn.prepareStatement(REMOVE_SPELLTEACHER_OF_WORLD).use { prep ->
-                    worldUuids.forEach {
-                        prep.setString(1, "%$it%")
-                        prep.addBatch()
-                    }
-                    prep.executeBatch()
+            withStatement(REMOVE_SPELLTEACHER_OF_WORLD) { conn ->
+                worldUuids.forEach {
+                    setString(1, "%$it%")
+                    addBatch()
                 }
+                executeBatch()
                 conn.commit()
             }
         } catch (e: SQLException) {
@@ -115,14 +107,12 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     private fun removeSpellteachersByLocation(locations: Iterable<Location>) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            ds.connection.use { conn: Connection ->
-                conn.prepareStatement(REMOVE_SPELLTEACHER).use { prep ->
-                    locations.forEach { loc ->
-                        prep.setString(1, loc.toJson())
-                        prep.addBatch()
-                    }
-                    prep.executeBatch()
+            withStatement(REMOVE_SPELLTEACHER) { conn ->
+                locations.forEach { loc ->
+                    setString(1, loc.toJson())
+                    addBatch()
                 }
+                executeBatch()
                 conn.commit()
             }
         } catch (e: SQLException) {
@@ -132,11 +122,9 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun removePlayerLearnedSpells(playerUuid: UUID) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            ds.connection.use { conn: Connection ->
-                conn.prepareStatement(REMOVE_LEARNED_SPELLS).use { prep ->
-                    prep.setString(1, playerUuid.toString())
-                    prep.execute()
-                }
+            withStatement(REMOVE_LEARNED_SPELLS) { conn ->
+                setString(1, playerUuid.toString())
+                execute()
                 conn.commit()
             }
         } catch (e: SQLException) {
@@ -170,7 +158,7 @@ class SQLite(plugin: Plugin, private val config: Config) {
                     }
                 } else if(world != null) {
                     if (world.getBlockAt(teacherLoc).type != blockMaterial) {
-                        log.warning("${ChatColor.RED}WARNING: The Spellteacher located at '${teacherLoc.prettyString()}' was not found, queuing its removal to preserve DB integrity.${ChatColor.WHITE} Usually this happens when a Spellteacher is broken with this plugin being disabled or missing.")
+                        log.warning("${ChatColor.RED}WARNING: The Spellteacher located at '${teacherLoc.formattedString()}' was not found, queuing its removal to preserve DB integrity.${ChatColor.WHITE} Usually this happens when a Spellteacher is broken with this plugin being disabled or missing.")
                         teacherRemoveSet.add(teacherLoc)
                     } else {
                         spellteachers[teacherLoc] = SpellTeacher(teacherLoc, spellType, blockMaterial)
@@ -216,27 +204,23 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun updateSpellteacher(newTeacher: SpellTeacher) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            ds.connection.use { conn: Connection ->
-                conn.prepareStatement(UPDATE_SPELLTEACHER).use { prep ->
-                    prep.setString(1, newTeacher.spellType.toJson())
-                    prep.setString(2, newTeacher.location.toJson())
-                    prep.execute()
-                }
+            withStatement(UPDATE_SPELLTEACHER) { conn ->
+                setString(1, newTeacher.spellType.toJson())
+                setString(2, newTeacher.location.toJson())
+                execute()
                 conn.commit()
             }
         } catch (e: SQLException) {
-            log.severe("${ChatColor.RED}ERROR: An exception occurred while updating Spellteacher at ${newTeacher.location.prettyString()} to type ${newTeacher.spellType} to the database\n${e.stackTraceToString()}")
+            log.severe("${ChatColor.RED}ERROR: An exception occurred while updating Spellteacher at ${newTeacher.location.formattedString()} to type ${newTeacher.spellType} to the database\n${e.stackTraceToString()}")
         }
     }
 
     fun updatePlayerLearnedSpells(playerUuid: UUID, knownSpells: Set<SpellType>) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            ds.connection.use { conn: Connection ->
-                conn.prepareStatement(UPDATE_LEARNED_SPELLS).use { prep ->
-                    prep.setString(1, knownSpells.toJson())
-                    prep.setString(2, playerUuid.toString())
-                    prep.execute()
-                }
+            withStatement(UPDATE_LEARNED_SPELLS) { conn ->
+                setString(1, knownSpells.toJson())
+                setString(2, playerUuid.toString())
+                execute()
                 conn.commit()
             }
         } catch (e: SQLException) {
@@ -259,6 +243,24 @@ class SQLite(plugin: Plugin, private val config: Config) {
     private fun Set<SpellType>.toJson() = gson.toJson(this, setSpellTypeToken)
 
     private fun Regex.getOrNull(string: String, group: Int) = this.find(string)?.groupValues?.get(group)
+
+    private fun <T> withStatement(statement: String, block: PreparedStatement.(Connection) -> T): T {
+        ds.connection.use { conn ->
+            conn.prepareStatement(statement).use { prep ->
+                return prep.block(conn)
+            }
+        }
+    }
+
+    private fun <T> withStatement(statement: String, block: PreparedStatement.(Connection) -> ResultSet, resultBlock: (ResultSet) -> T): T {
+        ds.connection.use { conn ->
+            conn.prepareStatement(statement).use { prep ->
+                prep.block(conn).use { rs ->
+                    return resultBlock(rs)
+                }
+            }
+        }
+    }
 
     private fun AutoCloseable?.safeClose() { runCatching { this?.close() } }
 

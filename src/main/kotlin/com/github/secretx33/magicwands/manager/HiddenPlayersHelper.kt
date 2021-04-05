@@ -38,7 +38,7 @@ class HiddenPlayersHelper(private val plugin: Plugin) {
 
     fun invalidateHiddenState(player: Player) {
         val uuid = player.uniqueId
-        hiddenPlayers[uuid]?.apply {
+        hiddenPlayers[uuid]?.run {
             cancel()
             showPlayer(player)
         }

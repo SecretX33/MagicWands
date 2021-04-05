@@ -17,6 +17,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
@@ -46,11 +47,13 @@ object ItemUtils: CustomKoinComponent {
         val meta = item.itemMeta ?: throw IllegalArgumentException("Could not get itemMeta from ${item.type}")
 
         meta.apply {
-            persistentDataContainer.set(ownerNameKey, PersistentDataType.STRING, player.name)
-            persistentDataContainer.set(ownerUuidKey, PersistentDataType.STRING, player.uniqueId.toString())
-            persistentDataContainer.set(castCountKey, PersistentDataType.LONG, 0)
-            persistentDataContainer.remove(selectedSpell)
-            persistentDataContainer.set(availableSpells, PersistentDataType.STRING, "[]")
+            pdc.apply {
+                set(ownerNameKey, PersistentDataType.STRING, player.name)
+                set(ownerUuidKey, PersistentDataType.STRING, player.uniqueId.toString())
+                set(castCountKey, PersistentDataType.LONG, 0)
+                remove(selectedSpell)
+                set(availableSpells, PersistentDataType.STRING, "[]")
+            }
             setDisplayName("${ChatColor.BLUE}${ChatColor.BOLD}Magic Wand ${WandSkin.of(item.type).wandComplement}")
             addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_PLACED_ON)
             updateLore(null)
@@ -112,7 +115,7 @@ object ItemUtils: CustomKoinComponent {
     fun increaseCastCount(item: ItemStack) {
         require(item.isWand()) { "Item ${item.type} is not a wand" }
         val meta = item.itemMeta ?: throw IllegalStateException("Could not get itemMeta from ${item.type}")
-        meta.persistentDataContainer.apply {
+        meta.pdc.apply {
             val actualValue = get(castCountKey, PersistentDataType.LONG)!!
             set(castCountKey, PersistentDataType.LONG, actualValue + 1)
         }
@@ -132,18 +135,20 @@ object ItemUtils: CustomKoinComponent {
         val newMeta = new.itemMeta ?: throw IllegalStateException("itemMeta of newWand came null")
 
         val selected: String?
-        oldMeta.persistentDataContainer.run {
-            val ownerUuid = get(ownerUuidKey, PersistentDataType.STRING)!!
-            val ownerName = Bukkit.getPlayer(ownerUuid.toUuid())?.name ?: get(ownerNameKey, PersistentDataType.STRING)!!
-            newMeta.persistentDataContainer.set(ownerNameKey, PersistentDataType.STRING, ownerName)
-            newMeta.persistentDataContainer.set(ownerUuidKey, PersistentDataType.STRING, ownerUuid)
-            newMeta.persistentDataContainer.set(castCountKey, PersistentDataType.LONG, get(castCountKey, PersistentDataType.LONG)!!)
-            selected = get(selectedSpell, PersistentDataType.STRING)
-            if(selected != null)
-                newMeta.persistentDataContainer.set(selectedSpell, PersistentDataType.STRING, selected)
-            else
-                newMeta.persistentDataContainer.remove(selectedSpell) // removes the key so the selected spell will be null
-            newMeta.persistentDataContainer.set(availableSpells, PersistentDataType.STRING, get(availableSpells, PersistentDataType.STRING)!!)
+        oldMeta.pdc.let { oldPdc ->
+            newMeta.pdc.apply {
+                val ownerUuid = oldPdc.get(ownerUuidKey, PersistentDataType.STRING)!!
+                val ownerName = Bukkit.getPlayer(ownerUuid.toUuid())?.name ?: oldPdc.get(ownerNameKey, PersistentDataType.STRING)!!
+                set(ownerNameKey, PersistentDataType.STRING, ownerName)
+                set(ownerUuidKey, PersistentDataType.STRING, ownerUuid)
+                set(castCountKey, PersistentDataType.LONG, oldPdc.get(castCountKey, PersistentDataType.LONG)!!)
+                selected = oldPdc.get(selectedSpell, PersistentDataType.STRING)
+                if(selected != null)
+                    set(selectedSpell, PersistentDataType.STRING, selected)
+                else
+                    remove(selectedSpell) // removes the key so the selected spell will be null
+                set(availableSpells, PersistentDataType.STRING, oldPdc.get(availableSpells, PersistentDataType.STRING)!!)
+            }
         }
         newMeta.updateLore(SpellType.ofOrNull(selected))
         new.itemMeta = newMeta
@@ -151,14 +156,14 @@ object ItemUtils: CustomKoinComponent {
 
     fun getWandSpell(wand: ItemStack): SpellType {
         require(wand.isWand()) { "Item ${wand.type} is not a wand" }
-        val string = wand.itemMeta?.persistentDataContainer?.get(selectedSpell, PersistentDataType.STRING)
+        val string = wand.itemMeta?.pdc?.get(selectedSpell, PersistentDataType.STRING)
             ?: throw IllegalStateException("Wand has no selected enchant")
         return SpellType.valueOf(string)
     }
 
     fun getWandSpellOrNull(wand: ItemStack): SpellType? {
         require(wand.isWand()) { "Item ${wand.type} is not a wand" }
-        val string = wand.itemMeta?.persistentDataContainer?.get(selectedSpell, PersistentDataType.STRING)
+        val string = wand.itemMeta?.pdc?.get(selectedSpell, PersistentDataType.STRING)
         return SpellType.ofOrNull(string)
     }
 
@@ -167,21 +172,21 @@ object ItemUtils: CustomKoinComponent {
         val meta = wand.itemMeta ?: throw IllegalStateException("This should not happen")
 
         meta.apply {
-            persistentDataContainer.set(selectedSpell, PersistentDataType.STRING, type.name)
-            lore = makeWandLore(meta, type)
+            pdc.set(selectedSpell, PersistentDataType.STRING, type.name)
+            updateLore(type)
         }
         wand.itemMeta = meta
     }
 
     private fun getAvailableSpells(itemMeta: ItemMeta): MutableList<SpellType> {
-        val spells = itemMeta.persistentDataContainer.get(availableSpells, PersistentDataType.STRING)
+        val spells = itemMeta.pdc.get(availableSpells, PersistentDataType.STRING)
             ?: throw IllegalStateException("Wand doesn't have any saved spells in it")
         return gson.fromJson(spells, listSpellTypeToken)
     }
 
     fun getAvailableSpells(wand: ItemStack): MutableList<SpellType> {
         require(wand.isWand()) { "Item ${wand.type} is not a wand" }
-        val spells = wand.itemMeta?.persistentDataContainer?.get(availableSpells, PersistentDataType.STRING)
+        val spells = wand.itemMeta?.pdc?.get(availableSpells, PersistentDataType.STRING)
             ?: throw IllegalStateException("Wand doesn't have any saved spells in it")
         return gson.fromJson(spells, listSpellTypeToken)
     }
@@ -191,15 +196,15 @@ object ItemUtils: CustomKoinComponent {
         val meta = wand.itemMeta ?: throw IllegalStateException("This should not happen")
 
         meta.apply {
-            persistentDataContainer.set(availableSpells, PersistentDataType.STRING, gson.toJson(list, listSpellTypeToken))
+            pdc.set(availableSpells, PersistentDataType.STRING, gson.toJson(list, listSpellTypeToken))
             updateLore(null)
         }
         wand.itemMeta = meta
     }
 
     private fun getWandOwnerName(itemMeta: ItemMeta): String {
-        val uuid = itemMeta.persistentDataContainer.get(ownerUuidKey, PersistentDataType.STRING)?.toUuid() ?: return "Unknown".also { log.severe("${ChatColor.RED}Wand doesn't have a owner, something went wrong") }
-        return Bukkit.getOfflinePlayer(uuid).name ?: itemMeta.persistentDataContainer.get(ownerNameKey, PersistentDataType.STRING) ?: "Unknown"
+        val uuid = itemMeta.pdc.get(ownerUuidKey, PersistentDataType.STRING)?.toUuid() ?: return "Unknown".also { log.severe("${ChatColor.RED}Wand doesn't have a owner, something went wrong") }
+        return Bukkit.getOfflinePlayer(uuid).name ?: itemMeta.pdc.get(ownerNameKey, PersistentDataType.STRING) ?: "Unknown"
     }
 
     fun getWandOwnerName(wand: ItemStack): String {
@@ -208,7 +213,7 @@ object ItemUtils: CustomKoinComponent {
     }
 
     private fun getWandOwnerUuid(itemMeta: ItemMeta): UUID? {
-        return itemMeta.persistentDataContainer.get(ownerUuidKey, PersistentDataType.STRING)?.toUuid()
+        return itemMeta.pdc.get(ownerUuidKey, PersistentDataType.STRING)?.toUuid()
             ?: return null.also { log.severe("${ChatColor.RED}Wand doesn't have a owner, something went wrong") }
     }
 
@@ -222,17 +227,19 @@ object ItemUtils: CustomKoinComponent {
 
         val meta = wand.itemMeta ?: return
         meta.apply {
-            persistentDataContainer.set(ownerNameKey, PersistentDataType.STRING, player.name)
-            persistentDataContainer.set(ownerUuidKey, PersistentDataType.STRING, player.uniqueId.toString())
+            pdc.set(ownerNameKey, PersistentDataType.STRING, player.name)
+            pdc.set(ownerUuidKey, PersistentDataType.STRING, player.uniqueId.toString())
             updateLore(wand)
         }
-        ChatColor.GREEN
         wand.itemMeta = meta
     }
 
     private fun ItemMeta.updateLore(wand: ItemStack) { lore = makeWandLore(this, getWandSpellOrNull(wand)) }
 
     private fun ItemMeta.updateLore(selectedSpell: SpellType?) { lore = makeWandLore(this, selectedSpell) }
+
+    private val ItemMeta.pdc: PersistentDataContainer
+        get() = persistentDataContainer
 }
 
 fun Material.isWandMaterial() = WandSkin.isWandMaterial(this)
