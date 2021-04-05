@@ -226,18 +226,18 @@ class YamlManager (
 
     private fun File.createParentDirs() = com.google.common.io.Files.createParentDirs(this)
 
+    private fun String.appendIfMissing(append: String, ignoreCase: Boolean = true): String {
+        if(!this.endsWith(append, ignoreCase = ignoreCase))
+            return "$this$append"
+        return this
+    }
+
     private companion object {
         val CHARSET = Charsets.UTF_8
         val COMMENT_PATTERN = """(\s*?#.*)$""".toPattern()
         val KEY_PATTERN = """(?i)^\s*([\w\d\-!@#$%^&*+]+?):.*$""".toRegex()
         val LIST_PATTERN = """(?i)^\s*(-\s?"?[\w\d]+"?).*$""".toRegex()
         val DEPTH_PATTERN = """^(\s+)[^\s]+""".toRegex()
-
-        fun String.appendIfMissing(append: String, ignoreCase: Boolean = true): String {
-            if(!this.endsWith(append, ignoreCase = ignoreCase))
-                return "$this$append"
-            return this
-        }
     }
 
     private data class Comment(

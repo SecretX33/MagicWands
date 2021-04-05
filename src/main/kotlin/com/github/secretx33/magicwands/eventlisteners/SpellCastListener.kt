@@ -35,7 +35,7 @@ class SpellCastListener (
 
     private val cooldownMessageDelay: Long = (max(0.0, config.get<Double>(ConfigKeys.COOLDOWN_NOTIFICATION_DELAY) * 1000)).toLong()
 
-    init { Bukkit.getPluginManager().registerEvents(this, plugin).also { println("cooldownMessageDelay is $cooldownMessageDelay") } }
+    init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
     private var sentMessages = CacheBuilder.newBuilder()
         .expireAfterWrite(cooldownMessageDelay, TimeUnit.MILLISECONDS)

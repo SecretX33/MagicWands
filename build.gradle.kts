@@ -1,5 +1,17 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.guardsquare:proguard-gradle:7.0.1") {
+            exclude("com.android.tools.build")
+        }
+    }
+}
+
 plugins {
     val kotlinVersion: String by System.getProperties()
     kotlin("jvm") version kotlinVersion
@@ -68,10 +80,11 @@ tasks.shadowJar {
     exclude("META-INF/**")
 }
 
-//tasks.register("customCleanUp", Delete::class){
-//    delete("$rootDir/build/libs/${tasks.shadowJar.get().archiveFileName.get()}")
-//}
-//tasks.shadowJar.get().dependsOn(tasks["customCleanUp"])
+tasks.register<proguard.gradle.ProGuardTask>("proguard") {
+    configuration("proguard-rules.pro")
+}
+
+tasks.build.get().finalizedBy(tasks.getByName("proguard"))
 
 tasks.withType<JavaCompile> { options.encoding = "UTF-8" }
 
