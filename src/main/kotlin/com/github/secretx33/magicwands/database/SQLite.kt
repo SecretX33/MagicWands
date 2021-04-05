@@ -19,7 +19,6 @@ import org.bukkit.Material
 import org.bukkit.plugin.Plugin
 import java.io.IOException
 import java.lang.reflect.Type
-import java.nio.file.FileSystems
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -252,10 +251,10 @@ class SQLite(plugin: Plugin, private val config: Config) {
         }
     }
 
-    private inline fun <reified T> withQueryStatement(statement: String, block: PreparedStatement.() -> ResultSet = { executeQuery() }, resultBlock: (ResultSet) -> T): T {
+    private inline fun <reified T> withQueryStatement(statement: String, noinline prepareBlock: PreparedStatement.() -> ResultSet = { executeQuery() }, resultBlock: (ResultSet) -> T): T {
         ds.connection.use { conn ->
             conn.prepareStatement(statement).use { prep ->
-                prep.block().use { rs ->
+                prep.prepareBlock().use { rs ->
                     return resultBlock(rs)
                 }
             }

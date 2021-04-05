@@ -239,7 +239,10 @@ class SpellManager (
         player.sendMessage(messages.get(MessageKeys.CASTED_VANISH))
 
         if(fullInvisible) hiddenPlayersHelper.hidePlayer(player, duration)
-        else player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, (duration * 20).toInt(), 1, false, false))
+        else {
+            player.removePotionEffect(PotionEffectType.INVISIBILITY)
+            player.addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, (duration * 20).toInt(), 0, false, false))
+        }
         particlesHelper.sendFireworkParticle(player.location.apply { y += player.height * 0.7 }, spellType)
     }
 

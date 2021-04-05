@@ -15,13 +15,18 @@ class HiddenPlayersHelper(private val plugin: Plugin) {
     fun hidePlayer(player: Player, showAgainIn: Double) {
         if(showAgainIn == 0.0) return
         val uuid = player.uniqueId
-        hiddenPlayers[uuid]?.cancel()
+        hiddenPlayers[uuid]?.run {
+            cancel()
+            showPlayerLater(player, showAgainIn)
+            return
+        }
         Bukkit.getOnlinePlayers().asSequence().filter { it.uniqueId != uuid }
             .forEach { it.hidePlayer(plugin, player) }
-        hiddenPlayers[uuid] = showPlayerLater(player, showAgainIn)
+        showPlayerLater(player, showAgainIn)
     }
 
     private fun showPlayerLater(player: Player, secondsDelay: Double) = CoroutineScope(Dispatchers.Default).launch {
+        hiddenPlayers[player.uniqueId] = coroutineContext.job
         delay((secondsDelay * 1000).toLong())
         if(!isActive) return@launch
         showPlayer(player)

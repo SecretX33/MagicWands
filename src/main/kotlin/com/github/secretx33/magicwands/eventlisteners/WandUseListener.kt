@@ -15,6 +15,7 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.event.Cancellable
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -26,7 +27,6 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 import java.util.concurrent.TimeUnit
-import kotlin.random.Random
 
 @KoinApiExtension
 class WandUseListener (
@@ -46,10 +46,11 @@ class WandUseListener (
     private fun PlayerInteractEvent.onWandInteract() {
         if(hand != EquipmentSlot.HAND) return
         val item = item ?: return
-        if(!player.canClick() || !item.isWand()) return
-
-        // adding player to the lastClick list to prevent double clicks
-        lastClickList.put(player, System.currentTimeMillis())
+        if(!item.isWand()) return
+        if(!player.canClick()) {
+            isCancelled = true
+            return
+        }
 
         // player is using another's wand
         if(!item.isWandOwner(player)) {
@@ -60,18 +61,7 @@ class WandUseListener (
         }
 
         if(isLeftClick()) {
-            val selected = ItemUtils.getWandSpellOrNull(item) ?: run {
-                isCancelled = true
-                return
-            }
-            if(!learnedSpells.knows(player.uniqueId, selected)) {
-                isCancelled = true
-                player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_UNKNOWN_SPELL).replace("<spell>", selected.displayName))
-                return
-            }
-            val event = getSpellEvent(player, item)
-            isCancelled = true
-            Bukkit.getServer().pluginManager.callEvent(event)
+            leftClickHandler(player, item)
             return
         }
 
@@ -90,6 +80,23 @@ class WandUseListener (
         if(item.isWand()) isCancelled = true
     }
 
+    private fun Cancellable.leftClickHandler(player: Player, wand: ItemStack) {
+        val selected = ItemUtils.getWandSpellOrNull(wand) ?: run {
+            isCancelled = true
+            return
+        }
+        if (!learnedSpells.knows(player.uniqueId, selected)) {
+            isCancelled = true
+            player.sendMessage(
+                messages.get(MessageKeys.CANNOT_CAST_UNKNOWN_SPELL).replace("<spell>", selected.displayName)
+            )
+            return
+        }
+        val event = getSpellEvent(player, wand)
+        isCancelled = true
+        Bukkit.getServer().pluginManager.callEvent(event)
+    }
+
     private fun getSpellEvent(player: Player, wand: ItemStack): SpellCastEvent {
         return when(val type = ItemUtils.getWandSpell(wand)) {
             BLIND, ENSNARE, POISON, SLOW, THRUST -> EntitySpellCastEvent(player, wand, type, config.get(type.configRange, 5))
@@ -104,7 +111,9 @@ class WandUseListener (
 
     private fun Player.canClick(): Boolean {
         val lastClick = lastClickList.getIfPresent(this)
-        return lastClick == null || (lastClick + clickDelay) < System.currentTimeMillis()
+        val res = (lastClick == null || (lastClick + clickDelay) < System.currentTimeMillis())
+        if(res) lastClickList.put(this, System.currentTimeMillis()) // adding player to the lastClick list to prevent double clicks
+        return res
     }
 
     private companion object {

@@ -2,7 +2,6 @@ package com.github.secretx33.magicwands.events
 
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.utils.getTargetBlockWithFace
-import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Player

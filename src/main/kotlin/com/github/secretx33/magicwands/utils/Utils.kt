@@ -6,7 +6,6 @@ import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.text.WordUtils
-import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
