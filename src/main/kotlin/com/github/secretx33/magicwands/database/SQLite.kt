@@ -5,6 +5,7 @@ import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.model.SpellTeacher
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.utils.formattedString
+import com.google.common.io.Files
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -16,6 +17,7 @@ import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.plugin.Plugin
+import java.io.IOException
 import java.lang.reflect.Type
 import java.nio.file.FileSystems
 import java.sql.Connection
@@ -26,9 +28,20 @@ import java.util.*
 
 class SQLite(plugin: Plugin, private val config: Config) {
 
-    private val url = "jdbc:sqlite:${plugin.dataFolder.absolutePath}${folderSeparator}database.db"
-    private val ds = HikariDataSource(hikariConfig.apply { jdbcUrl = url })
     private val log = plugin.logger
+    private val dbFile = plugin.dataFolder.absoluteFile.resolve("database").resolve("sqlite.db")
+
+    init {
+        try {
+            Files.createParentDirs(dbFile)
+        } catch (e: IOException) {
+            log.severe("ERROR: Could not create folder ${dbFile.parent} for database.db file\n${e.stackTraceToString()}")
+            Bukkit.getPluginManager().disablePlugin(plugin)
+        }
+    }
+
+    private val url = "jdbc:sqlite:${dbFile.absoluteFile}"
+    private val ds = HikariDataSource(hikariConfig.apply { jdbcUrl = url })
 
     init { initialize() }
 
@@ -135,33 +148,29 @@ class SQLite(plugin: Plugin, private val config: Config) {
     // GET
 
     fun getAllSpellteachersAsync(): Deferred<MutableMap<Location, SpellTeacher>> = CoroutineScope(Dispatchers.IO).async {
-        var conn: Connection? = null
-        var prep: PreparedStatement? = null
-        var rs: ResultSet? = null
-
         val spellteachers = HashMap<Location, SpellTeacher>()
         val worldRemoveSet = HashSet<String>()
         val teacherRemoveSet = HashSet<Location>()
 
         try {
-            conn = ds.connection
-            prep = conn.prepareStatement(SELECT_ALL_FROM_SPELLTEACHER)
-            rs = prep.executeQuery()
-            while(rs.next()){
-                val teacherLoc = rs.getString("location").toLocation()
-                val world = teacherLoc.world
-                val spellType = rs.getString("spell_type").toSpellType()
-                val blockMaterial = rs.getString("block_material").toMaterial()
-                if(world == null && removeSpellteacherIfMissingWorld){
-                    UUID_WORLD_PATTERN.getOrNull(rs.getString("location"), 1)?.let {
-                        worldRemoveSet.add(it)
-                    }
-                } else if(world != null) {
-                    if (world.getBlockAt(teacherLoc).type != blockMaterial) {
-                        log.warning("${ChatColor.RED}WARNING: The Spellteacher located at '${teacherLoc.formattedString()}' was not found, queuing its removal to preserve DB integrity.${ChatColor.WHITE} Usually this happens when a Spellteacher is broken with this plugin being disabled or missing.")
-                        teacherRemoveSet.add(teacherLoc)
-                    } else {
-                        spellteachers[teacherLoc] = SpellTeacher(teacherLoc, spellType, blockMaterial)
+            withQueryStatement(SELECT_ALL_FROM_SPELLTEACHER) { rs ->
+                while(rs.next()){
+                    val teacherLoc = rs.getString("location").toLocation()
+                    val world = teacherLoc.world
+                    val spellType = rs.getString("spell_type").toSpellType()
+                    val blockMaterial = rs.getString("block_material").toMaterial()
+
+                    if(world == null && removeSpellteacherIfMissingWorld){
+                        UUID_WORLD_PATTERN.getOrNull(rs.getString("location"), 1)?.let {
+                            worldRemoveSet.add(it)
+                        }
+                    } else if(world != null) {
+                        if (world.getBlockAt(teacherLoc).type != blockMaterial) {
+                            log.warning("${ChatColor.RED}WARNING: The Spellteacher located at '${teacherLoc.formattedString()}' was not found, queuing its removal to preserve DB integrity.${ChatColor.WHITE} Usually this happens when a Spellteacher is broken with this plugin being disabled or missing.")
+                            teacherRemoveSet.add(teacherLoc)
+                        } else {
+                            spellteachers[teacherLoc] = SpellTeacher(teacherLoc, spellType, blockMaterial)
+                        }
                     }
                 }
             }
@@ -173,26 +182,17 @@ class SQLite(plugin: Plugin, private val config: Config) {
                 removeSpellteachersByLocation(teacherRemoveSet)
         } catch (e: SQLException) {
             log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to get all Spellteachers async\n${e.stackTraceToString()}")
-        } finally {
-            rs?.safeClose()
-            prep?.safeClose()
-            conn?.safeClose()
         }
         spellteachers
     }
 
     fun getPlayerLearnedSpells(playerUuid: UUID): MutableSet<SpellType>? {
         try {
-            ds.connection.use { conn: Connection ->
-                conn.prepareStatement(SELECT_LEARNED_SPELLS).use { prep ->
-                    prep.setString(1, playerUuid.toString())
-
-                    prep.executeQuery().use { rs ->
-                        if(rs.next()){
-                            return rs.getString("known_spells").toSpellTypeSet()
-                        }
-                    }
-                }
+            withQueryStatement(SELECT_LEARNED_SPELLS, {
+                setString(1, playerUuid.toString())
+                executeQuery()
+            }) { rs ->
+                if(rs.next()) return rs.getString("known_spells").toSpellTypeSet()
             }
         } catch (e: SQLException) {
             log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to get learned spells of player ${Bukkit.getPlayer(playerUuid)?.name} ($playerUuid) from database\n${e.stackTraceToString()}")
@@ -252,10 +252,10 @@ class SQLite(plugin: Plugin, private val config: Config) {
         }
     }
 
-    private fun <T> withStatement(statement: String, block: PreparedStatement.(Connection) -> ResultSet, resultBlock: (ResultSet) -> T): T {
+    private inline fun <reified T> withQueryStatement(statement: String, block: PreparedStatement.() -> ResultSet = { executeQuery() }, resultBlock: (ResultSet) -> T): T {
         ds.connection.use { conn ->
             conn.prepareStatement(statement).use { prep ->
-                prep.block(conn).use { rs ->
+                prep.block().use { rs ->
                     return resultBlock(rs)
                 }
             }
@@ -272,7 +272,6 @@ class SQLite(plugin: Plugin, private val config: Config) {
             .registerTypeAdapter(Location::class.java, LocationAdapter())
             .create()
         val setSpellTypeToken: Type = object : TypeToken<Set<SpellType>>() {}.type
-        val folderSeparator: String = FileSystems.getDefault().separator
         val hikariConfig = HikariConfig().apply { isAutoCommit = false }
 
         // create tables
