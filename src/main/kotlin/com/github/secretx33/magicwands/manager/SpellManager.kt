@@ -15,6 +15,7 @@ import kotlinx.coroutines.*
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
+import org.bukkit.block.BlockFace
 import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
@@ -60,17 +61,23 @@ class SpellManager (
 
     fun castBlink(event: BlockSpellCastEvent) {
         val player = event.player
-        val block = event.block
+        val block = event.target?.block ?: return
+        val face = event.target.face
 
-        val previousLocation = player.location
-        player.teleport(block.location.clone().apply {
-            x += 0.5
-            y += 1.15
-            z += 0.5
+        val targetLocation = block.location.apply {
+            x += face.modX + 0.5
+            if(face == BlockFace.DOWN) { y += face.modY - 1 } else y += face.modY
+            z += face.modZ + 0.5
             pitch = player.location.pitch
             yaw = player.location.yaw
-        })
-        particlesHelper.sendFireworkParticle(previousLocation, event.spellType)
+        }
+        val previousLocation = player.location
+        // block on top of player is not passable, make him "crawl"
+        if(!block.world.getBlockAt(targetLocation.clone().apply { if(face == BlockFace.DOWN) y -= 1 else y += 1 }).isPassable) {
+            player.isSwimming = true
+        }
+        player.teleport(targetLocation)
+        particlesHelper.sendFireworkParticle(previousLocation.apply { y += 0.2 }, event.spellType)
     }
 
     fun castEnsnare(event: EntitySpellCastEvent) {
@@ -127,12 +134,12 @@ class SpellManager (
     private fun Block.playerCanBreak(player: Player): Boolean = type != Material.BEDROCK && !blocksBlackList.contains(location) && WorldGuardHelper.canBreakBlock(this, player)
 
     private fun LivingEntity.makeCuboidAround(): Cuboid {
-        val lowerBound = location.clone().apply {
+        val lowerBound = location.apply {
             x -= ceil(width)
             y -= 1
             z -= ceil(width)
         }
-        val upperBound = location.clone().apply {
+        val upperBound = location.apply {
             x += ceil(width)
             y += ceil(height)
             z += ceil(width)
@@ -207,7 +214,7 @@ class SpellManager (
         val src = atk.location.apply {
             y += atk.height / 2
         }
-        val dest = this.location
+        val dest = location
         val difX = dest.x - src.x
         val difZ = dest.z - src.z
         val difY = dest.y - src.y
