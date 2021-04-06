@@ -72,7 +72,7 @@ class WandUseListener (
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     private fun EntityDamageByEntityEvent.onWandInteract() {
         if(!damager.isPlayer() || !damageIsMelee()) return
 
