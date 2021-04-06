@@ -6,6 +6,16 @@ import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.database.SQLite
 import com.github.secretx33.magicwands.eventlisteners.*
+import com.github.secretx33.magicwands.eventlisteners.spellcasts.BlockSpellCastListener
+import com.github.secretx33.magicwands.eventlisteners.spellcasts.EntitySpellCastListener
+import com.github.secretx33.magicwands.eventlisteners.spellcasts.FireworkDamageWorkaroundListener
+import com.github.secretx33.magicwands.eventlisteners.spellcasts.SpellCastListener
+import com.github.secretx33.magicwands.eventlisteners.spellteacher.SpellTeacherBreakListener
+import com.github.secretx33.magicwands.eventlisteners.spellteacher.SpellTeacherUseListener
+import com.github.secretx33.magicwands.eventlisteners.wand.WandPickupPreventListener
+import com.github.secretx33.magicwands.eventlisteners.wand.WandPreventCraftListener
+import com.github.secretx33.magicwands.eventlisteners.wand.WandSpellSwitchListener
+import com.github.secretx33.magicwands.eventlisteners.wand.WandUseListener
 import com.github.secretx33.magicwands.manager.*
 import com.github.secretx33.magicwands.packetlisteners.WandDropPacketListener
 import com.github.secretx33.magicwands.repositories.LearnedSpellsRepo
@@ -38,16 +48,16 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { HiddenPlayersHelper(get()) }
         single { ParticlesHelper(get(), get(), get(named("firework"))) }
         single { SpellManager(get(), get(), get(), get(), get()) }
-        single { BlockBreakListener(get(), get(), get()) }
+        single { SpellTeacherBreakListener(get(), get(), get()) }
         single { BlockSpellCastListener(get(), get(), get()) }
         single { EntitySpellCastListener(get(), get()) }
         single { FireworkDamageWorkaroundListener(get(), get(named("firework"))) }
         single { PlayerDeathListener(get(), get(), get()) }
         single { PlayerLeaveListener(get(), get()) }
-        single { PreventCraftListener(get(), get()) }
-        single { PreventWandPickupListener(get()) }
+        single { WandPreventCraftListener(get(), get()) }
+        single { WandPickupPreventListener(get()) }
         single { SpellCastListener(get(), get(), get(), get(), get(), get()) }
-        single { SpellTeacherListener(get(), get(), get(), get(), get(), get()) }
+        single { SpellTeacherUseListener(get(), get(), get(), get(), get(), get()) }
         single { WandSpellSwitchListener(get(), get(), get()) }
         single { WandUseListener(get(), get(), get(), get()) }
         single { Commands(get()) }
@@ -61,17 +71,17 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
             printLogger(Level.ERROR)
             loadKoinModules(mod)
         }
-        get<BlockBreakListener>()
+        get<SpellTeacherBreakListener>()
         get<BlockSpellCastListener>()
         get<EntitySpellCastListener>()
         get<FireworkDamageWorkaroundListener>()
         get<SpellCastListener>()
         get<PlayerDeathListener>()
         get<PlayerLeaveListener>()
-        get<PreventCraftListener>()
-        get<PreventWandPickupListener>()
+        get<WandPreventCraftListener>()
+        get<WandPickupPreventListener>()
         get<SpellCastListener>()
-        get<SpellTeacherListener>()
+        get<SpellTeacherUseListener>()
         get<WandSpellSwitchListener>()
         get<WandUseListener>()
         get<Commands>()

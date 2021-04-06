@@ -16,5 +16,4 @@ class PlayerLeaveListener(plugin: Plugin, private val learnedSpells: LearnedSpel
     private fun PlayerQuitEvent.onPlayerQuit() {
         learnedSpells.removePlayerEntries(player)
     }
-
 }

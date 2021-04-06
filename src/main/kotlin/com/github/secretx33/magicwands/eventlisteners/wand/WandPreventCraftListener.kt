@@ -1,4 +1,4 @@
-package com.github.secretx33.magicwands.eventlisteners
+package com.github.secretx33.magicwands.eventlisteners.wand
 
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
@@ -14,12 +14,12 @@ import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class PreventCraftListener(plugin: Plugin, private val messages: Messages) : Listener {
+class WandPreventCraftListener(plugin: Plugin, private val messages: Messages) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    private fun CraftItemEvent.onCraftUsingStick() {
+    private fun CraftItemEvent.onCraftUsingWand() {
         // is player trying to use a wand to craft something?
         if(!view.topInventory.contents.any { it.isWand() }) return
         val player = view.bottomInventory.holder as? Player

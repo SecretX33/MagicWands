@@ -1,4 +1,4 @@
-package com.github.secretx33.magicwands.eventlisteners
+package com.github.secretx33.magicwands.eventlisteners.spellteacher
 
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
@@ -10,7 +10,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.plugin.Plugin
 
-class BlockBreakListener (
+class SpellTeacherBreakListener (
     plugin: Plugin,
     private val spellTeacher: SpellTeacherRepo,
     private val messages: Messages,

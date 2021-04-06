@@ -24,8 +24,11 @@ class PlayerDeathListener (
     @EventHandler(priority = EventPriority.NORMAL)
     private fun PlayerDeathEvent.onPlayerDeath() {
         hiddenPlayersHelper.invalidateHiddenState(entity)
-        if(keepInventory || !config.get<Boolean>(ConfigKeys.DELETE_WAND_ON_DEATH)) return
+        if(keepInventory || !deleteWandOnDeath) return
         // removing all wands present in the drop
         drops.removeIf { it.isWand() }
     }
+
+    private val deleteWandOnDeath: Boolean
+        get() = config.get(ConfigKeys.DELETE_WAND_ON_DEATH)
 }

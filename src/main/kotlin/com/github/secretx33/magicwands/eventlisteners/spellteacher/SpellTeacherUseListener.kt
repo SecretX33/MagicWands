@@ -1,4 +1,4 @@
-package com.github.secretx33.magicwands.eventlisteners
+package com.github.secretx33.magicwands.eventlisteners.spellteacher
 
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.MessageKeys
@@ -19,7 +19,7 @@ import org.koin.core.component.KoinApiExtension
 import java.text.DecimalFormat
 
 @KoinApiExtension
-class SpellTeacherListener (
+class SpellTeacherUseListener (
     plugin: Plugin,
     private val config: Config,
     private val messages: Messages,

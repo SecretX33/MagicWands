@@ -63,12 +63,11 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun addSpellteacher(teacher: SpellTeacher) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(INSERT_SPELLTEACHER){ conn ->
+            withStatement(INSERT_SPELLTEACHER){
                 setString(1, teacher.location.toJson())
                 setString(2, teacher.spellType.toJson())
                 setString(3, teacher.blockMaterial.toString())
                 execute()
-                conn.commit()
             }
         } catch (e: SQLException) {
             log.severe("${ChatColor.RED}ERROR: An exception occurred while adding a specific Spellteacher (${teacher.location.formattedString()})\n${e.stackTraceToString()}")
@@ -77,11 +76,10 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun addNewEntryForPlayerLearnedSpell(playerUuid: UUID) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(INSERT_LEARNED_SPELLS) { conn ->
+            withStatement(INSERT_LEARNED_SPELLS) {
                 setString(1, playerUuid.toString())
                 setString(2, emptySet<SpellType>().toJson())
                 execute()
-                conn.commit()
             }
         } catch (e: SQLException) {
             log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to add new empty entry for player ${Bukkit.getPlayer(playerUuid)?.name ?: "Unknown"} ($playerUuid) to the database\n${e.stackTraceToString()}")
@@ -92,10 +90,9 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun removeSpellteacher(blockLoc: Location) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(REMOVE_SPELLTEACHER) { conn ->
+            withStatement(REMOVE_SPELLTEACHER) {
                 setString(1, blockLoc.toJson())
                 execute()
-                conn.commit()
             }
         } catch (e: SQLException) {
             log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to remove a Spellteacher from the database\n${e.stackTraceToString()}")
@@ -104,13 +101,12 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     private fun removeSpellteachersByWorldUuid(worldUuids: Iterable<String>) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(REMOVE_SPELLTEACHER_OF_WORLD) { conn ->
+            withStatement(REMOVE_SPELLTEACHER_OF_WORLD) {
                 worldUuids.forEach {
                     setString(1, "%$it%")
                     addBatch()
                 }
                 executeBatch()
-                conn.commit()
             }
         } catch (e: SQLException) {
             log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to buck remove all Spellteachers from worlds\n${e.stackTraceToString()}")
@@ -119,13 +115,12 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     private fun removeSpellteachersByLocation(locations: Iterable<Location>) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(REMOVE_SPELLTEACHER) { conn ->
+            withStatement(REMOVE_SPELLTEACHER) {
                 locations.forEach { loc ->
                     setString(1, loc.toJson())
                     addBatch()
                 }
                 executeBatch()
-                conn.commit()
             }
         } catch (e: SQLException) {
             log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to remove a list of Spellteachers\n${e.stackTraceToString()}")
@@ -134,10 +129,9 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun removePlayerLearnedSpells(playerUuid: UUID) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(REMOVE_LEARNED_SPELLS) { conn ->
+            withStatement(REMOVE_LEARNED_SPELLS) {
                 setString(1, playerUuid.toString())
                 execute()
-                conn.commit()
             }
         } catch (e: SQLException) {
             log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to remove learned spells of player ${Bukkit.getPlayer(playerUuid)?.name} ($playerUuid) from database\n${e.stackTraceToString()}")
@@ -203,11 +197,10 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun updateSpellteacher(newTeacher: SpellTeacher) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(UPDATE_SPELLTEACHER) { conn ->
+            withStatement(UPDATE_SPELLTEACHER) {
                 setString(1, newTeacher.spellType.toJson())
                 setString(2, newTeacher.location.toJson())
                 execute()
-                conn.commit()
             }
         } catch (e: SQLException) {
             log.severe("${ChatColor.RED}ERROR: An exception occurred while updating Spellteacher at ${newTeacher.location.formattedString()} to type ${newTeacher.spellType} to the database\n${e.stackTraceToString()}")
@@ -216,11 +209,10 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun updatePlayerLearnedSpells(playerUuid: UUID, knownSpells: Set<SpellType>) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(UPDATE_LEARNED_SPELLS) { conn ->
+            withStatement(UPDATE_LEARNED_SPELLS) {
                 setString(1, knownSpells.toJson())
                 setString(2, playerUuid.toString())
                 execute()
-                conn.commit()
             }
         } catch (e: SQLException) {
             log.severe("${ChatColor.RED}ERROR: An exception occurred while trying to add player ${Bukkit.getPlayer(playerUuid)?.name ?: "Unknown"} ($playerUuid) knownSpells (${knownSpells.joinToString()}) to the database\n${e.stackTraceToString()}")
@@ -243,19 +235,22 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     private fun Regex.getOrNull(string: String, group: Int) = this.find(string)?.groupValues?.get(group)
 
-    private fun <T> withStatement(statement: String, block: PreparedStatement.(Connection) -> T): T {
+    private fun <T> withStatement(statement: String, prepareBlock: PreparedStatement.() -> T): T {
         ds.connection.use { conn ->
             conn.prepareStatement(statement).use { prep ->
-                return prep.block(conn)
+                return prep.prepareBlock().also { conn.commit() }
             }
         }
     }
 
-    private inline fun <reified T> withQueryStatement(statement: String, noinline prepareBlock: PreparedStatement.() -> ResultSet = { executeQuery() }, resultBlock: (ResultSet) -> T): T {
+    private inline fun <reified T> withQueryStatement(statement: String, noinline prepareBlock: PreparedStatement.() -> Unit = {}, resultBlock: (ResultSet) -> T): T {
         ds.connection.use { conn ->
             conn.prepareStatement(statement).use { prep ->
-                prep.prepareBlock().use { rs ->
-                    return resultBlock(rs)
+                prep.apply {
+                    prepareBlock()
+                    executeQuery().use { rs ->
+                        return resultBlock(rs)
+                    }
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.github.secretx33.magicwands.eventlisteners
+package com.github.secretx33.magicwands.eventlisteners.wand
 
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.MessageKeys
@@ -107,14 +107,9 @@ class WandUseListener (
 
     private fun Entity.isPlayer() = type == EntityType.PLAYER
 
-    private fun EntityDamageEvent.damageIsMelee() = this.cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK
+    private fun EntityDamageEvent.damageIsMelee() = cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK
 
-    private fun Player.canClick(): Boolean {
-        val lastClick = lastClickList.getIfPresent(this)
-        val res = (lastClick == null || (lastClick + clickDelay) < System.currentTimeMillis())
-        if(res) lastClickList.put(this, System.currentTimeMillis()) // adding player to the lastClick list to prevent double clicks
-        return res
-    }
+    private fun Player.canClick(): Boolean = lastClickList.getIfPresent(this).let { it == null || (it + clickDelay) < System.currentTimeMillis() }.also { if(it) lastClickList.put(this, System.currentTimeMillis()) }
 
     private companion object {
         const val clickDelay = 75L

@@ -1,4 +1,4 @@
-package com.github.secretx33.magicwands.eventlisteners
+package com.github.secretx33.magicwands.eventlisteners.wand
 
 import com.github.secretx33.magicwands.utils.ItemUtils
 import com.github.secretx33.magicwands.utils.isWand
@@ -11,12 +11,12 @@ import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinApiExtension
 
 @KoinApiExtension
-class PreventWandPickupListener(plugin: Plugin) : Listener {
+class WandPickupPreventListener(plugin: Plugin) : Listener {
 
-    // work in pair with the WandDropPacketListener, it cancels the packets and this one cancel the actual pickup
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    // works in pair with the WandDropPacketListener, this one cancel the actual pickup and the other cancels the packets
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     private fun EntityPickupItemEvent.onWandPickup() {
         val item = item.itemStack
         if(!item.isWand()) return

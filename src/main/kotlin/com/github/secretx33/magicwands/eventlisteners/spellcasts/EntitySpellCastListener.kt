@@ -1,4 +1,4 @@
-package com.github.secretx33.magicwands.eventlisteners
+package com.github.secretx33.magicwands.eventlisteners.spellcasts
 
 import com.github.secretx33.magicwands.events.EntitySpellCastEvent
 import com.github.secretx33.magicwands.manager.SpellManager

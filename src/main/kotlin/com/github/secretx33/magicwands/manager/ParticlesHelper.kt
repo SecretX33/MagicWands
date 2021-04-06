@@ -17,11 +17,6 @@ class ParticlesHelper (
     private val fireworkId: NamespacedKey
 ) {
 
-    private val globalEffectsEnabled
-        get() = config.get<Boolean>(ConfigKeys.ENABLE_EFFECTS)
-
-    private val spellEffectEnabled = { spellType: SpellType -> config.get(spellType.configEffectEnabled, true) }
-
     fun sendFireworkParticle(loc: Location, spellType: SpellType) {
         if(!globalEffectsEnabled || !spellEffectEnabled(spellType)) return
         val world = loc.world ?: return
@@ -67,6 +62,11 @@ class ParticlesHelper (
             Color.FUCHSIA
         }
     }
+
+    private val globalEffectsEnabled
+        get() = config.get<Boolean>(ConfigKeys.ENABLE_EFFECTS)
+
+    private val spellEffectEnabled = { spellType: SpellType -> config.get(spellType.configEffectEnabled, true) }
 
     private companion object {
         val COLOR_PATTERN = """^(\d+?),\s*(\d+?),\s*(\d+)$""".toRegex()

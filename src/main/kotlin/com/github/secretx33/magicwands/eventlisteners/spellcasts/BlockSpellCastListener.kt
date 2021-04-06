@@ -1,4 +1,4 @@
-package com.github.secretx33.magicwands.eventlisteners
+package com.github.secretx33.magicwands.eventlisteners.spellcasts
 
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
@@ -33,10 +33,8 @@ class BlockSpellCastListener (
     private fun BlockSpellCastEvent.trySpellCast() {
         if(target == null || target.block.type == Material.AIR) {
             isCancelled = true
-            if(player.canSendCDMessage()) {
-                sentMessages.put(player, System.currentTimeMillis())
+            if(player.canSendCDMessage())
                 player.sendMessage(messages.get(MessageKeys.CANNOT_BLINK_TO_THERE))
-            }
         }
     }
 
@@ -45,7 +43,7 @@ class BlockSpellCastListener (
         if(spellType == SpellType.BLINK) spellManager.castBlink(this)
     }
 
-    private fun Player.canSendCDMessage(): Boolean = sentMessages.getIfPresent(this).let { it == null || (it + messageDelay) < System.currentTimeMillis() }
+    private fun Player.canSendCDMessage(): Boolean = sentMessages.getIfPresent(this).let { it == null || (it + messageDelay) < System.currentTimeMillis() }.also { if(it) sentMessages.put(this, System.currentTimeMillis()) }
 
     private companion object {
         const val messageDelay: Long = 750L
