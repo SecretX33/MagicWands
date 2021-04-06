@@ -14,7 +14,6 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.plugin.Plugin
 import java.util.*
 
-
 fun PlayerInteractEvent.isLeftClick() = action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK
 
 fun PlayerInteractEvent.isRightClick() = action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK

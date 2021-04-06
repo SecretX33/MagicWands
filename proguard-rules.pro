@@ -35,14 +35,19 @@
 -keeppackagenames "com.github.secretx33.magicwands"
 
 # Keep public enum names
--keepclassmembers public enum com.github.secretx33.magicwands.** {
+-keepclassmembers,allowoptimization public enum com.github.secretx33.magicwands.** {
     <fields>;
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
 
 # Keep all ProtocolLib packet listeners
--keep,allowobfuscation,allowoptimization public class com.github.secretx33.magicwands.packetlisteners.** { *; }
+#-keep,allowobfuscation,allowoptimization public class com.github.secretx33.magicwands.packetlisteners.** { *; }
+-keepclassmembers,allowoptimization class com.github.secretx33.magicwands.packetlisteners.** {
+    void onPacketSending(com.comphenix.protocol.events.PacketEvent);
+    void onPacketReceiving(com.comphenix.protocol.events.PacketEvent);
+}
+-keepclasseswithmembers,allowobfuscation,allowoptimization class com.github.secretx33.magicwands.packetlisteners.**
 
 # Keep static fields in custom Events
 -keepclassmembers class com.github.secretx33.magicwands.** extends org.bukkit.event.Event {
@@ -51,16 +56,19 @@
 }
 
 # Keep KoinApiExtension annotation
--keep,allowobfuscation @interface com.github.secretx33.dependencies.koin.core.component.KoinApiExtension
+#-keep @interface **KoinApiExtension**
+#-keep class **KoinApiExtension** {*;}
+
+# Remove dependencies obsfuscation to remove bugs factor
+-keep,allowshrinking class com.github.secretx33.dependencies.** { *; }
 
 # If your goal is obfuscating and making things harder to read, repackage your classes with this rule
--repackageclasses "com.github.secretx33.magicwands"
-#-allowaccessmodification
--adaptresourcefilecontents "plugin.yml"
--adaptresourcefilecontents "config.yml"
--adaptresourcefilecontents "messages.yml"
+#-repackageclasses "com.github.secretx33.magicwands"
+-allowaccessmodification
+-mergeinterfacesaggressively
+-adaptresourcefilecontents **.yml,META-INF/MANIFEST.MF
 
-# Some attributes that you'll need to keep (to be honest I'm not sure which ones really need to be kept here, but this is what works for me)
--keepattributes Exceptions,Signature,SourceFile,LineNumberTable,EnclosingMethod,InnerClasses
+# Some attributes that you'll need to keep (if I remove *Annotation* Koin dies)
+-keepattributes Exceptions,Signature,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
 #-keepattributes Exceptions,Signature,Deprecated,LineNumberTable,*Annotation*,EnclosingMethod
 #-keepattributes LocalVariableTable,LocalVariableTypeTable,Exceptions,InnerClasses,Signature,Deprecated,LineNumberTable,*Annotation*,EnclosingMethod
