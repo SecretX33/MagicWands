@@ -43,13 +43,14 @@ class SpellTeacherUseListener (
         }
 
         val price = config.get(spellType.configLearnPrice, -1.0).takeIf { it >= 0.0 } ?: return
+        // if spell is free
         if(price == 0.0) {
-            val balance = economy.getBalance(player, player.world.name)
             player.sendMessage(messages.get(MessageKeys.SUCCESSFULLY_PURCHASED_FREE_SPELL)
                 .replace("<spell>", spellType.displayName))
             learnedSpells.teachSpell(player.uniqueId, spellType)
             return
         }
+        // player doesn't have enough money
         if(!economy.has(player, price)) {
             val balance = economy.getBalance(player, player.world.name)
             player.sendMessage(messages.get(MessageKeys.NOT_ENOUGH_MONEY)
@@ -59,11 +60,13 @@ class SpellTeacherUseListener (
             return
         }
 
+        // withdraw price of the spell from player's balance
         val response = economy.withdrawPlayer(player, price)
         if(!response.transactionSuccess()) {
             player.sendMessage(messages.get(MessageKeys.TRANSACTION_FAILED).replace("<error>", response.errorMessage))
             return
         }
+        // successfully bought spell
         val balance = economy.getBalance(player)
         player.sendMessage(messages.get(MessageKeys.SUCCESSFULLY_PURCHASED_SPELL)
             .replace("<price>", formatter.format(price))
