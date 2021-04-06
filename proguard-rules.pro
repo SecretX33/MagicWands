@@ -13,13 +13,19 @@
 -dontwarn com.sk89q.worldedit**
 -dontwarn com.sk89q.worldguard**
 -dontwarn net.milkbowl.vault.economy**
--dontwarn **metrics**
+-keep class com.github.secretx33.dependencies.magicwands.hikari.metrics.**
+-dontwarn com.codahale.metrics.**
+-keep class com.codahale.metrics.**
+-dontwarn **hikari.metrics**
 -dontwarn javax.crypto.**
 -dontwarn javassist.**
 -dontwarn **slf4j**
 -dontwarn io.micrometer.core.instrument.MeterRegistry
 -dontwarn org.codehaus.mojo.**
+-dontwarn **prometheus**
+-keepnames class com.github.secretx33.dependencies.magicwands.kotlin.coroutines.**
 
+#-dontshrink
 #-dontobfuscate
 #-dontoptimize
 
@@ -41,29 +47,25 @@
     public static ** valueOf(java.lang.String);
 }
 
-# Keep all ProtocolLib packet listeners
-#-keep,allowobfuscation,allowoptimization public class com.github.secretx33.magicwands.packetlisteners.** { *; }
--keepclassmembers,allowoptimization class com.github.secretx33.magicwands.packetlisteners.** {
+# Keep all ProtocolLib packet listeners (this was rough to get working, don't turn on optimization, it ALWAYS breaks the sensible ProtocolLib)
+-keepclassmembers class com.github.secretx33.magicwands.**  {
     void onPacketSending(com.comphenix.protocol.events.PacketEvent);
     void onPacketReceiving(com.comphenix.protocol.events.PacketEvent);
 }
--keepclasseswithmembers,allowobfuscation,allowoptimization class com.github.secretx33.magicwands.packetlisteners.**
 
 # Keep static fields in custom Events
--keepclassmembers class com.github.secretx33.magicwands.** extends org.bukkit.event.Event {
+-keepclassmembers,allowoptimization class com.github.secretx33.magicwands.** extends org.bukkit.event.Event {
     @com.github.secretx33.dependencies.kotlin.jvm.JvmStatic <fields>;
+    public static final <fields>;
     @com.github.secretx33.dependencies.kotlin.jvm.JvmStatic <methods>;
+    public static <methods>;
 }
 
-# Keep KoinApiExtension annotation
-#-keep @interface **KoinApiExtension**
-#-keep class **KoinApiExtension** {*;}
-
 # Remove dependencies obsfuscation to remove bugs factor
--keep,allowshrinking class com.github.secretx33.dependencies.** { *; }
+#-keep,allowshrinking class com.github.secretx33.dependencies.** { *; }
 
 # If your goal is obfuscating and making things harder to read, repackage your classes with this rule
-#-repackageclasses "com.github.secretx33.magicwands"
+-repackageclasses com.github.secretx33.magicwands
 -allowaccessmodification
 -mergeinterfacesaggressively
 -adaptresourcefilecontents **.yml,META-INF/MANIFEST.MF

@@ -68,14 +68,15 @@ artifacts.archives(tasks.shadowJar)
 
 tasks.shadowJar {
     archiveFileName.set(rootProject.name + ".jar")
-    relocate("com.zaxxer.hikari", "com.github.secretx33.dependencies.hikari")
-    relocate("okio", "com.github.secretx33.dependencies.moshi.okio")
-    relocate("org.koin", "com.github.secretx33.dependencies.koin")
-    relocate("org.slf4j", "com.github.secretx33.dependencies.slf4j")
-    relocate("kotlin", "com.github.secretx33.dependencies.kotlin")
-    relocate("kotlinx", "com.github.secretx33.dependencies.kotlinx")
-    relocate("org.jetbrains", "com.github.secretx33.dependencies.jetbrains")
-    relocate("org.intellij", "com.github.secretx33.dependencies.jetbrains.intellij")
+    val dependencyPackage = "dependencies.${rootProject.name.toLowerCase()}"
+    relocate("com.zaxxer.hikari", "com.github.secretx33.${dependencyPackage}.hikari")
+    relocate("okio", "com.github.secretx33.${dependencyPackage}.moshi.okio")
+    relocate("org.koin", "com.github.secretx33.${dependencyPackage}.koin")
+    relocate("org.slf4j", "com.github.secretx33.${dependencyPackage}.slf4j")
+    relocate("kotlin", "com.github.secretx33.${dependencyPackage}.kotlin")
+    relocate("kotlinx", "com.github.secretx33.${dependencyPackage}.kotlinx")
+    relocate("org.jetbrains", "com.github.secretx33.${dependencyPackage}.jetbrains")
+    relocate("org.intellij", "com.github.secretx33.${dependencyPackage}.jetbrains.intellij")
     exclude("DebugProbesKt.bin")
     exclude("META-INF/**")
 }
