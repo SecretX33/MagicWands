@@ -19,7 +19,7 @@ plugins {
 }
 
 group = "com.github.secretx33"
-version = "1.0-SNAPSHOT"
+version = "1.0.1"
 
 repositories {
     jcenter()

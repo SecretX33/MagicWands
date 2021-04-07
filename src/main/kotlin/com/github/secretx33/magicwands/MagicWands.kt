@@ -66,15 +66,11 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
     }
 
     override fun onLoad() {
-//        if(isWorldGuardEnabled) {
-        try {
-            WorldGuardHelper.hookOnWG()
+        if(isWorldGuardEnabled) {
             server.consoleSender.sendMessage("${ChatColor.GREEN}World guard found")
-        } catch (e: ClassNotFoundException) {
-            server.consoleSender.sendMessage("${ChatColor.RED}World guard not found")
+            WorldGuardHelper.hookOnWG()
         }
-//        }
-//        else server.consoleSender.sendMessage("${ChatColor.RED}World guard not found")
+        else server.consoleSender.sendMessage("${ChatColor.RED}World guard not found")
     }
 
     override fun onEnable() {
@@ -112,5 +108,5 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         get() = Bukkit.getPluginManager().isPluginEnabled("ProtocolLib") && get<Config>().get(ConfigKeys.PLAYERS_ONLY_SEE_THEIR_OWN_WANDS)
 
     private val isWorldGuardEnabled
-        get() = Bukkit.getPluginManager().getPlugin("WorldGuard")
+        get() = Bukkit.getPluginManager().getPlugin("WorldGuard") != null
 }
