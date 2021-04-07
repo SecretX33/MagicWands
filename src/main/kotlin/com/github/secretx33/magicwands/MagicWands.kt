@@ -23,7 +23,6 @@ import com.github.secretx33.magicwands.repositories.SpellTeacherRepo
 import com.github.secretx33.magicwands.utils.*
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import org.bukkit.NamespacedKey
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
@@ -40,6 +39,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single<Plugin> { this@MagicWands } bind JavaPlugin::class
         single { get<Plugin>().logger }
         single(named("firework")) { NamespacedKey(get<Plugin>(), "custom_firework") }
+        single<WorldGuardChecker> { WorldGuardCheckerDummy() }
         single { Messages(get()) }
         single { Config(get()) }
         single { SQLite(get(), get()) }
@@ -48,7 +48,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { SpellFuelManager(get()) }
         single { HiddenPlayersHelper(get()) }
         single { ParticlesHelper(get(), get(), get(named("firework"))) }
-        single { SpellManager(get(), get(), get(), get(), get()) }
+        single { SpellManager(get(), get(), get(), get(), get(), get()) }
         single { SpellTeacherBreakListener(get(), get(), get()) }
         single { BlockSpellCastListener(get(), get(), get()) }
         single { EntitySpellCastListener(get(), get()) }
@@ -60,14 +60,18 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { SpellCastListener(get(), get(), get(), get(), get(), get()) }
         single { SpellTeacherUseListener(get(), get(), get(), get(), get(), get()) }
         single { WandSpellSwitchListener(get(), get(), get()) }
-        single { WandUseListener(get(), get(), get(), get()) }
+        single { WandUseListener(get(), get(), get(), get(), get()) }
         single { Commands(get()) }
         single { WandDropPacketListener(get()) }
     }
 
     override fun onLoad() {
-        if(isWorldGuardEnabled)
-            WorldGuardHelper.hookOnWG()
+        // if worldguard is enabled, replace dummy module with real one
+        if(isWorldGuardEnabled) {
+            // forces the creation of the WorldGuardChecker here because WG is bae and requires hooks to
+            val wgChecker = WorldGuardCheckerImpl(logger)
+            mod.single<WorldGuardChecker>(override = true) { wgChecker }
+        }
     }
 
     override fun onEnable() {

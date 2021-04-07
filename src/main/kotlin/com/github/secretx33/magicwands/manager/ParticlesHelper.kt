@@ -4,7 +4,6 @@ import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.model.SpellType
 import org.bukkit.*
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Firework
 import org.bukkit.persistence.PersistentDataType
 import org.koin.core.component.KoinApiExtension

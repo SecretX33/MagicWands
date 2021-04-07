@@ -34,6 +34,12 @@ cooldown-for-notifying-spell-is-cd: 2.0
 # If true and ProtocolLib is present, players will only be able to see their own dropped wands on the ground. This config will also ignore /wand reload because of limitations.
 players-only-see-their-own-wands: true
 
+############################################################
+# +------------------------------------------------------+ #
+# |                    Spell Settings                    | #
+# +------------------------------------------------------+ #
+############################################################
+
 # list of all spell properties
 spells:
   # spell name
@@ -170,6 +176,12 @@ spells:
         - 112, 212, 99
       flicker: false
       trail: false
+
+############################################################
+# +------------------------------------------------------+ #
+# |                 Spell Fuel Settings                  | #
+# +------------------------------------------------------+ #
+############################################################
 
 # Material list here https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html, Ctrl + F is your friend, use the name exactly as listed in the website
 # Add as many fuels as you want, just don't leave this list empty

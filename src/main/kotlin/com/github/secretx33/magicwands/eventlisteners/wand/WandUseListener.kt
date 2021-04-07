@@ -7,7 +7,7 @@ import com.github.secretx33.magicwands.events.BlockSpellCastEvent
 import com.github.secretx33.magicwands.events.EntitySpellCastEvent
 import com.github.secretx33.magicwands.events.SpellCastEvent
 import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
-import com.github.secretx33.magicwands.manager.WorldGuardHelper
+import com.github.secretx33.magicwands.manager.WorldGuardChecker
 import com.github.secretx33.magicwands.model.SpellType.*
 import com.github.secretx33.magicwands.repositories.LearnedSpellsRepo
 import com.github.secretx33.magicwands.utils.*
@@ -36,7 +36,8 @@ class WandUseListener (
     plugin: Plugin,
     private val config: Config,
     private val messages: Messages,
-    private val learnedSpells: LearnedSpellsRepo
+    private val learnedSpells: LearnedSpellsRepo,
+    private val wgChecker: WorldGuardChecker,
 ) : Listener {
 
     init { Bukkit.getPluginManager().registerEvents(this, plugin) }
@@ -106,20 +107,20 @@ class WandUseListener (
         }
 
         // if player is inside antimagic zone
-        if(WorldGuardHelper.isInsideAntimagicZone(this, location)) {
+        if(wgChecker.isInsideAntimagicZone(this, location)) {
             sendMessage(messages.get(MessageKeys.CANNOT_CAST_INSIDE_ANTIMAGICZONE).replace("<spell>", selected.displayName))
             return
         }
         val event = getSpellEvent(this, wand)
 
         // if block is inside antimagic zone
-        if(event is BlockSpellCastEvent && event.target?.block?.location?.let { WorldGuardHelper.isInsideAntimagicZone(this, it) } == true) {
+        if(event is BlockSpellCastEvent && event.target?.block?.location?.let { wgChecker.isInsideAntimagicZone(this, it) } == true) {
             sendMessage(messages.get(MessageKeys.CANNOT_CAST_TARGET_BLOCK_INSIDE_ANTIMAGICZONE))
             return
         }
 
         // if target entity is inside antimagic zone
-        if(event is EntitySpellCastEvent && event.target?.let { WorldGuardHelper.isInsideAntimagicZone(this, it.location) } == true) {
+        if(event is EntitySpellCastEvent && event.target?.let { wgChecker.isInsideAntimagicZone(this, it.location) } == true) {
             sendMessage(messages.get(MessageKeys.CANNOT_CAST_TARGET_ENTITY_INSIDE_ANTIMAGICZONE))
             return
         }

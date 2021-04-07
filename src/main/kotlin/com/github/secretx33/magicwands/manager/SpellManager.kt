@@ -37,6 +37,7 @@ class SpellManager (
     private val messages: Messages,
     private val particlesHelper: ParticlesHelper,
     private val hiddenPlayersHelper: HiddenPlayersHelper,
+    private val wgChecker: WorldGuardChecker,
 ) {
 
     private val cooldown = HashMap<Pair<UUID, SpellType>, Long>()
@@ -131,7 +132,7 @@ class SpellManager (
             target.addPotionEffect(PotionEffect(PotionEffectType.SLOW_DIGGING, (fatigueDuration * 20).toInt(), max(fatiguePotency - 1, 0)))
     }
 
-    private fun Block.playerCanBreak(player: Player): Boolean = type != Material.BEDROCK && !blocksBlackList.contains(location) && WorldGuardHelper.canBreakBlock(this, player)
+    private fun Block.playerCanBreak(player: Player): Boolean = type != Material.BEDROCK && !blocksBlackList.contains(location) && wgChecker.canBreakBlock(this, player)
 
     private fun LivingEntity.makeCuboidAround(): Cuboid {
         val lowerBound = location.apply {
