@@ -66,11 +66,8 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
     }
 
     override fun onLoad() {
-        if(isWorldGuardEnabled) {
-            server.consoleSender.sendMessage("${ChatColor.GREEN}World guard found")
+        if(isWorldGuardEnabled)
             WorldGuardHelper.hookOnWG()
-        }
-        else server.consoleSender.sendMessage("${ChatColor.RED}World guard not found")
     }
 
     override fun onEnable() {

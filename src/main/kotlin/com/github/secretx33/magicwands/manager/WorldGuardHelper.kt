@@ -42,7 +42,7 @@ object WorldGuardHelper : CustomKoinComponent {
     }
 
     fun isInsideAntimagicZone(caster: Player, target: Location): Boolean {
-        if(!isWorldGuardEnabled || antimagicZoneFlag == null || caster.hasPermission("magicwands.hooks.wg.antimagiczone_bypass")) return false
+        if(!isWorldGuardEnabled || antimagicZoneFlag == null || caster.hasPermission("magicwands.bypass.antimagiczone")) return false
 
         val wg = WorldGuard.getInstance()
         val loc = BukkitAdapter.adapt(target)

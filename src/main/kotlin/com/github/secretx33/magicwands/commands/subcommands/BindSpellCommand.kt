@@ -17,7 +17,7 @@ class BindSpellCommand : SubCommand(), CustomKoinComponent {
 
     override val name: String = "bindspell"
     override val permission: String = "bindspell"
-    override val aliases: List<String> = listOf(name, "binds", "bs")
+    override val aliases: List<String> = listOf(name, "binds", "bind", "bs", "b")
 
     private val learnedSpells by inject<LearnedSpellsRepo>()
     private val messages by inject<Messages>()

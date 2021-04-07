@@ -18,7 +18,7 @@ class RemoveSpellCommand  : SubCommand(), CustomKoinComponent {
 
     override val name: String = "removespell"
     override val permission: String = "removespell"
-    override val aliases: List<String> = listOf(name, "removes", "rs")
+    override val aliases: List<String> = listOf(name, "removes", "remove", "unbind", "rs")
 
     private val messages by inject<Messages>()
 

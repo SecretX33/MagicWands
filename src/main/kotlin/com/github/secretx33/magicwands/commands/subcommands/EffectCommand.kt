@@ -17,7 +17,7 @@ class EffectCommand : SubCommand(), CustomKoinComponent {
 
     override val name: String = "effect"
     override val permission: String = "toggleeffect"
-    override val aliases: List<String> = listOf(name)
+    override val aliases: List<String> = listOf(name, "effects", "effect", "te")
 
     private val messages by inject<Messages>()
     private val config by inject<Config>()

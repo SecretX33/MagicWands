@@ -16,7 +16,7 @@ class ForceLearnCommand : SubCommand(), CustomKoinComponent {
 
     override val name: String = "forcelearn"
     override val permission: String = "forcelearn"
-    override val aliases: List<String> = listOf(name)
+    override val aliases: List<String> = listOf(name, "learn", "fl")
 
     private val messages by inject<Messages>()
     private val learnedSpells by inject<LearnedSpellsRepo>()

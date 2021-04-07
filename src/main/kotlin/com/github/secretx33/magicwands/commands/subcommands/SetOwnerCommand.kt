@@ -17,7 +17,7 @@ class SetOwnerCommand : SubCommand(), CustomKoinComponent {
 
     override val name: String = "setowner"
     override val permission: String = "setowner"
-    override val aliases: List<String> = listOf(name, "seto", "so")
+    override val aliases: List<String> = listOf(name, "seto", "so", "newowner", "no")
 
     private val messages by inject<Messages>()
 

@@ -29,7 +29,7 @@ permissions:
       magicwands.skins.stick: true
       magicwands.skins.bone: true
       magicwands.skins.blaze_rod: true
-      magicwands.hooks.wg.antimagiczone_bypass: true
+      magicwands.bypass.antimagiczone: true
 
   magicwands.reload:
     description: Allows one to reload all plugin configurations.
@@ -71,6 +71,6 @@ permissions:
     description: Grant access to the Blaze Rod wand skin.
     default: false
 
-  magicwands.hooks.wg.antimagiczone_bypass:
+  magicwands.bypass.antimagiczone:
     description: Allow one to bypass all WorldGuard antimagic zones.
     default: false

@@ -16,7 +16,7 @@ class ForgetCommand : SubCommand(), CustomKoinComponent {
 
     override val name: String = "forget"
     override val permission: String = "forget"
-    override val aliases: List<String> = listOf(name)
+    override val aliases: List<String> = listOf(name, "for", "f")
 
     private val messages by inject<Messages>()
     private val learnedSpells by inject<LearnedSpellsRepo>()
