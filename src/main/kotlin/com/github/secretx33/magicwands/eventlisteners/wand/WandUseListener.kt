@@ -7,6 +7,7 @@ import com.github.secretx33.magicwands.events.BlockSpellCastEvent
 import com.github.secretx33.magicwands.events.EntitySpellCastEvent
 import com.github.secretx33.magicwands.events.SpellCastEvent
 import com.github.secretx33.magicwands.events.WandSpellSwitchEvent
+import com.github.secretx33.magicwands.manager.WorldGuardHelper
 import com.github.secretx33.magicwands.model.SpellType.*
 import com.github.secretx33.magicwands.repositories.LearnedSpellsRepo
 import com.github.secretx33.magicwands.utils.*
@@ -61,6 +62,7 @@ class WandUseListener (
         }
 
         if(isLeftClick()) {
+            isCancelled = true
             leftClickHandler(player, item)
             return
         }
@@ -82,18 +84,31 @@ class WandUseListener (
 
     private fun Cancellable.leftClickHandler(player: Player, wand: ItemStack) {
         val selected = ItemUtils.getWandSpellOrNull(wand) ?: run {
-            isCancelled = true
             return
         }
+        // if player don't know the spell he's trying to cast
         if (!learnedSpells.knows(player.uniqueId, selected)) {
-            isCancelled = true
             player.sendMessage(
                 messages.get(MessageKeys.CANNOT_CAST_UNKNOWN_SPELL).replace("<spell>", selected.displayName)
             )
             return
         }
+        // if player is inside antimagic zone
+        if(WorldGuardHelper.isInsideAntimagicZone(player, player.location)) {
+            player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_INSIDE_ANTIMAGICZONE).replace("<spell>", selected.displayName))
+            return
+        }
         val event = getSpellEvent(player, wand)
-        isCancelled = true
+        // if block is inside antimagic zone
+        if(event is BlockSpellCastEvent && event.target?.block?.location?.let { WorldGuardHelper.isInsideAntimagicZone(player, it) } == true) {
+            player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_TARGET_BLOCK_INSIDE_ANTIMAGICZONE))
+            return
+        }
+        // if target entity is inside antimagic zone
+        if(event is EntitySpellCastEvent && event.target?.let { WorldGuardHelper.isInsideAntimagicZone(player, it.location) } == true) {
+            player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_TARGET_ENTITY_INSIDE_ANTIMAGICZONE))
+            return
+        }
         Bukkit.getServer().pluginManager.callEvent(event)
     }
 

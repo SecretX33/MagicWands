@@ -23,6 +23,7 @@ import com.github.secretx33.magicwands.repositories.SpellTeacherRepo
 import com.github.secretx33.magicwands.utils.*
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.NamespacedKey
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
@@ -64,6 +65,18 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { WandDropPacketListener(get()) }
     }
 
+    override fun onLoad() {
+//        if(isWorldGuardEnabled) {
+        try {
+            WorldGuardHelper.hookOnWG()
+            server.consoleSender.sendMessage("${ChatColor.GREEN}World guard found")
+        } catch (e: ClassNotFoundException) {
+            server.consoleSender.sendMessage("${ChatColor.RED}World guard not found")
+        }
+//        }
+//        else server.consoleSender.sendMessage("${ChatColor.RED}World guard not found")
+    }
+
     override fun onEnable() {
         val economy = server.servicesManager.load(Economy::class.java)?: throw IllegalStateException("Vault was not found")
         mod.single(override = true) { economy }
@@ -85,9 +98,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         get<WandSpellSwitchListener>()
         get<WandUseListener>()
         get<Commands>()
-        if(wandsAreExclusive) {
-            get<WandDropPacketListener>()
-        }
+        if(wandsAreExclusive) get<WandDropPacketListener>()
     }
 
     override fun onDisable() {
@@ -99,4 +110,7 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
 
     private val wandsAreExclusive
         get() = Bukkit.getPluginManager().isPluginEnabled("ProtocolLib") && get<Config>().get(ConfigKeys.PLAYERS_ONLY_SEE_THEIR_OWN_WANDS)
+
+    private val isWorldGuardEnabled
+        get() = Bukkit.getPluginManager().getPlugin("WorldGuard")
 }
