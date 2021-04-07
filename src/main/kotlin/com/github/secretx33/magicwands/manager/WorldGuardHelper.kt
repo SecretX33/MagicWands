@@ -58,7 +58,6 @@ object WorldGuardHelper : CustomKoinComponent {
         val registry = WorldGuard.getInstance().flagRegistry
         try {
             val flag = BooleanFlag("mw-antimagiczone")
-//            val flag = StateFlag("mw-antimagiczone", false)
             registry.register(flag)
             antimagicZoneFlag = flag
         } catch (e: FlagConflictException) {

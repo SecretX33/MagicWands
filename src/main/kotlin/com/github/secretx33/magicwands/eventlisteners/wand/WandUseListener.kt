@@ -12,6 +12,9 @@ import com.github.secretx33.magicwands.model.SpellType.*
 import com.github.secretx33.magicwands.repositories.LearnedSpellsRepo
 import com.github.secretx33.magicwands.utils.*
 import com.google.common.cache.CacheBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
@@ -68,9 +71,11 @@ class WandUseListener (
         }
 
         if(isRightClick()) {
-            val event = WandSpellSwitchEvent(player, item)
             isCancelled = true
-            Bukkit.getServer().pluginManager.callEvent(event)
+            CoroutineScope(Dispatchers.Default).launch {
+                val event = WandSpellSwitchEvent(player, item)
+                Bukkit.getServer().pluginManager.callEvent(event)
+            }
         }
     }
 
