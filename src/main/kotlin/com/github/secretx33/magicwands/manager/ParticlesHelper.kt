@@ -21,9 +21,10 @@ class ParticlesHelper (
         if(!globalEffectsEnabled || !spellEffectEnabled(spellType)) return
         val world = loc.world ?: return
 
-        val firework = world.spawnEntity(loc, EntityType.FIREWORK) as Firework
-        firework.persistentDataContainer.set(fireworkId, PersistentDataType.BYTE, 1)
-        firework.applyEffects(spellType)
+        val firework = world.spawn(loc, Firework::class.java) {
+            it.persistentDataContainer.set(fireworkId, PersistentDataType.BYTE, 1)
+            it.applyEffects(spellType)
+        }
         firework.detonate()
     }
 
