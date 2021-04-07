@@ -5,6 +5,7 @@ import com.github.secretx33.magicwands.utils.inject
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldguard.WorldGuard
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin
+import com.sk89q.worldguard.protection.flags.BooleanFlag
 import com.sk89q.worldguard.protection.flags.Flag
 import com.sk89q.worldguard.protection.flags.Flags
 import com.sk89q.worldguard.protection.flags.StateFlag
@@ -48,20 +49,22 @@ object WorldGuardHelper : CustomKoinComponent {
         val loc = BukkitAdapter.adapt(target)
         val container = wg.platform.regionContainer
         val query = container.createQuery()
+        val regions = query.getApplicableRegions(loc)
         val localPlayer = WorldGuardPlugin.inst().wrapPlayer(caster)
-        return query.testState(loc, localPlayer, antimagicZoneFlag as StateFlag)
+        return regions.queryValue(localPlayer, antimagicZoneFlag as BooleanFlag) ?: false
     }
 
     fun hookOnWG() {
         val registry = WorldGuard.getInstance().flagRegistry
         try {
-            val flag = StateFlag("mw-antimagiczone", false)
+            val flag = BooleanFlag("mw-antimagiczone")
+//            val flag = StateFlag("mw-antimagiczone", false)
             registry.register(flag)
             antimagicZoneFlag = flag
         } catch (e: FlagConflictException) {
             log.severe("Oops! Seems like another plugin already registered using the flag 'mw-antimagiczone', this should not happen unless perhaps you've used /reload, if not then contact SecretX asap.")
             val existing: Flag<*> = registry["mw-antimagiczone"] ?: return
-            if (existing is StateFlag) {
+            if (existing is BooleanFlag) {
                 antimagicZoneFlag = existing
             } else {
                 log.severe("And even worse, the flag types doesn't match, so MagicWands cannot even try to use the other plugin's flag aka \"compatilibity mode\".")
