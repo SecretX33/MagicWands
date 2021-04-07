@@ -19,7 +19,6 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
-import org.bukkit.event.Cancellable
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -46,6 +45,10 @@ class WandUseListener (
         .expireAfterWrite(clickDelay, TimeUnit.MILLISECONDS)
         .build<Player, Long>()
 
+    private var lastCastList = CacheBuilder.newBuilder()
+        .expireAfterWrite(clickDelay, TimeUnit.MILLISECONDS)
+        .build<Player, Long>()
+
     @EventHandler(priority = EventPriority.NORMAL)
     private fun PlayerInteractEvent.onWandInteract() {
         if(hand != EquipmentSlot.HAND) return
@@ -66,7 +69,7 @@ class WandUseListener (
 
         if(isLeftClick()) {
             isCancelled = true
-            leftClickHandler(player, item)
+            player.castSpellOnWand(item)
             return
         }
 
@@ -79,41 +82,48 @@ class WandUseListener (
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    private fun EntityDamageByEntityEvent.onWandInteract() {
+    @EventHandler(priority = EventPriority.NORMAL)
+    private fun EntityDamageByEntityEvent.onWandAttack() {
         if(!damager.isPlayer() || !damageIsMelee()) return
 
-        val item = (damager as Player).inventory.itemInMainHand
-        if(item.isWand()) isCancelled = true
+        val player = damager as Player
+        val item = player.inventory.itemInMainHand
+        if(item.isWand()){
+            isCancelled = true
+            damage = 0.0
+            player.castSpellOnWand(item)
+        }
     }
 
-    private fun Cancellable.leftClickHandler(player: Player, wand: ItemStack) {
-        val selected = ItemUtils.getWandSpellOrNull(wand) ?: run {
-            return
-        }
+    private fun Player.castSpellOnWand(wand: ItemStack) {
+        if(!canCast()) return
+        val selected = ItemUtils.getWandSpellOrNull(wand) ?: return
+
         // if player don't know the spell he's trying to cast
-        if (!learnedSpells.knows(player.uniqueId, selected)) {
-            player.sendMessage(
-                messages.get(MessageKeys.CANNOT_CAST_UNKNOWN_SPELL).replace("<spell>", selected.displayName)
-            )
+        if (!learnedSpells.knows(uniqueId, selected)) {
+            sendMessage(messages.get(MessageKeys.CANNOT_CAST_UNKNOWN_SPELL).replace("<spell>", selected.displayName))
             return
         }
+
         // if player is inside antimagic zone
-        if(WorldGuardHelper.isInsideAntimagicZone(player, player.location)) {
-            player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_INSIDE_ANTIMAGICZONE).replace("<spell>", selected.displayName))
+        if(WorldGuardHelper.isInsideAntimagicZone(this, location)) {
+            sendMessage(messages.get(MessageKeys.CANNOT_CAST_INSIDE_ANTIMAGICZONE).replace("<spell>", selected.displayName))
             return
         }
-        val event = getSpellEvent(player, wand)
+        val event = getSpellEvent(this, wand)
+
         // if block is inside antimagic zone
-        if(event is BlockSpellCastEvent && event.target?.block?.location?.let { WorldGuardHelper.isInsideAntimagicZone(player, it) } == true) {
-            player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_TARGET_BLOCK_INSIDE_ANTIMAGICZONE))
+        if(event is BlockSpellCastEvent && event.target?.block?.location?.let { WorldGuardHelper.isInsideAntimagicZone(this, it) } == true) {
+            sendMessage(messages.get(MessageKeys.CANNOT_CAST_TARGET_BLOCK_INSIDE_ANTIMAGICZONE))
             return
         }
+
         // if target entity is inside antimagic zone
-        if(event is EntitySpellCastEvent && event.target?.let { WorldGuardHelper.isInsideAntimagicZone(player, it.location) } == true) {
-            player.sendMessage(messages.get(MessageKeys.CANNOT_CAST_TARGET_ENTITY_INSIDE_ANTIMAGICZONE))
+        if(event is EntitySpellCastEvent && event.target?.let { WorldGuardHelper.isInsideAntimagicZone(this, it.location) } == true) {
+            sendMessage(messages.get(MessageKeys.CANNOT_CAST_TARGET_ENTITY_INSIDE_ANTIMAGICZONE))
             return
         }
+        // finally, cast the spell if everything is alright
         Bukkit.getServer().pluginManager.callEvent(event)
     }
 
@@ -130,6 +140,8 @@ class WandUseListener (
     private fun EntityDamageEvent.damageIsMelee() = cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK
 
     private fun Player.canClick(): Boolean = lastClickList.getIfPresent(this).let { it == null || (it + clickDelay) < System.currentTimeMillis() }.also { if(it) lastClickList.put(this, System.currentTimeMillis()) }
+
+    private fun Player.canCast(): Boolean = lastCastList.getIfPresent(this).let { it == null || (it + clickDelay) < System.currentTimeMillis() }.also { if(it) lastCastList.put(this, System.currentTimeMillis()) }
 
     private companion object {
         const val clickDelay = 75L
