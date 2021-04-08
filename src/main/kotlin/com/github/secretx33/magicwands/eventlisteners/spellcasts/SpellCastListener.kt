@@ -55,7 +55,7 @@ class SpellCastListener (
         }
 
         // still in cooldown
-        val cd = spellManager.getSpellCD(player, spellType)
+        val cd = spellManager.getPlayerCDSpell(player, spellType)
         if(cd > 0) {
             isCancelled = true
             if(!player.canSendCDMessage()) return
@@ -76,8 +76,8 @@ class SpellCastListener (
             else -> {}
         }
         ItemUtils.increaseCastCount(wand)
-        val cd = spellManager.getSpellCD(player, spellType)
-        if(isCooldownsEnabled && cd > 0) spellManager.addSpellCD(player, spellType)
+        val cd = config.get(spellType.configCooldown, 0.0)
+        if(isCooldownsEnabled && cd > 0) spellManager.addPlayerCDSpell(player, spellType)
     }
 
     private fun Player.canSendCDMessage(): Boolean {

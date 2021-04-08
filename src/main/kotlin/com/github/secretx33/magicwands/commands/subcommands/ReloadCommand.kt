@@ -3,6 +3,7 @@ package com.github.secretx33.magicwands.commands.subcommands
 import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
+import com.github.secretx33.magicwands.manager.SpellManager
 import com.github.secretx33.magicwands.utils.CustomKoinComponent
 import com.github.secretx33.magicwands.utils.inject
 import org.bukkit.command.CommandSender
@@ -18,6 +19,7 @@ class ReloadCommand : SubCommand(), CustomKoinComponent {
 
     private val config by inject<Config>()
     private val messages by inject<Messages>()
+    private val spellManager by inject<SpellManager>()
 
     override fun onCommandByPlayer(player: Player, alias: String, strings: Array<String>) {
         onCommandByConsole(player, alias, strings)
@@ -26,6 +28,7 @@ class ReloadCommand : SubCommand(), CustomKoinComponent {
     override fun onCommandByConsole(sender: CommandSender, alias: String, strings: Array<String>) {
         config.reload()
         messages.reload()
+        spellManager.reload()
         sender.sendMessage(messages.get(MessageKeys.CONFIGS_RELOADED))
     }
 

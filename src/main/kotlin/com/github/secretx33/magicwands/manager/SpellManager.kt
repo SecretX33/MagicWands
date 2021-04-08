@@ -42,16 +42,22 @@ class SpellManager (
     private val wgChecker: WorldGuardChecker,
 ) {
 
-    private val cooldown = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES).build<Pair<UUID, SpellType>, Long>()
-//    private val cooldown = HashMap<Pair<UUID, SpellType>, Long>()
+    private var spellCooldowns = buildCooldownList()
     private val tempModification = ConcurrentHashMap<Job, TempModification>()
     private val blocksBlackList = HashSet<Location>()
 
-    fun getSpellCD(player: Player, spellType: SpellType): Long
-        = max(0L, (cooldown.getIfPresent(Pair(player.uniqueId, spellType)) ?: 0L) - System.currentTimeMillis())
+    fun reload() { spellCooldowns = buildCooldownList().apply { putAll(spellCooldowns.asMap()) } }
 
-    fun addSpellCD(player: Player, spellType: SpellType) {
-        cooldown.put(Pair(player.uniqueId, spellType), System.currentTimeMillis() + (config.get(spellType.configCooldown, 7.0) * 1000).toLong())
+    private val highestSpellCDInMs
+        get() = SpellType.values().map { config.get(it.configCooldown, 0.0) }.maxOrNull()?.plus(1)?.times(1000)?.toLong() ?: 0
+
+    private fun buildCooldownList() = CacheBuilder.newBuilder().expireAfterWrite(highestSpellCDInMs, TimeUnit.MILLISECONDS).build<Pair<UUID, SpellType>, Long>()
+
+    fun getPlayerCDSpell(player: Player, spellType: SpellType): Long
+        = max(0L, (spellCooldowns.getIfPresent(Pair(player.uniqueId, spellType)) ?: 0L) - System.currentTimeMillis())
+
+    fun addPlayerCDSpell(player: Player, spellType: SpellType) {
+        spellCooldowns.put(Pair(player.uniqueId, spellType), System.currentTimeMillis() + (config.get(spellType.configCooldown, 7.0) * 1000).toLong())
     }
 
     fun castBlind(event: EntitySpellCastEvent) {

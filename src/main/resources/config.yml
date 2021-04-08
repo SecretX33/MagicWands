@@ -33,7 +33,7 @@ remove-spellteacher-from-db-if-world-not-found: true
 cooldown-for-notifying-spell-is-cd: 2.0
 # If true and ProtocolLib is present, players will only be able to see their own dropped wands on the ground. This config will also ignore /wand reload because of limitations.
 players-only-see-their-own-wands: true
-# Prevent fall damage after using leap for X seconds, increase if you feel like it's not enough. This config will ignore /wand reload.
+# Prevent fall damage after using leap for X seconds, increase if you feel like it's not enough. It only provides immunity to fall damage once, it's like a token, once you used it, it's gone and no longer works. This config will ignore /wand reload.
 player-immune-to-fall-damage-after-leaping-for: 3.5
 
 ############################################################

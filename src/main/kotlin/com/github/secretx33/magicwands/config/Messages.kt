@@ -56,7 +56,7 @@ enum class MessageKeys(val default: String) {
     FORGOT_SPELL("${ChatColor.GREEN}You forgot spell <spell>!"),
     GOT_POISONED("${ChatColor.GREEN}You have been poisoned by <caster>."),
     GOT_SLOWED("${ChatColor.GREEN}You have been slowed by <caster>."),
-    HAVENT_BOUGHT_THIS_MATERIAL_SKIN("${ChatColor.RED}You may not turn <item> into a wand, you haven't bought it's skin yet."),
+    HAVENT_BOUGHT_THIS_MATERIAL_SKIN("${ChatColor.RED}You may not turn <item> into a wand, you haven't bought its skin yet."),
     INVALID_SKIN_NAME("${ChatColor.RED}There is no skin named <skin>, please try again."),
     INVALID_WAND_MATERIAL("${ChatColor.RED}<item> cannot be an wand, please use a <allowed_material>."),
     ITEM_NOT_A_WAND("${ChatColor.RED}This item is not a wand!"),
