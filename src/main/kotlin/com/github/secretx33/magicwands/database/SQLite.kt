@@ -183,7 +183,6 @@ class SQLite(plugin: Plugin, private val config: Config) {
         try {
             withQueryStatement(SELECT_LEARNED_SPELLS, {
                 setString(1, playerUuid.toString())
-                executeQuery()
             }) { rs ->
                 if(rs.next()) return rs.getString("known_spells").toSpellTypeSet()
             }

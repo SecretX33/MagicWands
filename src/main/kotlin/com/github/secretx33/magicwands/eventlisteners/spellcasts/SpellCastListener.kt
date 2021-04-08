@@ -4,6 +4,7 @@ import com.github.secretx33.magicwands.config.Config
 import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.config.MessageKeys
 import com.github.secretx33.magicwands.config.Messages
+import com.github.secretx33.magicwands.eventlisteners.sideeffectsmitigation.FallDamageListener
 import com.github.secretx33.magicwands.events.SpellCastEvent
 import com.github.secretx33.magicwands.manager.SpellFuelManager
 import com.github.secretx33.magicwands.manager.SpellManager
@@ -29,6 +30,7 @@ class SpellCastListener (
     private val fuelManager: SpellFuelManager,
     private val spellManager: SpellManager,
     private val learnedSpells: LearnedSpellsRepo,
+    private val fallDamageListener: FallDamageListener,
     private val config: Config,
     private val messages: Messages,
 ) : Listener {
@@ -69,12 +71,13 @@ class SpellCastListener (
         if(isFuelEnabled) fuelManager.consumeFuel(player, spellType)
 
         when(spellType){
-            LEAP -> spellManager.castLeap(this)
+            LEAP -> spellManager.castLeap(this).also { fallDamageListener.addFallDamageImmunity(player) }
             VANISH -> spellManager.castVanish(this)
             else -> {}
         }
         ItemUtils.increaseCastCount(wand)
-        if(isCooldownsEnabled) spellManager.addSpellCD(player, spellType)
+        val cd = spellManager.getSpellCD(player, spellType)
+        if(isCooldownsEnabled && cd > 0) spellManager.addSpellCD(player, spellType)
     }
 
     private fun Player.canSendCDMessage(): Boolean {

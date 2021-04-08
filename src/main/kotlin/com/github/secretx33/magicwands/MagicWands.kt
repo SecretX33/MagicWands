@@ -6,9 +6,10 @@ import com.github.secretx33.magicwands.config.ConfigKeys
 import com.github.secretx33.magicwands.config.Messages
 import com.github.secretx33.magicwands.database.SQLite
 import com.github.secretx33.magicwands.eventlisteners.*
+import com.github.secretx33.magicwands.eventlisteners.sideeffectsmitigation.FallDamageListener
+import com.github.secretx33.magicwands.eventlisteners.sideeffectsmitigation.FireworkDamageWorkaroundListener
 import com.github.secretx33.magicwands.eventlisteners.spellcasts.BlockSpellCastListener
 import com.github.secretx33.magicwands.eventlisteners.spellcasts.EntitySpellCastListener
-import com.github.secretx33.magicwands.eventlisteners.spellcasts.FireworkDamageWorkaroundListener
 import com.github.secretx33.magicwands.eventlisteners.spellcasts.SpellCastListener
 import com.github.secretx33.magicwands.eventlisteners.spellteacher.SpellTeacherBreakListener
 import com.github.secretx33.magicwands.eventlisteners.spellteacher.SpellTeacherUseListener
@@ -49,18 +50,19 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
         single { HiddenPlayersHelper(get()) }
         single { ParticlesHelper(get(), get(), get(named("firework"))) }
         single { SpellManager(get(), get(), get(), get(), get(), get()) }
-        single { SpellTeacherBreakListener(get(), get(), get()) }
+        single { FallDamageListener(get(), get()) }
+        single { FireworkDamageWorkaroundListener(get(), get(named("firework"))) }
         single { BlockSpellCastListener(get(), get(), get()) }
         single { EntitySpellCastListener(get(), get()) }
-        single { FireworkDamageWorkaroundListener(get(), get(named("firework"))) }
-        single { PlayerDeathListener(get(), get(), get()) }
-        single { PlayerLeaveListener(get(), get()) }
-        single { WandPreventCraftListener(get(), get()) }
-        single { WandPickupPreventListener(get()) }
-        single { SpellCastListener(get(), get(), get(), get(), get(), get()) }
+        single { SpellCastListener(get(), get(), get(), get(), get(), get(), get()) }
+        single { SpellTeacherBreakListener(get(), get(), get()) }
         single { SpellTeacherUseListener(get(), get(), get(), get(), get(), get()) }
+        single { WandPickupPreventListener(get()) }
+        single { WandPreventCraftListener(get(), get()) }
         single { WandSpellSwitchListener(get(), get(), get()) }
         single { WandUseListener(get(), get(), get(), get(), get()) }
+        single { PlayerDeathListener(get(), get(), get()) }
+        single { PlayerLeaveListener(get(), get()) }
         single { Commands(get()) }
         single { WandDropPacketListener(get()) }
     }
@@ -68,31 +70,31 @@ class MagicWands : JavaPlugin(), CustomKoinComponent {
     override fun onLoad() {
         // if worldguard is enabled, replace dummy module with real one
         if(isWorldGuardEnabled) {
-            // forces the creation of the WorldGuardChecker here because WG is bae and requires hooks to
+            // creation of the WorldGuardChecker happens here because WG is bae and requires hooking to happen on method onLoad
             val wgChecker = WorldGuardCheckerImpl(logger)
             mod.single<WorldGuardChecker>(override = true) { wgChecker }
         }
     }
 
     override fun onEnable() {
-        val economy = server.servicesManager.load(Economy::class.java)?: throw IllegalStateException("Vault was not found")
+        val economy = server.servicesManager.load(Economy::class.java) ?: throw IllegalStateException("Vault was not found")
         mod.single(override = true) { economy }
         startKoin {
             printLogger(Level.ERROR)
             loadKoinModules(mod)
         }
-        get<SpellTeacherBreakListener>()
+        get<FallDamageListener>()
+        get<FireworkDamageWorkaroundListener>()
         get<BlockSpellCastListener>()
         get<EntitySpellCastListener>()
-        get<FireworkDamageWorkaroundListener>()
         get<SpellCastListener>()
+        get<SpellTeacherBreakListener>()
+        get<SpellTeacherUseListener>()
+        get<WandPickupPreventListener>()
+        get<WandPreventCraftListener>()
+        get<WandSpellSwitchListener>()
         get<PlayerDeathListener>()
         get<PlayerLeaveListener>()
-        get<WandPreventCraftListener>()
-        get<WandPickupPreventListener>()
-        get<SpellCastListener>()
-        get<SpellTeacherUseListener>()
-        get<WandSpellSwitchListener>()
         get<WandUseListener>()
         get<Commands>()
         if(wandsAreExclusive) get<WandDropPacketListener>()

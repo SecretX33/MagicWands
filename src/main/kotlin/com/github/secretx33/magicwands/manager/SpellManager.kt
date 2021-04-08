@@ -11,6 +11,7 @@ import com.github.secretx33.magicwands.model.Cuboid
 import com.github.secretx33.magicwands.model.SpellType
 import com.github.secretx33.magicwands.model.TempModification
 import com.github.secretx33.magicwands.utils.runSync
+import com.google.common.cache.CacheBuilder
 import kotlinx.coroutines.*
 import org.bukkit.Location
 import org.bukkit.Material
@@ -27,6 +28,7 @@ import org.koin.core.component.KoinApiExtension
 import java.lang.StrictMath.pow
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import kotlin.collections.HashSet
 import kotlin.math.*
 
@@ -40,15 +42,16 @@ class SpellManager (
     private val wgChecker: WorldGuardChecker,
 ) {
 
-    private val cooldown = HashMap<Pair<UUID, SpellType>, Long>()
+    private val cooldown = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES).build<Pair<UUID, SpellType>, Long>()
+//    private val cooldown = HashMap<Pair<UUID, SpellType>, Long>()
     private val tempModification = ConcurrentHashMap<Job, TempModification>()
     private val blocksBlackList = HashSet<Location>()
 
     fun getSpellCD(player: Player, spellType: SpellType): Long
-        = max(0L, (cooldown.getOrDefault(Pair(player.uniqueId, spellType), 0L) - System.currentTimeMillis()))
+        = max(0L, (cooldown.getIfPresent(Pair(player.uniqueId, spellType)) ?: 0L) - System.currentTimeMillis())
 
     fun addSpellCD(player: Player, spellType: SpellType) {
-        cooldown[Pair(player.uniqueId, spellType)] = System.currentTimeMillis() + config.get(spellType.configCooldown, 7.0).toLong() * 1000
+        cooldown.put(Pair(player.uniqueId, spellType), System.currentTimeMillis() + (config.get(spellType.configCooldown, 7.0) * 1000).toLong())
     }
 
     fun castBlind(event: EntitySpellCastEvent) {

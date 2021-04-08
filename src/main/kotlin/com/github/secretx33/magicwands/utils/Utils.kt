@@ -6,6 +6,7 @@ import org.bukkit.Location
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.text.WordUtils
+import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
@@ -42,3 +43,5 @@ fun Block.isAir() = type.isAir
 fun Block.coordinates(): String = "${location.x.toLong()} ${location.y.toLong()} ${location.z.toLong()}"
 
 fun Location.formattedString(): String = "World: ${world?.name ?: "Unknown"}, ${x.toLong()}, ${y.toLong()}, ${z.toLong()}"
+
+fun Entity.isPlayer() = type == EntityType.PLAYER

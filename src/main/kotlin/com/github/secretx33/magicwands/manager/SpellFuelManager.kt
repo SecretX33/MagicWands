@@ -10,6 +10,7 @@ class SpellFuelManager(private val config: Config) {
 
     fun hasEnoughFuel(player: Player, spell: SpellType): Boolean {
         val quantityNeeded = config.get(spell.configFuelAmount, 5)
+        if(quantityNeeded <= 0) return true
         val fuelList = configFuels
         val inv = player.inventory
 
@@ -22,6 +23,7 @@ class SpellFuelManager(private val config: Config) {
 
     fun consumeFuel(player: Player, spell: SpellType) {
         var quantityNeeded = config.get(spell.configFuelAmount, 5)
+        if(quantityNeeded <= 0) return
         val fuelList = configFuels
 
         for(item in player.inventory.filterNotNull()) {

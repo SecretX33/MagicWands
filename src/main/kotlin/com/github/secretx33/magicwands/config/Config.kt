@@ -42,6 +42,7 @@ enum class ConfigKeys(val configEntry: String, val defaultValue: Any) {
     DELETE_WAND_ON_DEATH("delete-wand-on-death", false),
     DISABLE_ALL_COOLDOWNS("disable-all-cooldowns", false),
     DISABLE_FUEL_USAGE("disable-fuel-usage", false),
+    FALL_DAMAGE_IMMUNE_PERIOD("player-immune-to-fall-damage-after-leaping-for", 3.0),
     ENABLE_EFFECTS("enable-spell-effects", true),
     ENABLE_MESSAGE_ON_SPELL_SWITCH("enable-message-on-spell-switch", true),
     PLAYERS_ONLY_SEE_THEIR_OWN_WANDS("players-only-see-their-own-wands", true),

@@ -20,7 +20,7 @@ plugins {
 }
 
 group = "com.github.secretx33"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     jcenter()
@@ -74,7 +74,7 @@ tasks.register<proguard.gradle.ProGuardTask>("proguard") {
     configuration("proguard-rules.pro")
 }
 
-tasks.build.get().finalizedBy(tasks.getByName("proguard"))
+//tasks.build.get().finalizedBy(tasks.getByName("proguard"))
 
 tasks.withType<JavaCompile> { options.encoding = "UTF-8" }
 

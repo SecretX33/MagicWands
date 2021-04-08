@@ -16,8 +16,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.bukkit.Bukkit
-import org.bukkit.entity.Entity
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -135,8 +133,6 @@ class WandUseListener (
             else -> SpellCastEvent(player, wand, type)
         }
     }
-
-    private fun Entity.isPlayer() = type == EntityType.PLAYER
 
     private fun EntityDamageEvent.damageIsMelee() = cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK
 

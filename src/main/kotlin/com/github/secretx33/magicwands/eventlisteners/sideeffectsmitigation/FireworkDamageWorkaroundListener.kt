@@ -1,4 +1,4 @@
-package com.github.secretx33.magicwands.eventlisteners.spellcasts
+package com.github.secretx33.magicwands.eventlisteners.sideeffectsmitigation
 
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
