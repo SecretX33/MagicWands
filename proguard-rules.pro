@@ -1,5 +1,5 @@
 -injars  build/libs/MagicWands.jar
--outjars build/libs/proguard.jar
+-outjars build/libs/MagicWands-minified.jar
 
 -libraryjar "C:\Program Files\Java\jdk1.8.0_281\jre\lib\rt.jar"
 -libraryjar "D:\Local Disk\Users\User\Documents\GitHub\MagicWands\libs\spigot-1.16.5.jar"

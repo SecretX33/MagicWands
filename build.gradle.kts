@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.guardsquare:proguard-gradle:7.0.0")/* {
+        classpath("com.guardsquare:proguard-gradle:7.0.1")/* {
             exclude("com.android.tools.build")
         }*/
     }
@@ -20,7 +20,7 @@ plugins {
 }
 
 group = "com.github.secretx33"
-version = "1.0.4"
+version = "1.0.5"
 
 repositories {
     jcenter()

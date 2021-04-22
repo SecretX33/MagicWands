@@ -12,11 +12,14 @@ import com.google.gson.reflect.TypeToken
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.plugin.Plugin
+import org.intellij.lang.annotations.Language
 import java.io.IOException
 import java.lang.reflect.Type
 import java.sql.Connection
@@ -29,6 +32,7 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     private val log = plugin.logger
     private val dbFile = plugin.dataFolder.absoluteFile.resolve("database").resolve("sqlite.db")
+    private val learnedSpellsLock = Semaphore(1)
 
     init {
         try {
@@ -44,7 +48,9 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     init { initialize() }
 
-    fun close() = ds.safeClose()
+    fun close() = runBlocking {
+        learnedSpellsLock.withPermit { ds.safeClose() }
+    }
 
     private fun initialize() {
         try {
@@ -76,7 +82,7 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun addNewEntryForPlayerLearnedSpell(playerUuid: UUID) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(INSERT_LEARNED_SPELLS) {
+            withStatement(INSERT_LEARNED_SPELLS, learnedSpellsLock) {
                 setString(1, playerUuid.toString())
                 setString(2, emptySet<SpellType>().toJson())
                 execute()
@@ -129,7 +135,7 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun removePlayerLearnedSpells(playerUuid: UUID) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(REMOVE_LEARNED_SPELLS) {
+            withStatement(REMOVE_LEARNED_SPELLS, learnedSpellsLock) {
                 setString(1, playerUuid.toString())
                 execute()
             }
@@ -208,7 +214,7 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     fun updatePlayerLearnedSpells(playerUuid: UUID, knownSpells: Set<SpellType>) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            withStatement(UPDATE_LEARNED_SPELLS) {
+            withStatement(UPDATE_LEARNED_SPELLS, learnedSpellsLock) {
                 setString(1, knownSpells.toJson())
                 setString(2, playerUuid.toString())
                 execute()
@@ -234,7 +240,7 @@ class SQLite(plugin: Plugin, private val config: Config) {
 
     private fun Regex.getOrNull(string: String, group: Int) = this.find(string)?.groupValues?.get(group)
 
-    private fun <T> withStatement(statement: String, prepareBlock: PreparedStatement.() -> T): T {
+    private fun <T> withStatement(@Language("SQL") statement: String, prepareBlock: PreparedStatement.() -> T): T {
         ds.connection.use { conn ->
             conn.prepareStatement(statement).use { prep ->
                 return prep.prepareBlock().also { conn.commit() }
@@ -242,7 +248,17 @@ class SQLite(plugin: Plugin, private val config: Config) {
         }
     }
 
-    private inline fun <reified T> withQueryStatement(statement: String, noinline prepareBlock: PreparedStatement.() -> Unit = {}, resultBlock: (ResultSet) -> T): T {
+    private suspend fun <T> withStatement(@Language("SQL") statement: String, semaphore: Semaphore, prepareBlock: PreparedStatement.() -> T): T {
+        semaphore.withPermit {
+            ds.connection.use { conn ->
+                conn.prepareStatement(statement).use { prep ->
+                    return prep.prepareBlock().also { conn.commit() }
+                }
+            }
+        }
+    }
+
+    private inline fun <reified T> withQueryStatement(@Language("SQL") statement: String, noinline prepareBlock: PreparedStatement.() -> Unit = {}, resultBlock: (ResultSet) -> T): T {
         ds.connection.use { conn ->
             conn.prepareStatement(statement).use { prep ->
                 prep.apply {
